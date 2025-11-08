@@ -7,8 +7,10 @@ import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
-@ApplicationScoped //UserAdapter kann über @Inject injiziert werden und durch applicationscoped wird sichergestellt, dass die klasse nur einmal erstellt wird und überall benutzt wird.
+@ApplicationScoped
+//UserAdapter kann über @Inject injiziert werden und durch applicationscoped wird sichergestellt, dass die klasse nur einmal erstellt wird und überall benutzt wird.
 public class UserAdapter implements UserPort {
 
     @PersistenceContext //entitymanager wird automatisch gefüllt
@@ -16,6 +18,7 @@ public class UserAdapter implements UserPort {
 
 
     @Override
+    @Transactional
     public User save(User user) {
         UserEntity entity = UserMapper.toEntity(user);
         em.persist(entity);
@@ -24,7 +27,9 @@ public class UserAdapter implements UserPort {
 
     @Override
     public User findByEmail(String email) {
-        UserEntity entity = em.find(UserEntity.class, email);
+        UserEntity entity = em.createQuery("select u from UserEntity u where u.email = :email", UserEntity.class)
+                .setParameter("email", email)
+                .getSingleResult();
         return UserMapper.toDomain(entity);
     }
 }

@@ -10,20 +10,25 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-
+    @Column(nullable = false)
     String firstName;
+    @Column(nullable = false)
     String lastName;
+    @Column(unique = true, nullable = false)
     String email;
+    @Column(nullable = false)
     String password;
-
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     Gender gender;
+    @Column(nullable = false)
     LocalDateTime bornOn;
+    @Column(nullable = false)
     LocalDateTime createdAt;
 
     @PrePersist//ist so jpa konform(keine abhängigkeit zu hibernate)
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     public UserEntity() {
