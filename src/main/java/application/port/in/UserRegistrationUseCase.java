@@ -1,8 +1,8 @@
 package application.port.in;
 
+import domain.Results.RegisterUserResult;
 import domain.model.User;
 
 public interface UserRegistrationUseCase {
-    //eventuell Parameter mit DTO ersetzen
-    User registerUser(User user);
+    RegisterUserResult registerUser(User user);
 }

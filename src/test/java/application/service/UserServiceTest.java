@@ -2,6 +2,7 @@ package application.service;
 
 import application.port.out.FindUserByEmailPort;
 import application.port.out.SaveUserPort;
+import domain.Results.RegisterUserResult;
 import domain.model.User;
 import domain.valueobject.Gender;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,11 +36,10 @@ public class UserServiceTest {
         User user = new User("firstname", "lastname", email, "password", Gender.MALE, LocalDateTime.of(2000, 1, 1, 0, 0, 0));
         when(findUserByEmailPort.findByEmail(email)).thenReturn(null);
         when(saveUserPort.save(user)).thenReturn(user);
-        try {
-            userService.registerUser(user);
-        } catch (IllegalArgumentException e) {
-            fail(e.getMessage());
-        }
+
+        var result = userService.registerUser(user);
+        assertTrue(result instanceof RegisterUserResult.Success);
+
         verify(findUserByEmailPort, times(1)).findByEmail(email);
         verify(saveUserPort, times(1)).save(user);
     }
@@ -48,10 +48,11 @@ public class UserServiceTest {
     void testRegisterUserEmptyFields() {
         User user = new User("", "", "", "", Gender.MALE, null);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> userService.registerUser(user));
+        var registerUserResult = userService.registerUser(user);
 
-        assertEquals("Fields cannot be empty", ex.getMessage());
+        assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
+        assertEquals(RegisterUserResult.FailureReason.FIELD_EMPTY, ((RegisterUserResult.Failure) registerUserResult).reason());
+
         verify(saveUserPort, never()).save(any());
     }
 
@@ -59,10 +60,9 @@ public class UserServiceTest {
     void testRegisterUserPasswordTooShort() {
         User user = new User("John", "Doe", "john@example.com", "123", Gender.MALE, LocalDateTime.of(2000, 1, 1, 0, 0, 0));
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> userService.registerUser(user));
-
-        assertEquals("Password length should be at least 6 characters", ex.getMessage());
+        var registerUserResult = userService.registerUser(user);
+        assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
+        assertEquals(RegisterUserResult.FailureReason.PASSWORD_TOO_WEAK, ((RegisterUserResult.Failure) registerUserResult).reason());
         verify(saveUserPort, never()).save(any());
     }
 
@@ -71,10 +71,10 @@ public class UserServiceTest {
         LocalDateTime futureDate = LocalDateTime.now().plusDays(1);
         User user = new User("John", "Doe", "john@example.com", "password123", Gender.MALE, futureDate);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> userService.registerUser(user));
+        var registerUserResult = userService.registerUser(user);
+        assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
+        assertEquals(RegisterUserResult.FailureReason.INVALID_BIRTHDAY, ((RegisterUserResult.Failure) registerUserResult).reason());
 
-        assertEquals("Birth date cannot be in the future", ex.getMessage());
         verify(saveUserPort, never()).save(any());
     }
 
@@ -85,10 +85,10 @@ public class UserServiceTest {
 
         when(findUserByEmailPort.findByEmail(user.getEmail())).thenReturn(user);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> userService.registerUser(user));
+        var registerUserResult = userService.registerUser(user);
+        assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
+        assertEquals(RegisterUserResult.FailureReason.USER_ALREADY_EXISTS, ((RegisterUserResult.Failure) registerUserResult).reason());
 
-        assertEquals("Email already exists", ex.getMessage());
         verify(findUserByEmailPort, times(1)).findByEmail(user.getEmail());
         verify(saveUserPort, never()).save(any());
     }
