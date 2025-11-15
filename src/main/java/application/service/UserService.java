@@ -1,7 +1,8 @@
 package application.service;
 
 import application.port.in.UserRegistrationUseCase;
-import application.port.out.UserPort;
+import application.port.out.FindUserByEmailPort;
+import application.port.out.SaveUserPort;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,7 +13,10 @@ import java.time.LocalDateTime;
 public class UserService implements UserRegistrationUseCase {
 
     @Inject
-    UserPort userPort;
+    FindUserByEmailPort findUserByEmailPort;
+
+    @Inject
+    SaveUserPort saveUserPort;
 
     @Override//evtl. noch komplexere validierungen machen
     public User registerUser(User user) {
@@ -25,10 +29,10 @@ public class UserService implements UserRegistrationUseCase {
         if (user.getBornOn().isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("Birth date cannot be in the future");
         }
-        if (userPort.findByEmail(user.getEmail()) != null) {
+        if (findUserByEmailPort.findByEmail(user.getEmail()) != null) {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        return userPort.save(user);
+        return saveUserPort.save(user);
     }
 }

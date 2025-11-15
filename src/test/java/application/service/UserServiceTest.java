@@ -1,6 +1,7 @@
 package application.service;
 
-import application.port.out.UserPort;
+import application.port.out.FindUserByEmailPort;
+import application.port.out.SaveUserPort;
 import domain.model.User;
 import domain.valueobject.Gender;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,13 +16,16 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     UserService userService;
-    UserPort userPort;
+    FindUserByEmailPort findUserByEmailPort;
+    SaveUserPort saveUserPort;
 
     @BeforeEach
     void setup() {
-        userPort = mock(UserPort.class);
+        findUserByEmailPort = mock(FindUserByEmailPort.class);
+        saveUserPort = mock(SaveUserPort.class);
         userService = new UserService();
-        userService.userPort = userPort;  // assign mock manually
+        userService.saveUserPort = saveUserPort;  // assign mock manually
+        userService.findUserByEmailPort = findUserByEmailPort;
     }
 
 
@@ -29,15 +33,15 @@ public class UserServiceTest {
     public void testRegisterUser() {
         String email = "email@email";
         User user = new User("firstname", "lastname", email, "password", Gender.MALE, LocalDateTime.of(2000, 1, 1, 0, 0, 0));
-        when(userPort.findByEmail(email)).thenReturn(null);
-        when(userPort.save(user)).thenReturn(user);
+        when(findUserByEmailPort.findByEmail(email)).thenReturn(null);
+        when(saveUserPort.save(user)).thenReturn(user);
         try {
             userService.registerUser(user);
         } catch (IllegalArgumentException e) {
             fail(e.getMessage());
         }
-        verify(userPort, times(1)).findByEmail(email);
-        verify(userPort, times(1)).save(user);
+        verify(findUserByEmailPort, times(1)).findByEmail(email);
+        verify(saveUserPort, times(1)).save(user);
     }
 
     @Test
@@ -48,7 +52,7 @@ public class UserServiceTest {
                 () -> userService.registerUser(user));
 
         assertEquals("Fields cannot be empty", ex.getMessage());
-        verify(userPort, never()).save(any());
+        verify(saveUserPort, never()).save(any());
     }
 
     @Test
@@ -59,7 +63,7 @@ public class UserServiceTest {
                 () -> userService.registerUser(user));
 
         assertEquals("Password length should be at least 6 characters", ex.getMessage());
-        verify(userPort, never()).save(any());
+        verify(saveUserPort, never()).save(any());
     }
 
     @Test
@@ -71,7 +75,7 @@ public class UserServiceTest {
                 () -> userService.registerUser(user));
 
         assertEquals("Birth date cannot be in the future", ex.getMessage());
-        verify(userPort, never()).save(any());
+        verify(saveUserPort, never()).save(any());
     }
 
     @Test
@@ -79,14 +83,14 @@ public class UserServiceTest {
         User user = new User("John", "Doe", "john@example.com", "password123", Gender.MALE,
                 LocalDateTime.of(2000, 1, 1, 0, 0));
 
-        when(userPort.findByEmail(user.getEmail())).thenReturn(user);
+        when(findUserByEmailPort.findByEmail(user.getEmail())).thenReturn(user);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> userService.registerUser(user));
 
         assertEquals("Email already exists", ex.getMessage());
-        verify(userPort, times(1)).findByEmail(user.getEmail());
-        verify(userPort, never()).save(any());
+        verify(findUserByEmailPort, times(1)).findByEmail(user.getEmail());
+        verify(saveUserPort, never()).save(any());
     }
 
 }

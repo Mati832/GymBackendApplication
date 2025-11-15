@@ -2,8 +2,6 @@ package application.port.out;
 
 import domain.model.User;
 
-public interface UserPort {
+public interface SaveUserPort {
     User save(User user);
-    User findByEmail(String email);
-    //find, delete...
 }
