@@ -1,8 +1,9 @@
 package adapter.out;
 
-import adapter.mapper.UserMapper;
+import static adapter.mapper.UserMapper.*;
 import adapter.out.Entities.UserEntity;
 import application.port.out.FindUserByEmailPort;
+import application.port.out.FindUserByIdPort;
 import application.port.out.SaveUserPort;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,18 +13,18 @@ import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 //UserAdapter kann über @Inject injiziert werden und durch applicationscoped wird sichergestellt, dass die klasse nur einmal erstellt wird und überall benutzt wird.
-public class UserAdapter implements SaveUserPort, FindUserByEmailPort {
+public class JPAUserAdapter implements SaveUserPort, FindUserByEmailPort, FindUserByIdPort {
 
     @PersistenceContext //entitymanager wird automatisch gefüllt
     EntityManager em;
 
-
+    //Used a static import on UserMapper.toEntity() -> toEntity()
     @Override
     @Transactional
     public User save(User user) {
-        UserEntity entity = UserMapper.toEntity(user);
+        UserEntity entity = toEntity(user);
         em.persist(entity);
-        return UserMapper.toDomain(entity);
+        return toDomain(entity);
     }
 
     @Override
@@ -31,6 +32,11 @@ public class UserAdapter implements SaveUserPort, FindUserByEmailPort {
         UserEntity entity = em.createQuery("select u from UserEntity u where u.email = :email", UserEntity.class)
                 .setParameter("email", email)
                 .getSingleResult();
-        return UserMapper.toDomain(entity);
+        return toDomain(entity);
+    }
+
+    @Override
+    public User findUserById(Long id) {
+        return toDomain(em.find(UserEntity.class, id));
     }
 }

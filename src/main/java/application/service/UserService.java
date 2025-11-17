@@ -1,7 +1,9 @@
 package application.service;
 
+import application.port.in.FindUserByIdUseCase;
 import application.port.in.UserRegistrationUseCase;
 import application.port.out.FindUserByEmailPort;
+import application.port.out.FindUserByIdPort;
 import application.port.out.SaveUserPort;
 import static domain.Results.RegisterUserResult.FailureReason.*;
 import domain.Results.RegisterUserResult;
@@ -12,13 +14,16 @@ import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 
 @ApplicationScoped
-public class UserService implements UserRegistrationUseCase {
+public class UserService implements UserRegistrationUseCase, FindUserByIdUseCase {
 
     @Inject
     FindUserByEmailPort findUserByEmailPort;
 
     @Inject
     SaveUserPort saveUserPort;
+
+    @Inject
+    FindUserByIdPort findUserByIdPort;
 
     @Override//evtl. noch komplexere validierungen machen
     public RegisterUserResult registerUser(User user) {
@@ -36,5 +41,10 @@ public class UserService implements UserRegistrationUseCase {
         }
 
         return new RegisterUserResult.Success(saveUserPort.save(user));
+    }
+
+    @Override
+    public User findUserById(Long id){
+        return findUserByIdPort.findUserById(id);
     }
 }

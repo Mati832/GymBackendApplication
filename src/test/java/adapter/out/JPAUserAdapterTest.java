@@ -13,14 +13,14 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @QuarkusTest
-public class UserAdapterTest {
+public class JPAUserAdapterTest {
     @Inject
-    UserAdapter userAdapter;
+    JPAUserAdapter JPAUserAdapter;
 
     @Test
     void createUserTest() {
         User user = new User("name", "lastname", "email", "password", Gender.MALE, LocalDateTime.now());
-        User save = userAdapter.save(user);
+        User save = JPAUserAdapter.save(user);
         assertEquals(user.getFirstName(), save.getFirstName());
         assertEquals(user.getLastName(), save.getLastName());
         assertEquals(user.getEmail(), save.getEmail());
@@ -34,8 +34,8 @@ public class UserAdapterTest {
     @Test
     void findByEmailTest() {
         User user = new User("name", "lastname", "email", "password", Gender.MALE, LocalDateTime.now());
-        User save = userAdapter.save(user);
-        User byEmail = userAdapter.findByEmail(user.getEmail());
+        User save = JPAUserAdapter.save(user);
+        User byEmail = JPAUserAdapter.findByEmail(user.getEmail());
         assertEquals(user.getFirstName(), byEmail.getFirstName());
         assertEquals(user.getLastName(), byEmail.getLastName());
         assertEquals(user.getEmail(), byEmail.getEmail());
