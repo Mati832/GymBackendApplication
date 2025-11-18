@@ -4,7 +4,7 @@ import domain.valueobject.Gender;
 
 import java.time.LocalDateTime;
 
-public class User {
+public abstract class User {
     Long id;
     String firstName;
     String lastName;

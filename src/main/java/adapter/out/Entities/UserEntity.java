@@ -6,7 +6,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-public class UserEntity {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -42,6 +43,19 @@ public class UserEntity {
         this.gender = gender;
         this.bornOn = bornOn;
         this.createdAt = createdAt;
+    }
+
+    public UserEntity(Long id, String firstName, String lastName, String email, String password,
+                      Gender gender, LocalDateTime bornOn,  LocalDateTime createdAt) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.gender = gender;
+        this.bornOn = bornOn;
+        this.createdAt = createdAt;
+
     }
 
     public Long getId() {
