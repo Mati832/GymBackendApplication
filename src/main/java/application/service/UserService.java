@@ -1,20 +1,22 @@
 package application.service;
 
-import application.port.in.FindUserByIdUseCase;
-import application.port.in.UserRegistrationUseCase;
+import adapter.out.Entities.UserEntity;
 import application.port.out.FindUserByEmailPort;
 import application.port.out.FindUserByIdPort;
 import application.port.out.SaveUserPort;
-import static domain.Results.RegisterUserResult.FailureReason.*;
 import domain.Results.RegisterUserResult;
+import domain.model.Member;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.time.LocalDateTime;
 
-@ApplicationScoped
-public class UserService implements UserRegistrationUseCase, FindUserByIdUseCase {
+import static domain.Results.RegisterUserResult.UserFailureReason.*;
+import static domain.Results.RegisterUserResult.UserFailureReason.USER_ALREADY_EXISTS;
+
+
+public abstract class UserService<U extends User> {
 
     @Inject
     FindUserByEmailPort findUserByEmailPort;
@@ -25,25 +27,24 @@ public class UserService implements UserRegistrationUseCase, FindUserByIdUseCase
     @Inject
     FindUserByIdPort findUserByIdPort;
 
-    @Override//evtl. noch komplexere validierungen machen
-    public RegisterUserResult registerUser(User user) {
-        if (user.getFirstName().isEmpty() || user.getLastName().isEmpty() || user.getEmail().isEmpty() || user.getPassword().isEmpty() || user.getBornOn() == null || user.getGender() == null) {
+    //evtl. noch komplexere validierungen machen
+    public RegisterUserResult registerMember(Member member) {
+        if (member.getFirstName().isEmpty() || member.getLastName().isEmpty() || member.getEmail().isEmpty() || member.getPassword().isEmpty() || member.getBornOn() == null || member.getGender() == null) {
             return new RegisterUserResult.Failure(FIELD_EMPTY);
         }
-        if (user.getPassword().length() < 6) {
+        if (member.getPassword().length() < 6) {
             return new RegisterUserResult.Failure(PASSWORD_TOO_WEAK);
         }
-        if (user.getBornOn().isAfter(LocalDateTime.now())) {
+        if (member.getBornOn().isAfter(LocalDateTime.now())) {
             return new RegisterUserResult.Failure(INVALID_BIRTHDAY);
         }
-        if (findUserByEmailPort.findByEmail(user.getEmail()) != null) {
+        if (findUserByEmailPort.findByEmail(member.getEmail()) != null) {
             return new RegisterUserResult.Failure(USER_ALREADY_EXISTS);
         }
 
-        return new RegisterUserResult.Success(saveUserPort.save(user));
+        return new RegisterUserResult.Success(saveUserPort.save(member));
     }
 
-    @Override
     public User findUserById(Long id){
         return findUserByIdPort.findUserById(id);
     }
