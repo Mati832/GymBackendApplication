@@ -1,5 +1,6 @@
 package adapter.out;
 
+import domain.model.Member;
 import domain.model.User;
 import domain.valueobject.Gender;
 import io.quarkus.test.junit.QuarkusTest;
@@ -19,7 +20,7 @@ public class JPAUserAdapterTest {
 
     @Test
     void createUserTest() {
-        User user = new User("name", "lastname", "email", "password", Gender.MALE, LocalDateTime.now());
+        User user = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDateTime.now());
         User save = JPAUserAdapter.save(user);
         assertEquals(user.getFirstName(), save.getFirstName());
         assertEquals(user.getLastName(), save.getLastName());
@@ -33,7 +34,7 @@ public class JPAUserAdapterTest {
 
     @Test
     void findByEmailTest() {
-        User user = new User("name", "lastname", "email", "password", Gender.MALE, LocalDateTime.now());
+        User user = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDateTime.now());
         User save = JPAUserAdapter.save(user);
         User byEmail = JPAUserAdapter.findByEmail(user.getEmail());
         assertEquals(user.getFirstName(), byEmail.getFirstName());
