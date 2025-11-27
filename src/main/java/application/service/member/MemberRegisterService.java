@@ -16,5 +16,4 @@ public class MemberRegisterService implements MemberRegistrationUseCase {
     public RegisterUserResult registerMember(Member member) {
         return userService.registerMember(member);
     }
-
 }
