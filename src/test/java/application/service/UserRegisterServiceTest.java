@@ -1,8 +1,8 @@
 package application.service;
 
+import adapter.in.userService.UserService;
 import port.out.FindUserByEmailPort;
 import port.out.SaveUserPort;
-import application.service.member.MemberUserRegisterService;
 import domain.Results.RegisterUserResult;
 import domain.model.Member;
 import domain.valueobject.Gender;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 public class UserRegisterServiceTest {
 
-    UserRegisterService<Member> userRegisterService;
+    UserService<Member> userRegisterService;
     FindUserByEmailPort findUserByEmailPort;
     SaveUserPort saveUserPort;
 
