@@ -1,12 +1,9 @@
-package adapter.out.Entities;
+package persistence.Entities;
 
-import adapter.out.Entities.MemberEntity;
-import adapter.out.Entities.UserEntity;
-import domain.model.Coach;
 import domain.valueobject.Gender;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+
 import java.time.LocalDateTime;
 import java.util.List;
 @Entity

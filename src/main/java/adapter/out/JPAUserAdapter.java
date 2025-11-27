@@ -2,23 +2,20 @@ package adapter.out;
 
 import adapter.mapper.UserMapper;
 
-import adapter.out.Entities.CoachEntity;
-import adapter.out.Entities.MemberEntity;
+import persistence.Entities.CoachEntity;
+import persistence.Entities.MemberEntity;
 
 import static adapter.mapper.UserMapper.toDomain;
-import adapter.out.Entities.UserEntity;
-import application.port.out.FindUserByEmailPort;
-import application.port.out.FindUserByIdPort;
-import application.port.out.SaveUserPort;
+import persistence.Entities.UserEntity;
+import port.out.FindUserByEmailPort;
+import port.out.FindUserByIdPort;
+import port.out.SaveUserPort;
 import domain.model.Coach;
 import domain.model.Member;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @ApplicationScoped

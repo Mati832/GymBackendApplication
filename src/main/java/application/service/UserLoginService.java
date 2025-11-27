@@ -1,8 +1,8 @@
 package application.service;
 
-import application.port.in.DTOs.UserLoginRequest;
-import application.port.in.UserLoginUseCase;
-import application.port.out.FindUserByEmailPort;
+import domain.DTOs.UserLoginRequest;
+import port.in.user.UserLoginUseCase;
+import port.out.FindUserByEmailPort;
 import domain.Results.LoginUserResult;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;

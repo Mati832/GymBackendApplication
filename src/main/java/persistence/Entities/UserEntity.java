@@ -1,4 +1,4 @@
-package adapter.out.Entities;
+package persistence.Entities;
 
 import domain.valueobject.Gender;
 import jakarta.persistence.*;

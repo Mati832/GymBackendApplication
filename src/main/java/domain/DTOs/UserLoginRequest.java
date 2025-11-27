@@ -1,4 +1,4 @@
-package application.port.in.DTOs;
+package domain.DTOs;
 
 public record UserLoginRequest(String email, String password) {
 }

@@ -1,8 +1,8 @@
 package adapter.mapper;
 
-import adapter.out.Entities.CoachEntity;
-import adapter.out.Entities.MemberEntity;
-import adapter.out.Entities.UserEntity;
+import persistence.Entities.CoachEntity;
+import persistence.Entities.MemberEntity;
+import persistence.Entities.UserEntity;
 import domain.model.Coach;
 import domain.model.Member;
 

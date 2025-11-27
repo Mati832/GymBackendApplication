@@ -1,6 +1,6 @@
-package application.port.in;
+package port.in.user;
 
-import application.port.in.DTOs.UserLoginRequest;
+import domain.DTOs.UserLoginRequest;
 import domain.Results.LoginUserResult;
 
 public interface UserLoginUseCase {

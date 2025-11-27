@@ -1,6 +1,5 @@
 package domain.Results;
 
-import application.port.in.DTOs.UserLoginRequest;
 import domain.model.User;
 
 public sealed interface LoginUserResult permits LoginUserResult.Success, LoginUserResult.Failure {

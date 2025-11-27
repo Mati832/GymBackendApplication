@@ -1,4 +1,4 @@
-package application.port.in.member;
+package port.in.member;
 
 import domain.Results.RegisterUserResult;
 import domain.model.Member;

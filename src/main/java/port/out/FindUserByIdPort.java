@@ -1,8 +1,8 @@
-package application.port.in;
+package port.out;
 
 import domain.model.User;
 
 @FunctionalInterface
-public interface FindUserByIdUseCase {
+public interface FindUserByIdPort {
     User findUserById(Long id);
 }

@@ -56,5 +56,5 @@ If you want to learn more about building native executables, please consult <htt
 ## Related Guides
 
 - Hibernate ORM ([guide](https://quarkus.io/guides/hibernate-orm)): Define your persistent model with Hibernate ORM and
-  Jakarta Persistence
+  Jakarta persistence
 - JDBC Driver - H2 ([guide](https://quarkus.io/guides/datasource)): Connect to the H2 database via JDBC
