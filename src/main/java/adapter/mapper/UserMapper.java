@@ -8,9 +8,6 @@ import domain.model.Member;
 
 
 public class UserMapper {
-
-
-
     public static Member toDomain(MemberEntity memberEntity) {
         return new Member(memberEntity.getId(), memberEntity.getFirstName(), memberEntity.getLastName(), memberEntity.getEmail(),
                 memberEntity.getPassword(), memberEntity.getGender(), memberEntity.getBornOn(), memberEntity.getCreatedAt(),

@@ -2,6 +2,8 @@ package adapter.in.userService;
 
 import domain.DTOs.UserLoginRequest;
 import domain.Results.LoginUserResult;
+import port.in.user.UserLoginUseCase;
+import port.in.user.UserRegistrationUseCase;
 import port.out.FindUserByEmailPort;
 import port.out.SaveUserPort;
 import domain.Results.RegisterUserResult;
@@ -13,7 +15,7 @@ import java.time.LocalDateTime;
 import static domain.Results.RegisterUserResult.UserFailureReason.*;
 
 
-public abstract class UserService<U extends User> {
+public abstract class UserService<U extends User> implements UserLoginUseCase, UserRegistrationUseCase<U> {
 
     @Inject
     FindUserByEmailPort findUserByEmailPort;
@@ -23,6 +25,7 @@ public abstract class UserService<U extends User> {
 
 
     //evtl. noch komplexere validierungen machen
+    @Override
     public RegisterUserResult registerUser(U user) {
         if (user.getFirstName().isEmpty() || user.getLastName().isEmpty() || user.getEmail().isEmpty()
                 || user.getPassword().isEmpty() || user.getBornOn() == null || user.getGender() == null) {
@@ -41,6 +44,7 @@ public abstract class UserService<U extends User> {
         return new RegisterUserResult.Success(saveUserPort.save(user));
     }
 
+    @Override
     public LoginUserResult loginUser(UserLoginRequest userLoginRequest) {
         User byEmail = findUserByEmailPort.findByEmail(userLoginRequest.email());
         if (byEmail == null) {
