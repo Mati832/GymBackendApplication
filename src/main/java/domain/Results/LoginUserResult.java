@@ -5,10 +5,10 @@ import domain.model.User;
 public sealed interface LoginUserResult permits LoginUserResult.Success, LoginUserResult.Failure {
 
     record  Success(User user) implements LoginUserResult {}
-    record  Failure(FailureReason reason) implements LoginUserResult {}
+    record  Failure(LoginFailureReason reason) implements LoginUserResult {}
 
-    interface FailureReason{}
-    enum UserFailureReason implements FailureReason{
+    interface LoginFailureReason {}
+    enum UserLoginFailureReason implements LoginFailureReason {
         USER_NOT_FOUND,
         WRONG_PASSWORD
     }

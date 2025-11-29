@@ -1,6 +1,6 @@
 package application.port.in.member;
 
-import application.commands.MemberRegisterCommand;
+import application.commands.member.MemberRegisterCommand;
 import domain.Results.RegisterUserResult;
 
 @FunctionalInterface

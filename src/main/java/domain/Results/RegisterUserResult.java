@@ -7,12 +7,12 @@ public sealed interface RegisterUserResult permits RegisterUserResult.Success, R
 
     record Success(User user) implements RegisterUserResult {}
 
-    record Failure(FailureReason reason) implements RegisterUserResult {}
+    record Failure(RegisterFailureReason reason) implements RegisterUserResult {}
 
-    interface FailureReason{
+    interface RegisterFailureReason {
         int getStatus();
     }
-    enum UserFailureReason implements FailureReason{
+    enum UserRegisterFailureReason implements RegisterFailureReason {
         USER_ALREADY_EXISTS(409),
         PASSWORD_TOO_WEAK(400),
         FIELD_EMPTY(400),
@@ -20,7 +20,7 @@ public sealed interface RegisterUserResult permits RegisterUserResult.Success, R
 
         private final int status;
 
-        UserFailureReason(int status) {
+        UserRegisterFailureReason(int status) {
             this.status = status;
         }
 
@@ -29,11 +29,11 @@ public sealed interface RegisterUserResult permits RegisterUserResult.Success, R
             return status;
         }
     }
-    enum CoachFailureReason implements FailureReason{
+    enum CoachRegisterFailureReason implements RegisterFailureReason {
         INVALID_LICENSE(403);
 
         private final int status;
-        CoachFailureReason(int status) {
+        CoachRegisterFailureReason(int status) {
             this.status = status;
         }
         @Override
@@ -41,7 +41,7 @@ public sealed interface RegisterUserResult permits RegisterUserResult.Success, R
             return status;
         }
     }
-    enum MemberFailureReason implements FailureReason{
+    enum MemberRegisterFailureReason implements RegisterFailureReason {
         ;
         @Override
         public int getStatus(){

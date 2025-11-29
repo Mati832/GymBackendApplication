@@ -1,4 +1,4 @@
-package application.commands;
+package application.commands.member;
 
 import domain.valueobject.Gender;
 

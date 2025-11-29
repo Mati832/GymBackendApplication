@@ -19,10 +19,10 @@ public class UserLoginService implements UserLoginUseCase {
     public LoginUserResult loginUser(UserLoginCommand userLoginCommand) {
         User byEmail = findUserByEmailPort.findByEmail(userLoginCommand.email());
         if (byEmail == null) {
-            return new LoginUserResult.Failure(LoginUserResult.UserFailureReason.USER_NOT_FOUND);
+            return new LoginUserResult.Failure(LoginUserResult.UserLoginFailureReason.USER_NOT_FOUND);
         }
         if (!byEmail.getPassword().equals(userLoginCommand.password())) {
-            return new LoginUserResult.Failure(LoginUserResult.UserFailureReason.WRONG_PASSWORD);
+            return new LoginUserResult.Failure(LoginUserResult.UserLoginFailureReason.WRONG_PASSWORD);
         }
         return new LoginUserResult.Success(byEmail);
     }

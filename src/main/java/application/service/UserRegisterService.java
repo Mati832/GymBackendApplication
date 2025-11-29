@@ -1,6 +1,6 @@
 package application.service;
 
-import application.commands.MemberRegisterCommand;
+import application.commands.member.MemberRegisterCommand;
 import application.port.out.FindUserByEmailPort;
 import application.port.out.SaveUserPort;
 import domain.Results.RegisterUserResult;
@@ -9,9 +9,8 @@ import domain.model.User;
 import jakarta.inject.Inject;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-import static domain.Results.RegisterUserResult.UserFailureReason.*;
+import static domain.Results.RegisterUserResult.UserRegisterFailureReason.*;
 
 
 public abstract class UserRegisterService<U extends User> {

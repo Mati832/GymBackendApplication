@@ -1,6 +1,6 @@
 package application.service;
 
-import application.commands.MemberRegisterCommand;
+import application.commands.member.MemberRegisterCommand;
 import application.port.out.FindUserByEmailPort;
 import application.port.out.SaveUserPort;
 import application.service.member.MemberUserRegisterService;
@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,7 +55,7 @@ public class UserRegisterServiceTest {
         var registerUserResult = userRegisterService.registerMember(user);
 
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
-        assertEquals(RegisterUserResult.UserFailureReason.FIELD_EMPTY, ((RegisterUserResult.Failure) registerUserResult).reason());
+        assertEquals(RegisterUserResult.UserRegisterFailureReason.FIELD_EMPTY, ((RegisterUserResult.Failure) registerUserResult).reason());
 
         verify(saveUserPort, never()).save(any());
     }
@@ -67,7 +66,7 @@ public class UserRegisterServiceTest {
 
         var registerUserResult = userRegisterService.registerMember(user);
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
-        assertEquals(RegisterUserResult.UserFailureReason.PASSWORD_TOO_WEAK, ((RegisterUserResult.Failure) registerUserResult).reason());
+        assertEquals(RegisterUserResult.UserRegisterFailureReason.PASSWORD_TOO_WEAK, ((RegisterUserResult.Failure) registerUserResult).reason());
         verify(saveUserPort, never()).save(any());
     }
 
@@ -78,7 +77,7 @@ public class UserRegisterServiceTest {
 
         var registerUserResult = userRegisterService.registerMember(user);
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
-        assertEquals(RegisterUserResult.UserFailureReason.INVALID_BIRTHDAY, ((RegisterUserResult.Failure) registerUserResult).reason());
+        assertEquals(RegisterUserResult.UserRegisterFailureReason.INVALID_BIRTHDAY, ((RegisterUserResult.Failure) registerUserResult).reason());
 
         verify(saveUserPort, never()).save(any());
     }
@@ -94,7 +93,7 @@ public class UserRegisterServiceTest {
 
         var registerUserResult = userRegisterService.registerMember(user);
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
-        assertEquals(RegisterUserResult.UserFailureReason.USER_ALREADY_EXISTS, ((RegisterUserResult.Failure) registerUserResult).reason());
+        assertEquals(RegisterUserResult.UserRegisterFailureReason.USER_ALREADY_EXISTS, ((RegisterUserResult.Failure) registerUserResult).reason());
 
         verify(findUserByEmailPort, times(1)).findByEmail(user.email());
         verify(saveUserPort, never()).save(any());
