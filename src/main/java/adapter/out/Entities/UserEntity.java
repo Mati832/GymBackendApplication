@@ -27,6 +27,7 @@ public abstract class UserEntity {
     @Column(nullable = false)
     LocalDateTime createdAt;
 
+
     @PrePersist//ist so jpa konform(keine abhängigkeit zu hibernate)
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
