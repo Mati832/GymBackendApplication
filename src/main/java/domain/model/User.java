@@ -2,6 +2,7 @@ package domain.model;
 
 import domain.valueobject.Gender;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public abstract class User {
@@ -11,13 +12,13 @@ public abstract class User {
     String email;
     String password;
     Gender gender;
-    LocalDateTime bornOn;
+    LocalDate bornOn;
     LocalDateTime createdAt;
 
     public User() {
     }
 
-    public User(String firstName, String lastName, String email, String password, Gender gender, LocalDateTime bornOn) {
+    public User(String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -26,7 +27,7 @@ public abstract class User {
         this.bornOn = bornOn;
     }
 
-    public User(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDateTime bornOn, LocalDateTime createdAt) {
+    public User(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -61,7 +62,7 @@ public abstract class User {
         return gender;
     }
 
-    public LocalDateTime getBornOn() {
+    public LocalDate getBornOn() {
         return bornOn;
     }
 

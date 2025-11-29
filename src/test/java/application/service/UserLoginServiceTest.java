@@ -1,6 +1,6 @@
 package application.service;
 
-import application.port.in.DTOs.UserLoginRequest;
+import application.commands.UserLoginCommand;
 import application.port.out.FindUserByEmailPort;
 import domain.Results.LoginUserResult;
 import domain.model.Member;
@@ -8,7 +8,6 @@ import domain.model.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.Null;
 
 import static org.mockito.Mockito.*;
 
@@ -23,7 +22,7 @@ public class UserLoginServiceTest {
     }
     @Test
     void testLoginCorrect(){
-        UserLoginRequest correctRequest = new UserLoginRequest("correctEmail", "correctPassword");
+        UserLoginCommand correctRequest = new UserLoginCommand("correctEmail", "correctPassword");
         User user= new Member( null,null,correctRequest.email(),correctRequest.password(),null,null );
         when(findUserByEmailPort.findByEmail(correctRequest.email())).thenReturn(user);
         LoginUserResult loginUserResult = userLoginService.loginUser(correctRequest);
@@ -36,7 +35,7 @@ public class UserLoginServiceTest {
 
     @Test
     void testLoginIncorrectPassword(){
-        UserLoginRequest wrongPasswordRequest = new UserLoginRequest("correctEmail", "wrongPassword");
+        UserLoginCommand wrongPasswordRequest = new UserLoginCommand("correctEmail", "wrongPassword");
         User user= new Member( null,null,wrongPasswordRequest.email(),"correctPassword",null,null );
         when(findUserByEmailPort.findByEmail(wrongPasswordRequest.email())).thenReturn(user);
         LoginUserResult loginUserResult = userLoginService.loginUser(wrongPasswordRequest);
@@ -49,7 +48,7 @@ public class UserLoginServiceTest {
 
     @Test
     void testLoginIncorrectEmail(){
-        UserLoginRequest wrongEmailRequest = new UserLoginRequest("wrongEmail", "CorrectPassword");
+        UserLoginCommand wrongEmailRequest = new UserLoginCommand("wrongEmail", "CorrectPassword");
         when(findUserByEmailPort.findByEmail(wrongEmailRequest.email())).thenReturn(null);
         LoginUserResult loginUserResult = userLoginService.loginUser(wrongEmailRequest);
 

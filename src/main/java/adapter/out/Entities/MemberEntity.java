@@ -3,6 +3,7 @@ package adapter.out.Entities;
 import domain.valueobject.Gender;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,15 +19,15 @@ public class MemberEntity extends UserEntity {
 
 
     //Constructors
-    public MemberEntity() {};
+    public MemberEntity() {}
 
     public MemberEntity(Long id, String firstName, String lastName, String email, String password,
-                        Gender gender, LocalDateTime bornOn, LocalDateTime createdAt) {
+                        Gender gender, LocalDate bornOn, LocalDateTime createdAt) {
         super(id, firstName, lastName, email, password, gender, bornOn, createdAt);
     }
 
     public MemberEntity(Long id, String firstName, String lastName, String email,
-                        String password, Gender gender, LocalDateTime bornOn, LocalDateTime createdAt, List<CoachEntity> coaches) {
+                        String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt, List<CoachEntity> coaches) {
         super(id, firstName, lastName, email, password, gender, bornOn, createdAt);
         this.coaches = coaches;
     }

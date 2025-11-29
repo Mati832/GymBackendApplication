@@ -1,5 +1,6 @@
 package application.service.member;
 
+import application.commands.MemberRegisterCommand;
 import application.port.in.member.MemberRegistrationUseCase;
 import domain.Results.RegisterUserResult;
 import domain.model.Member;
@@ -13,7 +14,7 @@ public class MemberRegisterService implements MemberRegistrationUseCase {
     MemberUserRegisterService userService;
 
     @Override
-    public RegisterUserResult registerMember(Member member) {
+    public RegisterUserResult registerMember(MemberRegisterCommand member) {
         return userService.registerMember(member);
     }
 }

@@ -1,5 +1,6 @@
 package application.service;
 
+import application.commands.MemberRegisterCommand;
 import application.port.out.FindUserByEmailPort;
 import application.port.out.SaveUserPort;
 import application.service.member.MemberUserRegisterService;
@@ -9,6 +10,7 @@ import domain.valueobject.Gender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,20 +37,21 @@ public class UserRegisterServiceTest {
     @Test
     public void testRegisterUser() {
         String email = "email@email";
-        Member user = new Member("firstname", "lastname", email, "password", Gender.MALE, LocalDateTime.of(2000, 1, 1, 0, 0, 0));
+        MemberRegisterCommand user = new MemberRegisterCommand("firstname", "lastname", email, "password", Gender.MALE, LocalDate.of(2000, 12, 1));
+        Member userCopy = new Member("firstname", "lastname", email, "password", Gender.MALE, LocalDate.of(2000, 12, 1));
         when(findUserByEmailPort.findByEmail(email)).thenReturn(null);
-        when(saveUserPort.save(user)).thenReturn(user);
+        when(saveUserPort.save(any())).thenReturn(userCopy);
 
         var result = userRegisterService.registerMember(user);
         assertTrue(result instanceof RegisterUserResult.Success);
 
         verify(findUserByEmailPort, times(1)).findByEmail(email);
-        verify(saveUserPort, times(1)).save(user);
+        verify(saveUserPort, times(1)).save(any());
     }
 
     @Test
     void testRegisterUserEmptyFields() {
-        Member user = new Member("", "", "", "", Gender.MALE, null);
+        MemberRegisterCommand user = new MemberRegisterCommand("", "", "", "", Gender.MALE, null);
 
         var registerUserResult = userRegisterService.registerMember(user);
 
@@ -60,7 +63,7 @@ public class UserRegisterServiceTest {
 
     @Test
     void testRegisterUserPasswordTooShort() {
-        Member user = new Member("John", "Doe", "john@example.com", "123", Gender.MALE, LocalDateTime.of(2000, 1, 1, 0, 0, 0));
+        MemberRegisterCommand user = new MemberRegisterCommand("John", "Doe", "john@example.com", "123", Gender.MALE, LocalDate.of(2000, 1, 1));
 
         var registerUserResult = userRegisterService.registerMember(user);
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
@@ -70,8 +73,8 @@ public class UserRegisterServiceTest {
 
     @Test
     void testRegisterUserBirthDateInFuture() {
-        LocalDateTime futureDate = LocalDateTime.now().plusDays(1);
-        Member user = new Member("John", "Doe", "john@example.com", "password123", Gender.MALE, futureDate);
+        LocalDate futureDate = LocalDate.now().plusDays(1);
+        MemberRegisterCommand user = new MemberRegisterCommand("John", "Doe", "john@example.com", "password123", Gender.MALE, futureDate);
 
         var registerUserResult = userRegisterService.registerMember(user);
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
@@ -82,16 +85,18 @@ public class UserRegisterServiceTest {
 
     @Test
     void testRegisterUserDuplicateEmail() {
-        Member user = new Member("John", "Doe", "john@example.com", "password123", Gender.MALE,
-                LocalDateTime.of(2000, 1, 1, 0, 0));
+        MemberRegisterCommand user = new MemberRegisterCommand("John", "Doe", "john@example.com", "password123", Gender.MALE,
+                LocalDate.of(2000, 1, 1));
+        Member userCopy = new Member("John", "Doe", "john@example.com", "password123", Gender.MALE,
+                LocalDate.of(2000, 1, 1));
 
-        when(findUserByEmailPort.findByEmail(user.getEmail())).thenReturn(user);
+        when(findUserByEmailPort.findByEmail(user.email())).thenReturn(userCopy);
 
         var registerUserResult = userRegisterService.registerMember(user);
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
         assertEquals(RegisterUserResult.UserFailureReason.USER_ALREADY_EXISTS, ((RegisterUserResult.Failure) registerUserResult).reason());
 
-        verify(findUserByEmailPort, times(1)).findByEmail(user.getEmail());
+        verify(findUserByEmailPort, times(1)).findByEmail(user.email());
         verify(saveUserPort, never()).save(any());
     }
 }

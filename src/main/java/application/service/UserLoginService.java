@@ -1,6 +1,6 @@
 package application.service;
 
-import application.port.in.DTOs.UserLoginRequest;
+import application.commands.UserLoginCommand;
 import application.port.in.UserLoginUseCase;
 import application.port.out.FindUserByEmailPort;
 import domain.Results.LoginUserResult;
@@ -16,12 +16,12 @@ public class UserLoginService implements UserLoginUseCase {
 
 
     @Override
-    public LoginUserResult loginUser(UserLoginRequest userLoginRequest) {
-        User byEmail = findUserByEmailPort.findByEmail(userLoginRequest.email());
+    public LoginUserResult loginUser(UserLoginCommand userLoginCommand) {
+        User byEmail = findUserByEmailPort.findByEmail(userLoginCommand.email());
         if (byEmail == null) {
             return new LoginUserResult.Failure(LoginUserResult.UserFailureReason.USER_NOT_FOUND);
         }
-        if (!byEmail.getPassword().equals(userLoginRequest.password())) {
+        if (!byEmail.getPassword().equals(userLoginCommand.password())) {
             return new LoginUserResult.Failure(LoginUserResult.UserFailureReason.WRONG_PASSWORD);
         }
         return new LoginUserResult.Success(byEmail);

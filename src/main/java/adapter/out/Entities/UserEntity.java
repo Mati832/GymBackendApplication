@@ -3,6 +3,7 @@ package adapter.out.Entities;
 import domain.valueobject.Gender;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,7 +24,7 @@ public abstract class UserEntity {
     @Enumerated(EnumType.STRING)
     Gender gender;
     @Column(nullable = false)
-    LocalDateTime bornOn;
+    LocalDate bornOn;
     @Column(nullable = false)
     LocalDateTime createdAt;
 
@@ -36,7 +37,7 @@ public abstract class UserEntity {
     public UserEntity() {
     }
 
-    public UserEntity(String firstName, String lastName, String email, String password, Gender gender, LocalDateTime bornOn, LocalDateTime createdAt) {
+    public UserEntity(String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -47,7 +48,7 @@ public abstract class UserEntity {
     }
 
     public UserEntity(Long id, String firstName, String lastName, String email, String password,
-                      Gender gender, LocalDateTime bornOn,  LocalDateTime createdAt) {
+                      Gender gender, LocalDate bornOn,  LocalDateTime createdAt) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -103,11 +104,11 @@ public abstract class UserEntity {
         this.gender = gender;
     }
 
-    public LocalDateTime getBornOn() {
+    public LocalDate getBornOn() {
         return bornOn;
     }
 
-    public void setBornOn(LocalDateTime bornOn) {
+    public void setBornOn(LocalDate bornOn) {
         this.bornOn = bornOn;
     }
 

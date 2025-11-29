@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -20,7 +21,7 @@ public class JPAUserAdapterTest {
 
     @Test
     void createUserTest() {
-        User user = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDateTime.now());
+        User user = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         User save = JPAUserAdapter.save(user);
         assertEquals(user.getFirstName(), save.getFirstName());
         assertEquals(user.getLastName(), save.getLastName());
@@ -34,7 +35,7 @@ public class JPAUserAdapterTest {
 
     @Test
     void findByEmailTest() {
-        User user = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDateTime.now());
+        User user = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         User save = JPAUserAdapter.save(user);
         User byEmail = JPAUserAdapter.findByEmail(user.getEmail());
         assertEquals(user.getFirstName(), byEmail.getFirstName());
@@ -42,7 +43,7 @@ public class JPAUserAdapterTest {
         assertEquals(user.getEmail(), byEmail.getEmail());
         assertEquals(user.getPassword(), byEmail.getPassword());
         assertEquals(user.getGender(), byEmail.getGender());
-        assertEquals(user.getBornOn().truncatedTo(ChronoUnit.MILLIS), byEmail.getBornOn().truncatedTo(ChronoUnit.MILLIS));
+        assertEquals(user.getBornOn(), byEmail.getBornOn());
         assertEquals(save.getCreatedAt().truncatedTo(ChronoUnit.MILLIS), byEmail.getCreatedAt().truncatedTo(ChronoUnit.MILLIS));
         assertEquals(save.getId(), byEmail.getId());
     }

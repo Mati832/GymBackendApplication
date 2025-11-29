@@ -1,10 +1,9 @@
 package application.port.in.member;
 
+import application.commands.MemberRegisterCommand;
 import domain.Results.RegisterUserResult;
-import domain.model.Member;
-import domain.model.User;
 
 @FunctionalInterface
 public interface MemberRegistrationUseCase {
-    RegisterUserResult registerMember(Member member);
+    RegisterUserResult registerMember(MemberRegisterCommand member);
 }

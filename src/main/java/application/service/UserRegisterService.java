@@ -1,5 +1,6 @@
 package application.service;
 
+import application.commands.MemberRegisterCommand;
 import application.port.out.FindUserByEmailPort;
 import application.port.out.SaveUserPort;
 import domain.Results.RegisterUserResult;
@@ -7,6 +8,7 @@ import domain.model.Member;
 import domain.model.User;
 import jakarta.inject.Inject;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static domain.Results.RegisterUserResult.UserFailureReason.*;
@@ -22,21 +24,21 @@ public abstract class UserRegisterService<U extends User> {
 
 
     //evtl. noch komplexere validierungen machen
-    public RegisterUserResult registerMember(Member member) {
-        if (member.getFirstName().isEmpty() || member.getLastName().isEmpty() || member.getEmail().isEmpty() || member.getPassword().isEmpty() || member.getBornOn() == null || member.getGender() == null) {
+    public RegisterUserResult registerMember(MemberRegisterCommand member) {
+        if (member.firstname().isEmpty() || member.lastName().isEmpty() || member.email().isEmpty() || member.password().isEmpty() || member.bornOn() == null || member.gender() == null) {
             return new RegisterUserResult.Failure(FIELD_EMPTY);
         }
-        if (member.getPassword().length() < 6) {
+        if (member.password().length() < 6) {
             return new RegisterUserResult.Failure(PASSWORD_TOO_WEAK);
         }
-        if (member.getBornOn().isAfter(LocalDateTime.now())) {
+        if (member.bornOn().isAfter(LocalDate.now())) {
             return new RegisterUserResult.Failure(INVALID_BIRTHDAY);
         }
-        if (findUserByEmailPort.findByEmail(member.getEmail()) != null) {
+        if (findUserByEmailPort.findByEmail(member.email()) != null) {
             return new RegisterUserResult.Failure(USER_ALREADY_EXISTS);
         }
-
-        return new RegisterUserResult.Success(saveUserPort.save(member));
+        Member newMember= new Member(member.firstname(), member.lastName(), member.email(), member.password(),member.gender(),member.bornOn());
+        return new RegisterUserResult.Success(saveUserPort.save(newMember));
     }
 
 }
