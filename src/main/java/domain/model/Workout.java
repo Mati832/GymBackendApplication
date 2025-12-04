@@ -9,5 +9,5 @@ public class Workout {
     String description;
     User createdBy;
     LocalDateTime createdAt;
-    List<Exercise> exercises;
+    List<Long> exercises;
 }
