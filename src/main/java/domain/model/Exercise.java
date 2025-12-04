@@ -9,5 +9,5 @@ public class Exercise {
     String type;
     long durationInSec;
     User createdBy;
-    List<ExerciseSet> exerciseSets;
+    List<Long> exerciseSets;
 }
