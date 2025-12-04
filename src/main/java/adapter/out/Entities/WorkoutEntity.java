@@ -1,11 +1,9 @@
 package adapter.out.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class WorkoutEntity {
@@ -15,4 +13,9 @@ public class WorkoutEntity {
     String name;
     String description;
     LocalDateTime createdAt;
+    @OneToMany(cascade = CascadeType.ALL)
+    List<ExerciseEntity> exercises;
+    @ManyToOne
+    @JoinColumn(name = "created_by_user_id", foreignKey = @ForeignKey(name = "user_id"))
+    UserEntity createdBy;
 }
