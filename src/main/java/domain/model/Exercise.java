@@ -8,6 +8,6 @@ public class Exercise {
     //maybe enum later
     String type;
     long durationInSec;
-    User createdBy;
+    Long createdBy;
     List<Long> exerciseSets;
 }

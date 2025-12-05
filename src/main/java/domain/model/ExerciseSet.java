@@ -9,6 +9,6 @@ public class ExerciseSet {
     String notes;
     long durationInSec;
     Exercise belongsTo;
-    User createdBy;
+    Long createdBy;
     LocalDateTime createdAt;
 }

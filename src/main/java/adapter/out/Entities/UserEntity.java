@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+//Maybe InheritanceType.SINGLE_TABLE later
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class UserEntity {
     @Id
