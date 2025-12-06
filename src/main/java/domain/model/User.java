@@ -4,6 +4,7 @@ import domain.valueobject.Gender;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public abstract class User {
     Long id;
@@ -14,6 +15,8 @@ public abstract class User {
     Gender gender;
     LocalDate bornOn;
     LocalDateTime createdAt;
+    List<Long> exercises;
+    List<Long> workouts;
 
     public User() {
     }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 //Maybe InheritanceType.SINGLE_TABLE later
@@ -28,6 +29,10 @@ public abstract class UserEntity {
     LocalDate bornOn;
     @Column(nullable = false)
     LocalDateTime createdAt;
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    List<ExerciseEntity> exercises;
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    List<WorkoutEntity> workouts;
 
 
     @PrePersist//ist so jpa konform(keine abhängigkeit zu hibernate)
@@ -61,6 +66,7 @@ public abstract class UserEntity {
 
     }
 
+    //getter and setter
     public Long getId() {
         return id;
     }
