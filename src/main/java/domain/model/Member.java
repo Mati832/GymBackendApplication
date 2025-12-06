@@ -1,14 +1,15 @@
 package domain.model;
 
+import adapter.out.Entities.CoachMemberEntity;
 import domain.valueobject.Gender;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Member extends User {
-    List<Long> coaches;
-
+    List<Long> coaches=new ArrayList<>();
 
     //Constructors
     public Member(Long id, String firstName, String lastName, String email, String password,
@@ -22,7 +23,7 @@ public class Member extends User {
     }
 
     public List<Long> getCoaches() {
-        return coaches;
+        return this.coaches;
     }
 
     public void setCoaches(List<Long> coaches) {
