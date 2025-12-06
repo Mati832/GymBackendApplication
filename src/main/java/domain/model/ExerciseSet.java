@@ -8,7 +8,63 @@ public class ExerciseSet {
     double weightInKg;
     String notes;
     long durationInSec;
-    Exercise belongsTo;
-    Long createdBy;
     LocalDateTime createdAt;
+    Long belongsToExercise;
+
+    //getter and setter
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public int getReps() {
+        return reps;
+    }
+
+    public void setReps(int reps) {
+        this.reps = reps;
+    }
+
+    public double getWeightInKg() {
+        return weightInKg;
+    }
+
+    public void setWeightInKg(double weightInKg) {
+        this.weightInKg = weightInKg;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public long getDurationInSec() {
+        return durationInSec;
+    }
+
+    public void setDurationInSec(long durationInSec) {
+        this.durationInSec = durationInSec;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Long getBelongsToExercise() {
+        return belongsToExercise;
+    }
+
+    public void setBelongsToExercise(Long belongsToExercise) {
+        this.belongsToExercise = belongsToExercise;
+    }
 }

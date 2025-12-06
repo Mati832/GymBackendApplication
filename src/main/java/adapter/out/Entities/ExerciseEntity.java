@@ -1,6 +1,5 @@
 package adapter.out.Entities;
 
-import domain.model.User;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -15,16 +14,13 @@ public class ExerciseEntity {
     String type;
     long durationInSec;
     @ManyToOne
-    @JoinColumn(name = "created_by_id", foreignKey = @ForeignKey(name = "fk_exercise_created_by"))
+    @JoinColumn(name = "created_by_id", foreignKey = @ForeignKey(name = "fk_exercise_created_by"), nullable = false)
     UserEntity createdBy;
-
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exercise")
     List<ExerciseSetEntity> exerciseSets;
-    public UserEntity getCreatedBy() {
-        return createdBy;
-    }
 
     //getter and setter
+
     public long getId() {
         return id;
     }
@@ -55,6 +51,9 @@ public class ExerciseEntity {
 
     public void setDurationInSec(long durationInSec) {
         this.durationInSec = durationInSec;
+    }
+    public UserEntity getCreatedBy() {
+        return createdBy;
     }
 
     public void setCreatedBy(UserEntity createdBy) {
