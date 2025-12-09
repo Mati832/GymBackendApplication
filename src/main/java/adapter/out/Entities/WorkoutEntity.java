@@ -18,6 +18,18 @@ public class WorkoutEntity {
     @JoinColumn(name = "created_by_user_id", foreignKey = @ForeignKey(name = "user_id"), nullable = false)
     UserEntity createdBy;
 
+    public WorkoutEntity() {
+    }
+
+    public WorkoutEntity(Long id, String name, String description, LocalDateTime createdAt, List<ExerciseEntity> exercises, UserEntity createdBy) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.exercises = exercises;
+        this.createdBy = createdBy;
+    }
+
     //getter and setter
     public Long getId() {
         return id;
