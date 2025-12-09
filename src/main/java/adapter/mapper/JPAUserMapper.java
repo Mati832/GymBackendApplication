@@ -10,7 +10,6 @@ import domain.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
-import java.util.stream.Collectors;
 
 
 public class JPAUserMapper {

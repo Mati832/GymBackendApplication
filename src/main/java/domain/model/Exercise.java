@@ -11,6 +11,15 @@ public class Exercise {
     Long createdByUserId;
     List<Long> exerciseSets;
 
+    public Exercise(long id, String name, String type, long durationInSec, Long createdByUserId, List<Long> exerciseSets) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.durationInSec = durationInSec;
+        this.createdByUserId = createdByUserId;
+        this.exerciseSets = exerciseSets;
+    }
+
     public long getId() {
         return id;
     }
