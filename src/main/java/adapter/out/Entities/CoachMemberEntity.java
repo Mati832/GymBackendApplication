@@ -18,6 +18,14 @@ public class CoachMemberEntity {
 
     LocalDate assignedAt;
 
+    public CoachMemberEntity() {
+    }
+
+    public CoachMemberEntity(CoachEntity coach, MemberEntity member) {
+        this.coach = coach;
+        this.member = member;
+    }
+
     public CoachEntity getCoach() {
         return coach;
     }

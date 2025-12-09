@@ -1,6 +1,7 @@
 package adapter.mapper;
 
 import adapter.out.Entities.CoachEntity;
+import adapter.out.Entities.CoachMemberEntity;
 import adapter.out.Entities.MemberEntity;
 import adapter.out.Entities.UserEntity;
 import domain.model.Coach;
@@ -20,13 +21,13 @@ public class JPAUserMapper {
     private static Member toDomain(MemberEntity memberEntity) {
         return new Member(memberEntity.getId(), memberEntity.getFirstName(), memberEntity.getLastName(), memberEntity.getEmail(),
                 memberEntity.getPassword(), memberEntity.getGender(), memberEntity.getBornOn(), memberEntity.getCreatedAt(),
-                memberEntity.getAssignments().stream().map((as)->as.getCoach().getId()).collect(Collectors.toList()));
+                memberEntity.getAssignments().stream().map((as)->as.getCoach().getId()).toList());
     }
 
     private static Coach toDomain(CoachEntity coachEntity) {
         return new Coach(coachEntity.getId(), coachEntity.getFirstName(), coachEntity.getLastName(), coachEntity.getEmail(),
                 coachEntity.getPassword(), coachEntity.getGender(), coachEntity.getBornOn(), coachEntity.getCreatedAt(),
-                coachEntity.getAssignments().stream().map((as)->as.getMember().getId()).collect(Collectors.toList()));
+                coachEntity.getAssignments().stream().map((as)->as.getMember().getId()).toList());
     }
 
     private static MemberEntity toEntity(Member member) {
@@ -42,12 +43,14 @@ public class JPAUserMapper {
     public static UserEntity toEntity(User user) {
         if(user instanceof Member member){
             MemberEntity memberEntity = toEntity(member);
-            memberEntity.setCoaches(member.getCoaches().stream().map(id -> em.find(CoachEntity.class, id)).toList());
+            memberEntity.setAssignments(member.getCoaches().stream().map(id -> new CoachMemberEntity(em.find(CoachEntity.class, id),
+                    memberEntity)).toList());
             return memberEntity;
         }
         Coach coach = (Coach)user;
         CoachEntity coachEntity = toEntity(coach);
-        coachEntity.setClients(coach.getClients().stream().map(id -> em.find(MemberEntity.class, id)).toList());
+        coachEntity.setAssignments(coach.getClients().stream().map(id -> new CoachMemberEntity(coachEntity,
+                em.find(MemberEntity.class, id))).toList());
         return coachEntity;
     }
 
