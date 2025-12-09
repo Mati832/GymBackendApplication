@@ -17,6 +17,19 @@ public class ExerciseSetEntity {
     @JoinColumn(name = "exercise_id",  nullable = false)
     ExerciseEntity exercise;
 
+    public ExerciseSetEntity() {
+    }
+
+    public ExerciseSetEntity(Long id, int reps, double weightInKg, String notes, long durationInSec, LocalDateTime createdAt, ExerciseEntity exercise) {
+        this.id = id;
+        this.reps = reps;
+        this.weightInKg = weightInKg;
+        this.notes = notes;
+        this.durationInSec = durationInSec;
+        this.createdAt = createdAt;
+        this.exercise = exercise;
+    }
+
     public Long getId() {
         return id;
     }

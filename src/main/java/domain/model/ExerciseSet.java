@@ -11,6 +11,16 @@ public class ExerciseSet {
     LocalDateTime createdAt;
     Long belongsToExercise;
 
+    public ExerciseSet(long id, int reps, double weightInKg, String notes, long durationInSec, LocalDateTime createdAt, Long belongsToExercise) {
+        this.id = id;
+        this.reps = reps;
+        this.weightInKg = weightInKg;
+        this.notes = notes;
+        this.durationInSec = durationInSec;
+        this.createdAt = createdAt;
+        this.belongsToExercise = belongsToExercise;
+    }
+
     //getter and setter
     public long getId() {
         return id;
