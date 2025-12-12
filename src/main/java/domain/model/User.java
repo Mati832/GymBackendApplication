@@ -4,6 +4,7 @@ import domain.valueobject.Gender;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public abstract class User {
     Long id;
@@ -14,8 +15,24 @@ public abstract class User {
     Gender gender;
     LocalDate bornOn;
     LocalDateTime createdAt;
+    List<Long> exercises;
+    List<Long> workouts;
 
     public User() {
+    }
+
+    public User(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt,
+                List<Long> exercises, List<Long> workouts) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.gender = gender;
+        this.bornOn = bornOn;
+        this.createdAt = createdAt;
+        this.exercises = exercises;
+        this.workouts = workouts;
     }
 
     public User(String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn) {
@@ -25,17 +42,6 @@ public abstract class User {
         this.password = password;
         this.gender = gender;
         this.bornOn = bornOn;
-    }
-
-    public User(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.gender = gender;
-        this.bornOn = bornOn;
-        this.createdAt = createdAt;
     }
 
     public Long getId() {
