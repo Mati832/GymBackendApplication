@@ -23,13 +23,11 @@ public class ExerciseEntity {
     public ExerciseEntity() {
     }
 
-    public ExerciseEntity(long id, String name, String type, long durationInSec, UserEntity createdBy, List<ExerciseSetEntity> exerciseSets) {
+    public ExerciseEntity(long id, String name, String type, long durationInSec) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.durationInSec = durationInSec;
-        this.createdBy = createdBy;
-        this.exerciseSets = exerciseSets;
     }
 
     //getter and setter
