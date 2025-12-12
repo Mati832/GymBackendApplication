@@ -2,7 +2,7 @@ package application.service;
 
 import application.commands.UserLoginCommand;
 import application.port.in.UserLoginUseCase;
-import application.port.out.FindUserByEmailPort;
+import application.port.out.UserPorts.FindUserByEmailPort;
 import domain.Results.LoginUserResult;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;

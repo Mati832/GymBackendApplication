@@ -1,8 +1,9 @@
 package adapter.out.Entities;
 
-import adapter.mapper.UserMapper;
 import domain.valueobject.Gender;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,19 +13,13 @@ import java.util.List;
 @Entity
 public class MemberEntity extends UserEntity {
 
-    @OneToMany(mappedBy = "member",  cascade=CascadeType.ALL, orphanRemoval = true)
-    List<CoachMemberEntity> assignments=new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<CoachMemberEntity> assignments = new ArrayList<>();
 
 
-    public void assignCoach(CoachEntity coach){
-        CoachMemberEntity cm = new CoachMemberEntity();
-        cm.setCoach(coach);
-        cm.setMember(this);
-        this.assignments.add(cm);
-        coach.getAssignments().add(cm);
-    }
     //Constructors
-    public MemberEntity() {}
+    public MemberEntity() {
+    }
 
     public MemberEntity(Long id, String firstName, String lastName, String email, String password,
                         Gender gender, LocalDate bornOn, LocalDateTime createdAt) {

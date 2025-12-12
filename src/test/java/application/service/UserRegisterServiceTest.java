@@ -1,8 +1,8 @@
 package application.service;
 
 import application.commands.member.MemberRegisterCommand;
-import application.port.out.FindUserByEmailPort;
-import application.port.out.SaveUserPort;
+import application.port.out.UserPorts.FindUserByEmailPort;
+import application.port.out.UserPorts.SaveUserPort;
 import application.service.member.MemberUserRegisterService;
 import domain.Results.RegisterUserResult;
 import domain.model.Member;

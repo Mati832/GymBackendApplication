@@ -1,4 +1,4 @@
-package application.port.out;
+package application.port.out.UserPorts;
 
 import domain.model.User;
 

@@ -5,10 +5,7 @@ import adapter.out.Entities.CoachEntity;
 import adapter.out.Entities.CoachMemberEntity;
 import adapter.out.Entities.MemberEntity;
 import adapter.out.Entities.UserEntity;
-import application.port.out.FindUserByEmailPort;
-import application.port.out.FindUserByIdPort;
-import application.port.out.SaveUserPort;
-import application.port.out.UpdateUserPort;
+import application.port.out.UserPorts.*;
 import domain.model.Coach;
 import domain.model.Member;
 import domain.model.User;
@@ -36,7 +33,10 @@ public class JPAUserAdapter implements SaveUserPort, FindUserByEmailPort, FindUs
     public User findByEmail(String email) {
         UserEntity entity = em.createQuery("select u from UserEntity u where u.email = :email", UserEntity.class)
                 .setParameter("email", email)
-                .getSingleResult();
+                .getSingleResultOrNull();
+        if(entity == null){
+            return null;
+        }
         return toDomain(entity);
     }
 
@@ -54,10 +54,10 @@ public class JPAUserAdapter implements SaveUserPort, FindUserByEmailPort, FindUs
         em.merge(toEntity(user));
     }
 
+
     //For Mapping from Domain <-> Persistence
 
     //Every Adapter looks up and finds the Entity by id. This is done by the adapter and not the Mapper
-    //this method is only usable for new users, not for updating an user
     private UserEntity toEntity(User user) {
         if (user instanceof Member m) {
             return toEntityMember(m);

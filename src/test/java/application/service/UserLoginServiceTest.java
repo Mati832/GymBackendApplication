@@ -1,7 +1,7 @@
 package application.service;
 
 import application.commands.UserLoginCommand;
-import application.port.out.FindUserByEmailPort;
+import application.port.out.UserPorts.FindUserByEmailPort;
 import domain.Results.LoginUserResult;
 import domain.model.Member;
 import domain.model.User;

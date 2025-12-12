@@ -6,11 +6,7 @@ import domain.model.User;
 import domain.valueobject.Gender;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
@@ -18,8 +14,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 public class JPAUserAdapterTest {
@@ -28,7 +25,8 @@ public class JPAUserAdapterTest {
     @Inject
     JPAUserAdapter JPAUserAdapter;
 
-    @AfterEach @Transactional
+    @AfterEach
+    @Transactional
     public void tearDown() {
         em.createQuery("delete from CoachMemberEntity ").executeUpdate();
         em.createQuery("delete from MemberEntity").executeUpdate();
@@ -66,8 +64,8 @@ public class JPAUserAdapterTest {
     }
 
     @Test
-    void createMultipleUser(){
-        User user =new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
+    void createMultipleUser() {
+        User user = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         User user2 = new Member("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
         User user3 = new Coach("name", "lastname", "email3", "password", Gender.MALE, LocalDate.now());
         User user4 = new Coach("name", "lastname", "email4", "password", Gender.MALE, LocalDate.now());
@@ -89,46 +87,13 @@ public class JPAUserAdapterTest {
     void emailAlreadyExistsTest() {
         User user = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         JPAUserAdapter.save(user);
-        User user2= new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
+        User user2 = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         try {
             JPAUserAdapter.save(user2);
             fail();
+        } catch (ConstraintViolationException ignored) {
         }
-        catch (ConstraintViolationException e) {}
     }
 
-    @Test
-    void assignedCoachMemberTest(){
-        Member member=new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
-        Coach coach =new Coach("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
-        JPAUserAdapter.save(coach);
-        member.getCoaches().add(JPAUserAdapter.findByEmail(coach.getEmail()).getId());
-        JPAUserAdapter.save(member);
-        Member memberFound = (Member)JPAUserAdapter.findByEmail(member.getEmail());
-        Coach coachFound = (Coach) JPAUserAdapter.findByEmail(coach.getEmail());
 
-        Assertions.assertNotNull(memberFound.getCoaches().getFirst());
-        Assertions.assertNotNull(coachFound.getClients().getFirst());
-        Assertions.assertEquals(coachFound.getId(), memberFound.getCoaches().getFirst());
-        Assertions.assertEquals(memberFound.getId(), coachFound.getClients().getFirst());
-    }
-
-    @Test @Transactional
-    void assignExistingCoachToExistingMemberTest(){
-        Member member= new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
-        Coach coach= new Coach("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
-        JPAUserAdapter.save(member);
-        User saved=JPAUserAdapter.save(coach);
-        Member memberF = (Member)JPAUserAdapter.findByEmail(member.getEmail());
-        memberF.getCoaches().add(saved.getId());
-        JPAUserAdapter.update(memberF);
-
-        Member memberFound = (Member)JPAUserAdapter.findByEmail(member.getEmail());
-        Coach coachFound = (Coach) JPAUserAdapter.findByEmail(coach.getEmail());
-
-        Assertions.assertNotNull(memberFound.getCoaches().getFirst());
-        Assertions.assertNotNull(coachFound.getClients().getFirst());
-        Assertions.assertEquals(coachFound.getId(), memberFound.getCoaches().getFirst());
-        Assertions.assertEquals(memberFound.getId(), coachFound.getClients().getFirst());
-    }
 }

@@ -5,6 +5,12 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(
+        name = "coach_member",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"coach_id", "member_id"})
+        }
+)
 public class CoachMemberEntity {
 
     @Id
@@ -12,11 +18,33 @@ public class CoachMemberEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coach_id", nullable = false)
     CoachEntity coach;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
     MemberEntity member;
 
     LocalDate assignedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.assignedAt = LocalDate.now();
+    }
+
+    public CoachMemberEntity() {
+    }
+
+    public CoachMemberEntity(CoachEntity coach, MemberEntity member) {
+        this.coach = coach;
+        this.member = member;
+    }
+
+    public CoachMemberEntity(Long id, CoachEntity coach, MemberEntity member, LocalDate assignedAt) {
+        this.id = id;
+        this.coach = coach;
+        this.member = member;
+        this.assignedAt = assignedAt;
+    }
 
     public CoachEntity getCoach() {
         return coach;
