@@ -1,6 +1,5 @@
 package adapter.out.Entities;
 
-import adapter.mapper.UserMapper;
 import domain.valueobject.Gender;
 import jakarta.persistence.*;
 
