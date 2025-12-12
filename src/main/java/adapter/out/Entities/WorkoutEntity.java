@@ -1,32 +1,39 @@
-package domain.model;
+package adapter.out.Entities;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Workout {
-    long id;
+@Entity
+public class WorkoutEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     String name;
     String description;
     LocalDateTime createdAt;
-    List<Long> exercises;
-    Long createdByUserId;
+    @OneToMany(cascade = CascadeType.ALL)
+    List<ExerciseEntity> exercises;
+    @ManyToOne
+    @JoinColumn(name = "created_by_user_id", foreignKey = @ForeignKey(name = "user_id"), nullable = false)
+    UserEntity createdBy;
 
+    public WorkoutEntity() {
+    }
 
-    public Workout(long id, String name, String description, LocalDateTime createdAt, List<Long> exercises, Long createdByUserId) {
+    public WorkoutEntity(Long id, String name, String description, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.createdAt = createdAt;
-        this.exercises = exercises;
-        this.createdByUserId = createdByUserId;
     }
 
     //getter and setter
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -54,19 +61,19 @@ public class Workout {
         this.createdAt = createdAt;
     }
 
-    public List<Long> getExercises() {
+    public List<ExerciseEntity> getExercises() {
         return exercises;
     }
 
-    public void setExercises(List<Long> exercises) {
+    public void setExercises(List<ExerciseEntity> exercises) {
         this.exercises = exercises;
     }
 
-    public Long getCreatedByUserId() {
-        return createdByUserId;
+    public UserEntity getCreatedBy() {
+        return createdBy;
     }
 
-    public void setCreatedByUserId(Long createdByUserId) {
-        this.createdByUserId = createdByUserId;
+    public void setCreatedBy(UserEntity createdBy) {
+        this.createdBy = createdBy;
     }
 }
