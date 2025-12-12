@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class JPAUserMapper {
 
-    private static Member toDomain(MemberEntity memberEntity) {
+    public static Member toDomain(MemberEntity memberEntity) {
         return new Member(memberEntity.getId(), memberEntity.getFirstName(), memberEntity.getLastName(), memberEntity.getEmail(),
                 memberEntity.getPassword(), memberEntity.getGender(), memberEntity.getBornOn(), memberEntity.getCreatedAt(),
                 memberEntity.getExercises().stream().map(ExerciseEntity::getId).toList(),
@@ -18,7 +18,7 @@ public class JPAUserMapper {
                 memberEntity.getAssignments().stream().map((as)->as.getCoach().getId()).collect(Collectors.toList()));
     }
 
-    private static Coach toDomain(CoachEntity coachEntity) {
+    public static Coach toDomain(CoachEntity coachEntity) {
         return new Coach(coachEntity.getId(), coachEntity.getFirstName(), coachEntity.getLastName(), coachEntity.getEmail(),
                 coachEntity.getPassword(), coachEntity.getGender(), coachEntity.getBornOn(), coachEntity.getCreatedAt(),
                 coachEntity.getExercises().stream().map(ExerciseEntity::getId).toList(),
@@ -26,27 +26,13 @@ public class JPAUserMapper {
                 coachEntity.getAssignments().stream().map((as)->as.getMember().getId()).collect(Collectors.toList()));
     }
 
-    private static MemberEntity toEntity(Member member) {
+    public static MemberEntity toEntity(Member member) {
         return new MemberEntity(member.getId(), member.getFirstName(), member.getLastName(), member.getEmail(),
                 member.getPassword(), member.getGender(), member.getBornOn(), member.getCreatedAt());
     }
 
-    private static CoachEntity toEntity(Coach coach) {
+    public static CoachEntity toEntity(Coach coach) {
         return new CoachEntity(coach.getId(), coach.getFirstName(), coach.getLastName(), coach.getEmail(),
                 coach.getPassword(), coach.getGender(), coach.getBornOn(), coach.getCreatedAt());
-    }
-
-    public static UserEntity toEntity(User user) {
-        if(user instanceof Member member){
-            return toEntity(member);
-        }
-        return toEntity((Coach)user);
-    }
-
-    public static User toDomain(UserEntity entity) {
-        if(entity instanceof MemberEntity memberEntity){
-            return toDomain(memberEntity);
-        }
-        return toDomain((CoachEntity)entity);
     }
 }

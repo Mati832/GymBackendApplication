@@ -1,16 +1,21 @@
 package adapter.out;
 
+import adapter.mapper.JPAUserMapper;
+import adapter.out.Entities.CoachEntity;
+import adapter.out.Entities.MemberEntity;
 import adapter.out.Entities.UserEntity;
 import application.port.out.FindUserByEmailPort;
 import application.port.out.FindUserByIdPort;
 import application.port.out.SaveUserPort;
 import application.port.out.UpdateUserPort;
+import domain.model.Coach;
+import domain.model.Member;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import static adapter.mapper.JPAUserMapper.*;
+import java.util.ArrayList;
 
 @ApplicationScoped
 //UserAdapter kann über @Inject injiziert werden und durch applicationscoped wird sichergestellt, dass die klasse nur einmal erstellt wird und überall benutzt wird.
@@ -48,4 +53,25 @@ public class JPAUserAdapter implements SaveUserPort, FindUserByEmailPort, FindUs
         em.merge(toEntity(user));
     }
 
+    private UserEntity toEntity(User user) {
+        if(user instanceof Member member){
+            MemberEntity memberEntity = JPAUserMapper.toEntity(member);
+            MemberEntity inDB = em.find(MemberEntity.class, user.getId());
+            memberEntity.setExercises(inDB == null ? new  ArrayList<>() : inDB.getExercises());
+            memberEntity.setWorkouts(inDB == null ? new  ArrayList<>() : inDB.getWorkouts());
+            memberEntity.setAssignments(inDB == null ? new  ArrayList<>() : inDB.getAssignments());
+            return memberEntity;
+        }
+        CoachEntity coachEntity = JPAUserMapper.toEntity((Coach) user);
+        CoachEntity inDB = em.find(CoachEntity.class, user.getId());
+        coachEntity.setExercises(inDB == null ? new  ArrayList<>() : inDB.getExercises());
+        coachEntity.setWorkouts(inDB == null ? new  ArrayList<>() : inDB.getWorkouts());
+        coachEntity.setAssignments(inDB == null ? new  ArrayList<>() : inDB.getAssignments());
+        return coachEntity;
+    }
+
+    private User toDomain(UserEntity user) {
+        if(user instanceof MemberEntity member) return JPAUserMapper.toDomain(member);
+        return JPAUserMapper.toDomain((CoachEntity) user);
+    }
 }
