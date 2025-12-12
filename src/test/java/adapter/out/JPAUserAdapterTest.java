@@ -121,7 +121,7 @@ public class JPAUserAdapterTest {
         User saved=JPAUserAdapter.save(coach);
         Member memberF = (Member)JPAUserAdapter.findByEmail(member.getEmail());
         memberF.getCoaches().add(saved.getId());
-        JPAUserAdapter.update(memberF);
+        //JPAUserAdapter.update(memberF);
 
         Member memberFound = (Member)JPAUserAdapter.findByEmail(member.getEmail());
         Coach coachFound = (Coach) JPAUserAdapter.findByEmail(coach.getEmail());
