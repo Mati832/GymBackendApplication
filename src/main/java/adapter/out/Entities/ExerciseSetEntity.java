@@ -1,32 +1,39 @@
-package domain.model;
+package adapter.out.Entities;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-public class ExerciseSet {
-    long id;
+@Entity
+public class ExerciseSetEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     int reps;
     double weightInKg;
     String notes;
     long durationInSec;
     LocalDateTime createdAt;
-    Long belongsToExercise;
+    @ManyToOne
+    @JoinColumn(name = "exercise_id",  nullable = false)
+    ExerciseEntity exercise;
 
-    public ExerciseSet(long id, int reps, double weightInKg, String notes, long durationInSec, LocalDateTime createdAt, Long belongsToExercise) {
+    public ExerciseSetEntity() {
+    }
+
+    public ExerciseSetEntity(Long id, int reps, double weightInKg, String notes, long durationInSec, LocalDateTime createdAt) {
         this.id = id;
         this.reps = reps;
         this.weightInKg = weightInKg;
         this.notes = notes;
         this.durationInSec = durationInSec;
         this.createdAt = createdAt;
-        this.belongsToExercise = belongsToExercise;
     }
 
-    //getter and setter
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -70,11 +77,11 @@ public class ExerciseSet {
         this.createdAt = createdAt;
     }
 
-    public Long getBelongsToExercise() {
-        return belongsToExercise;
+    public ExerciseEntity getExercise() {
+        return exercise;
     }
 
-    public void setBelongsToExercise(Long belongsToExercise) {
-        this.belongsToExercise = belongsToExercise;
+    public void setExercise(ExerciseEntity exercise) {
+        this.exercise = exercise;
     }
 }
