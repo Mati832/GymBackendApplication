@@ -12,9 +12,10 @@ public class Member extends User {
     List<Long> coaches=new ArrayList<>();
 
     //Constructors
-    public Member(Long id, String firstName, String lastName, String email, String password,
-                  Gender gender, LocalDate bornOn, LocalDateTime createdAt, List<Long> coaches) {
-        super(id, firstName, lastName, email, password, gender, bornOn, createdAt);
+    public Member(Long id, String firstName, String lastName, String email,
+                  String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt,
+                  List<Long>  exercises, List<Long> workouts, List<Long> coaches) {
+        super(id, firstName, lastName, email, password, gender, bornOn, createdAt,  exercises, workouts);
         this.coaches = coaches;
     }
 

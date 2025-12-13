@@ -10,8 +10,9 @@ public class Coach extends User {
     List<Long> clients=new ArrayList<>();
 
     public Coach(Long id, String firstName, String lastName, String email,
-                 String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt, List<Long> clients) {
-        super(id, firstName, lastName, email, password, gender, bornOn, createdAt);
+                 String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt,
+                 List<Long>  exercises, List<Long> workouts, List<Long> clients) {
+        super(id, firstName, lastName, email, password, gender, bornOn, createdAt,  exercises, workouts);
         this.clients = clients;
     }
 
