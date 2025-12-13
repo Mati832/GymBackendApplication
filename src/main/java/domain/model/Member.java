@@ -22,6 +22,9 @@ public class Member extends User {
     public Member(String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn){
         super(firstName, lastName, email, password, gender, bornOn);
     }
+    public Member(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt) {
+        super(id, firstName, lastName, email, password, gender, bornOn, createdAt);
+    }
 
     public List<Long> getCoaches() {
         return this.coaches;

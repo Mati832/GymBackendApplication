@@ -20,6 +20,10 @@ public class Coach extends User {
         super(firstName, lastName, email, password, gender, bornOn);
     }
 
+    public Coach(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt) {
+        super(id, firstName, lastName, email, password, gender, bornOn, createdAt);
+    }
+
     public Coach(String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, List<Long> clients) {
         super(firstName, lastName, email, password, gender, bornOn);
         this.clients = clients;
