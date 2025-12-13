@@ -1,4 +1,4 @@
-package adapter.in.DTOs.member;
+package adapter.in.DTOs.RequestDTOs.member;
 
 import domain.valueobject.Gender;
 
