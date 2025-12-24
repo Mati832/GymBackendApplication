@@ -4,10 +4,7 @@ import adapter.mapper.JPAUserMapper;
 import adapter.out.Entities.CoachEntity;
 import adapter.out.Entities.MemberEntity;
 import adapter.out.Entities.UserEntity;
-import application.port.out.UserPorts.FindUserByEmailPort;
-import application.port.out.UserPorts.FindUserByIdPort;
-import application.port.out.UserPorts.SaveUserPort;
-import application.port.out.UserPorts.UpdateUserPort;
+import application.port.out.UserPorts.*;
 import domain.model.Coach;
 import domain.model.Member;
 import domain.model.User;
@@ -16,6 +13,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
+import static adapter.mapper.JPAUserMapper.toDomain;
 
 @ApplicationScoped
 //UserAdapter kann über @Inject injiziert werden und durch applicationscoped wird sichergestellt, dass die klasse nur einmal erstellt wird und überall benutzt wird.
@@ -68,10 +66,5 @@ public class JPAUserAdapter implements SaveUserPort, FindUserByEmailPort, FindUs
         coachEntity.setWorkouts(inDB == null ? new  ArrayList<>() : inDB.getWorkouts());
         coachEntity.setAssignments(inDB == null ? new  ArrayList<>() : inDB.getAssignments());
         return coachEntity;
-    }
-
-    private User toDomain(UserEntity user) {
-        if(user instanceof MemberEntity member) return JPAUserMapper.toDomain(member);
-        return JPAUserMapper.toDomain((CoachEntity) user);
     }
 }
