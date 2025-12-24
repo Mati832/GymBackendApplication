@@ -9,21 +9,26 @@ import java.util.List;
 public class ExerciseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    Long id;
     String name;
     //maybe enum later
     String type;
-    long durationInSec;
-    @ManyToOne
-    @JoinColumn(name = "created_by_id", foreignKey = @ForeignKey(name = "fk_exercise_created_by"), nullable = false)
-    UserEntity createdBy;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exercise")
+    Long durationInSec;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    UserEntity owner;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exercise", orphanRemoval = true)
     List<ExerciseSetEntity> exerciseSets = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "workout_id")
+    WorkoutEntity workout;
 
     public ExerciseEntity() {
     }
 
-    public ExerciseEntity(long id, String name, String type, long durationInSec) {
+    public ExerciseEntity(Long id, String name, String type, Long durationInSec) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -32,11 +37,11 @@ public class ExerciseEntity {
 
     //getter and setter
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -56,19 +61,19 @@ public class ExerciseEntity {
         this.type = type;
     }
 
-    public long getDurationInSec() {
+    public Long getDurationInSec() {
         return durationInSec;
     }
 
-    public void setDurationInSec(long durationInSec) {
+    public void setDurationInSec(Long durationInSec) {
         this.durationInSec = durationInSec;
     }
-    public UserEntity getCreatedBy() {
-        return createdBy;
+    public UserEntity getOwner() {
+        return owner;
     }
 
-    public void setCreatedBy(UserEntity createdBy) {
-        this.createdBy = createdBy;
+    public void setOwner(UserEntity createdBy) {
+        this.owner = createdBy;
     }
 
     public List<ExerciseSetEntity> getExerciseSets() {
@@ -77,5 +82,13 @@ public class ExerciseEntity {
 
     public void setExerciseSets(List<ExerciseSetEntity> exerciseSets) {
         this.exerciseSets = exerciseSets;
+    }
+
+    public WorkoutEntity getWorkout() {
+        return workout;
+    }
+
+    public void setWorkout(WorkoutEntity workout) {
+        this.workout = workout;
     }
 }

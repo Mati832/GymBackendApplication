@@ -29,9 +29,9 @@ public abstract class UserEntity {
     LocalDate bornOn;
     @Column(nullable = false)
     LocalDateTime createdAt;
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL,  orphanRemoval = true)
     List<ExerciseEntity> exercises = new ArrayList<>();
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     List<WorkoutEntity> workouts = new ArrayList<>();
 
 

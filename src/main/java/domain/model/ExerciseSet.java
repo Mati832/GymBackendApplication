@@ -3,15 +3,15 @@ package domain.model;
 import java.time.LocalDateTime;
 
 public class ExerciseSet {
-    long id;
-    int reps;
-    double weightInKg;
+    Long id;
+    Integer reps;
+    Double weightInKg;
     String notes;
-    long durationInSec;
+    Long durationInSec;
     LocalDateTime createdAt;
     Long belongsToExercise;
 
-    public ExerciseSet(long id, int reps, double weightInKg, String notes, long durationInSec, LocalDateTime createdAt, Long belongsToExercise) {
+    public ExerciseSet(Long id, Integer reps, Double weightInKg, String notes, Long durationInSec, LocalDateTime createdAt, Long belongsToExercise) {
         this.id = id;
         this.reps = reps;
         this.weightInKg = weightInKg;
@@ -22,27 +22,27 @@ public class ExerciseSet {
     }
 
     //getter and setter
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public int getReps() {
+    public Integer getReps() {
         return reps;
     }
 
-    public void setReps(int reps) {
+    public void setReps(Integer reps) {
         this.reps = reps;
     }
 
-    public double getWeightInKg() {
+    public Double getWeightInKg() {
         return weightInKg;
     }
 
-    public void setWeightInKg(double weightInKg) {
+    public void setWeightInKg(Double weightInKg) {
         this.weightInKg = weightInKg;
     }
 
@@ -54,11 +54,11 @@ public class ExerciseSet {
         this.notes = notes;
     }
 
-    public long getDurationInSec() {
+    public Long getDurationInSec() {
         return durationInSec;
     }
 
-    public void setDurationInSec(long durationInSec) {
+    public void setDurationInSec(Long durationInSec) {
         this.durationInSec = durationInSec;
     }
 

@@ -2,6 +2,7 @@ package adapter.out.Entities;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,11 +13,11 @@ public class WorkoutEntity {
     String name;
     String description;
     LocalDateTime createdAt;
-    @OneToMany(cascade = CascadeType.ALL)
-    List<ExerciseEntity> exercises;
-    @ManyToOne
-    @JoinColumn(name = "created_by_user_id", foreignKey = @ForeignKey(name = "user_id"), nullable = false)
-    UserEntity createdBy;
+    @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL,  orphanRemoval = true)
+    List<ExerciseEntity> exercises = new ArrayList<>();
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "user_id"), nullable = false)
+    UserEntity owner;
 
     public WorkoutEntity() {
     }
@@ -69,11 +70,11 @@ public class WorkoutEntity {
         this.exercises = exercises;
     }
 
-    public UserEntity getCreatedBy() {
-        return createdBy;
+    public UserEntity getOwner() {
+        return owner;
     }
 
-    public void setCreatedBy(UserEntity createdBy) {
-        this.createdBy = createdBy;
+    public void setOwner(UserEntity createdBy) {
+        this.owner = createdBy;
     }
 }

@@ -1,18 +1,19 @@
 package domain.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Workout {
-    long id;
+    Long id;
     String name;
     String description;
     LocalDateTime createdAt;
-    List<Long> exercises;
+    List<Long> exercises =  new ArrayList<>();
     Long createdByUserId;
 
 
-    public Workout(long id, String name, String description, LocalDateTime createdAt, List<Long> exercises, Long createdByUserId) {
+    public Workout(Long id, String name, String description, LocalDateTime createdAt, List<Long> exercises, Long createdByUserId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -22,11 +23,11 @@ public class Workout {
     }
 
     //getter and setter
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
