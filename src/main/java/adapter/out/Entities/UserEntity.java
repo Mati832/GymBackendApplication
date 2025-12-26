@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -27,6 +29,10 @@ public abstract class UserEntity {
     LocalDate bornOn;
     @Column(nullable = false)
     LocalDateTime createdAt;
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL,  orphanRemoval = true)
+    List<ExerciseEntity> exercises = new ArrayList<>();
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<WorkoutEntity> workouts = new ArrayList<>();
 
 
     @PrePersist//ist so jpa konform(keine abhängigkeit zu hibernate)
@@ -60,8 +66,14 @@ public abstract class UserEntity {
 
     }
 
+    //getter and setter
+
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -118,5 +130,21 @@ public abstract class UserEntity {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<ExerciseEntity> getExercises() {
+        return exercises;
+    }
+
+    public void setExercises(List<ExerciseEntity> exercises) {
+        this.exercises = exercises;
+    }
+
+    public List<WorkoutEntity> getWorkouts() {
+        return workouts;
+    }
+
+    public void setWorkouts(List<WorkoutEntity> workouts) {
+        this.workouts = workouts;
     }
 }

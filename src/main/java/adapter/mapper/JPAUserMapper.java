@@ -1,28 +1,29 @@
 package adapter.mapper;
 
-import adapter.out.Entities.CoachEntity;
-import adapter.out.Entities.MemberEntity;
-import adapter.out.Entities.UserEntity;
+import adapter.out.Entities.*;
 import domain.model.Coach;
 import domain.model.Member;
+import domain.model.User;
 
 import java.util.stream.Collectors;
 
 
-public class UserMapper {
+public class JPAUserMapper {
 
-
-
-    public static Member toDomain(MemberEntity memberEntity) {
+    private static Member toDomain(MemberEntity memberEntity) {
         return new Member(memberEntity.getId(), memberEntity.getFirstName(), memberEntity.getLastName(), memberEntity.getEmail(),
                 memberEntity.getPassword(), memberEntity.getGender(), memberEntity.getBornOn(), memberEntity.getCreatedAt(),
-                memberEntity.getAssignments().stream().map((as)->as.getCoach().getId()).collect(Collectors.toList()));
+                memberEntity.getExercises().stream().map(ExerciseEntity::getId).toList(),
+                memberEntity.getWorkouts().stream().map(WorkoutEntity::getId).toList(),
+                memberEntity.getAssignments().stream().map((as)->as.getCoach().getId()).toList());
     }
 
-    public static Coach toDomain(CoachEntity coachEntity) {
+    private static Coach toDomain(CoachEntity coachEntity) {
         return new Coach(coachEntity.getId(), coachEntity.getFirstName(), coachEntity.getLastName(), coachEntity.getEmail(),
                 coachEntity.getPassword(), coachEntity.getGender(), coachEntity.getBornOn(), coachEntity.getCreatedAt(),
-                coachEntity.getAssignments().stream().map((as)->as.getMember().getId()).collect(Collectors.toList()));
+                coachEntity.getExercises().stream().map(ExerciseEntity::getId).toList(),
+                coachEntity.getWorkouts().stream().map(WorkoutEntity::getId).toList(),
+                coachEntity.getAssignments().stream().map((as)->as.getMember().getId()).toList());
     }
 
     public static MemberEntity toEntity(Member member) {
@@ -33,5 +34,10 @@ public class UserMapper {
     public static CoachEntity toEntity(Coach coach) {
         return new CoachEntity(coach.getId(), coach.getFirstName(), coach.getLastName(), coach.getEmail(),
                 coach.getPassword(), coach.getGender(), coach.getBornOn(), coach.getCreatedAt());
+    }
+
+    public static User toDomain(UserEntity user) {
+        if(user instanceof MemberEntity member) return JPAUserMapper.toDomain(member);
+        return JPAUserMapper.toDomain((CoachEntity) user);
     }
 }

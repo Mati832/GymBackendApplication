@@ -1,25 +1,32 @@
-package domain.model;
+package adapter.out.Entities;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Workout {
+@Entity
+public class WorkoutEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String name;
     String description;
     LocalDateTime createdAt;
-    List<Long> exercises =  new ArrayList<>();
-    Long createdByUserId;
+    @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL,  orphanRemoval = true)
+    List<ExerciseEntity> exercises = new ArrayList<>();
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "user_id"), nullable = false)
+    UserEntity owner;
 
+    public WorkoutEntity() {
+    }
 
-    public Workout(Long id, String name, String description, LocalDateTime createdAt, List<Long> exercises, Long createdByUserId) {
+    public WorkoutEntity(Long id, String name, String description, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.createdAt = createdAt;
-        this.exercises = exercises;
-        this.createdByUserId = createdByUserId;
     }
 
     //getter and setter
@@ -55,19 +62,19 @@ public class Workout {
         this.createdAt = createdAt;
     }
 
-    public List<Long> getExercises() {
+    public List<ExerciseEntity> getExercises() {
         return exercises;
     }
 
-    public void setExercises(List<Long> exercises) {
+    public void setExercises(List<ExerciseEntity> exercises) {
         this.exercises = exercises;
     }
 
-    public Long getCreatedByUserId() {
-        return createdByUserId;
+    public UserEntity getOwner() {
+        return owner;
     }
 
-    public void setCreatedByUserId(Long createdByUserId) {
-        this.createdByUserId = createdByUserId;
+    public void setOwner(UserEntity createdBy) {
+        this.owner = createdBy;
     }
 }

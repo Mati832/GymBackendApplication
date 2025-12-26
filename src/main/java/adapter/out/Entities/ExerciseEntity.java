@@ -1,26 +1,94 @@
 package adapter.out.Entities;
 
-import domain.model.User;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class ExerciseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    Long id;
     String name;
     //maybe enum later
     String type;
-    long durationInSec;
-    @ManyToOne
-    @JoinColumn(name = "created_by_id", foreignKey = @ForeignKey(name = "fk_exercise_created_by"))
-    UserEntity createdBy;
+    Long durationInSec;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    UserEntity owner;
 
-    public UserEntity getCreatedBy() {
-        return createdBy;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exercise", orphanRemoval = true)
+    List<ExerciseSetEntity> exerciseSets = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "workout_id")
+    WorkoutEntity workout;
+
+    public ExerciseEntity() {
     }
 
-    public void setCreatedBy(UserEntity createdBy) {
-        this.createdBy = createdBy;
+    public ExerciseEntity(Long id, String name, String type, Long durationInSec) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.durationInSec = durationInSec;
+    }
+
+    //getter and setter
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Long getDurationInSec() {
+        return durationInSec;
+    }
+
+    public void setDurationInSec(Long durationInSec) {
+        this.durationInSec = durationInSec;
+    }
+    public UserEntity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserEntity createdBy) {
+        this.owner = createdBy;
+    }
+
+    public List<ExerciseSetEntity> getExerciseSets() {
+        return exerciseSets;
+    }
+
+    public void setExerciseSets(List<ExerciseSetEntity> exerciseSets) {
+        this.exerciseSets = exerciseSets;
+    }
+
+    public WorkoutEntity getWorkout() {
+        return workout;
+    }
+
+    public void setWorkout(WorkoutEntity workout) {
+        this.workout = workout;
     }
 }

@@ -1,27 +1,34 @@
-package domain.model;
+package adapter.out.Entities;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-public class ExerciseSet {
+@Entity
+public class ExerciseSetEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    Integer reps;
-    Double weightInKg;
+    int reps;
+    double weightInKg;
     String notes;
-    Long durationInSec;
+    long durationInSec;
     LocalDateTime createdAt;
-    Long belongsToExercise;
+    @ManyToOne
+    @JoinColumn(name = "exercise_id",  nullable = false)
+    ExerciseEntity exercise;
 
-    public ExerciseSet(Long id, Integer reps, Double weightInKg, String notes, Long durationInSec, LocalDateTime createdAt, Long belongsToExercise) {
+    public ExerciseSetEntity() {
+    }
+
+    public ExerciseSetEntity(Long id, int reps, double weightInKg, String notes, long durationInSec, LocalDateTime createdAt) {
         this.id = id;
         this.reps = reps;
         this.weightInKg = weightInKg;
         this.notes = notes;
         this.durationInSec = durationInSec;
         this.createdAt = createdAt;
-        this.belongsToExercise = belongsToExercise;
     }
 
-    //getter and setter
     public Long getId() {
         return id;
     }
@@ -30,19 +37,19 @@ public class ExerciseSet {
         this.id = id;
     }
 
-    public Integer getReps() {
+    public int getReps() {
         return reps;
     }
 
-    public void setReps(Integer reps) {
+    public void setReps(int reps) {
         this.reps = reps;
     }
 
-    public Double getWeightInKg() {
+    public double getWeightInKg() {
         return weightInKg;
     }
 
-    public void setWeightInKg(Double weightInKg) {
+    public void setWeightInKg(double weightInKg) {
         this.weightInKg = weightInKg;
     }
 
@@ -54,11 +61,11 @@ public class ExerciseSet {
         this.notes = notes;
     }
 
-    public Long getDurationInSec() {
+    public long getDurationInSec() {
         return durationInSec;
     }
 
-    public void setDurationInSec(Long durationInSec) {
+    public void setDurationInSec(long durationInSec) {
         this.durationInSec = durationInSec;
     }
 
@@ -70,11 +77,11 @@ public class ExerciseSet {
         this.createdAt = createdAt;
     }
 
-    public Long getBelongsToExercise() {
-        return belongsToExercise;
+    public ExerciseEntity getExercise() {
+        return exercise;
     }
 
-    public void setBelongsToExercise(Long belongsToExercise) {
-        this.belongsToExercise = belongsToExercise;
+    public void setExercise(ExerciseEntity exercise) {
+        this.exercise = exercise;
     }
 }
