@@ -24,6 +24,10 @@ public class AssignMemberCoachService implements AssignCoachMemberRelationUseCas
 
     @Override
     public AssignCoachMemberRelationResult assign(AssignCoachMemberRelationCommand command) {
+        if (command.requestedBy()==null){
+            return new AssignCoachMemberRelationResult.Failure(AssignCoachMemberRelationResult.AssignRelationFailureReason.UNAUTHORIZED);
+        }
+
         User coach = findUserByEmailPort.findByEmail(command.coachEmail());
         if (coach == null || !(coach instanceof Coach)) {
             return new AssignCoachMemberRelationResult.Failure(AssignCoachMemberRelationResult.AssignRelationFailureReason.COACH_NOT_FOUND);
@@ -31,6 +35,9 @@ public class AssignMemberCoachService implements AssignCoachMemberRelationUseCas
         User member = findUserByEmailPort.findByEmail(command.memberEmail());
         if (member == null || !(member instanceof Member)) {
             return new AssignCoachMemberRelationResult.Failure(AssignCoachMemberRelationResult.AssignRelationFailureReason.MEMBER_NOT_FOUND);
+        }
+        if (command.requestedBy()!= coach.getId()&&command.requestedBy()!= member.getId()) {
+            return new AssignCoachMemberRelationResult.Failure(AssignCoachMemberRelationResult.AssignRelationFailureReason.FORBIDDEN);
         }
         if (findCoachMemberRelationPort.findRelationByCoachAndMember(coach.getId(), member.getId()) != null) {
             return new AssignCoachMemberRelationResult.Failure(AssignCoachMemberRelationResult.AssignRelationFailureReason.RELATION_ALREADY_EXISTS);

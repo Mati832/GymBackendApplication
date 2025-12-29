@@ -13,6 +13,8 @@ public sealed interface AssignCoachMemberRelationResult permits AssignCoachMembe
     enum AssignRelationFailureReason {
         COACH_NOT_FOUND,
         MEMBER_NOT_FOUND,
-        RELATION_ALREADY_EXISTS
+        RELATION_ALREADY_EXISTS,
+        UNAUTHORIZED,
+        FORBIDDEN
     }
 }

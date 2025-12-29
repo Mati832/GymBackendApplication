@@ -41,7 +41,7 @@ public class UserLoginServiceTest {
         LoginUserResult loginUserResult = userLoginService.loginUser(wrongPasswordRequest);
 
         Assertions.assertTrue(loginUserResult instanceof LoginUserResult.Failure);
-        Assertions.assertEquals( LoginUserResult.UserLoginFailureReason.WRONG_PASSWORD, ((LoginUserResult.Failure) loginUserResult).reason());
+        Assertions.assertEquals( LoginUserResult.LoginFailureReason.WRONG_PASSWORD, ((LoginUserResult.Failure) loginUserResult).reason());
 
         verify(findUserByEmailPort, times(1)).findByEmail(wrongPasswordRequest.email());
     }
@@ -53,7 +53,7 @@ public class UserLoginServiceTest {
         LoginUserResult loginUserResult = userLoginService.loginUser(wrongEmailRequest);
 
         Assertions.assertTrue(loginUserResult instanceof LoginUserResult.Failure);
-        Assertions.assertEquals(LoginUserResult.UserLoginFailureReason.USER_NOT_FOUND, ((LoginUserResult.Failure) loginUserResult).reason());
+        Assertions.assertEquals(LoginUserResult.LoginFailureReason.USER_NOT_FOUND, ((LoginUserResult.Failure) loginUserResult).reason());
 
         verify(findUserByEmailPort, times(1)).findByEmail(wrongEmailRequest.email());
     }

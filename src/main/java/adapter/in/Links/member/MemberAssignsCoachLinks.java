@@ -1,7 +1,7 @@
-package adapter.in.Links;
+package adapter.in.Links.member;
 
-import adapter.in.Controller.MemberWebController;
 import adapter.in.DTOs.ResponseDTOs.CoachMemberResponse;
+import adapter.in.controller.MemberWebController;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.UriInfo;
 
@@ -12,7 +12,7 @@ public class MemberAssignsCoachLinks {
         return uriInfo
                 .getBaseUriBuilder()
                 .path(MemberWebController.class)
-                .path(MemberWebController.class, "assign")
+                .path(MemberWebController.class, "assignCoach")
                 .build(dto.getId());
     }
 
@@ -20,7 +20,7 @@ public class MemberAssignsCoachLinks {
         URI self = uriInfo
                 .getBaseUriBuilder()
                 .path(MemberWebController.class)
-                .path(MemberWebController.class, "assign")
+                .path(MemberWebController.class, "assignCoach")
                 .build(dto.getId());
         Link selfLink = Link.fromUri(self).rel("self").build();
         //dann im verlauf alle links hinzufügen
@@ -37,6 +37,14 @@ public class MemberAssignsCoachLinks {
     }
 
     public static Link[] getRelationAlreadyExistsLinks(UriInfo uriInfo) {
+        return new Link[0];
+    }
+
+    public static Link[] getUnauthorizedLinks(UriInfo uriInfo) {
+        return new Link[0];
+    }
+
+    public static Link[] getForbiddenLinks(UriInfo uriInfo) {
         return new Link[0];
     }
 

@@ -10,6 +10,7 @@ import domain.model.Member;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
@@ -31,10 +32,15 @@ public class JPAUserAdapter implements SaveUserPort, FindUserByEmailPort, FindUs
 
     @Override
     public User findByEmail(String email) {
-        UserEntity entity = em.createQuery("select u from UserEntity u where u.email = :email", UserEntity.class)
-                .setParameter("email", email)
-                .getSingleResult();
-        return toDomain(entity);
+        try {
+            UserEntity entity = em.createQuery("select u from UserEntity u where u.email = :email", UserEntity.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+            return toDomain(entity);
+        }
+        catch (NoResultException ex) {
+            return null;
+        }
     }
 
     @Override

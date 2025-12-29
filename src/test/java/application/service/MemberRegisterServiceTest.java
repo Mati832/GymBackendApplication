@@ -3,11 +3,13 @@ package application.service;
 import application.commands.member.MemberRegisterCommand;
 import application.port.out.UserPorts.FindUserByEmailPort;
 import application.port.out.UserPorts.SaveUserPort;
-import application.service.member.MemberUserRegisterService;
+import application.service.member.MemberRegisterService;
 import domain.Results.RegisterUserResult;
 import domain.model.Member;
 import domain.valueobject.Gender;
-import org.junit.jupiter.api.BeforeEach;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -17,21 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class UserRegisterServiceTest {
-
-    UserRegisterService<Member> userRegisterService;
+@QuarkusTest
+public class MemberRegisterServiceTest {
+    @Inject
+    MemberRegisterService memberRegisterService;
+    @InjectMock
     FindUserByEmailPort findUserByEmailPort;
+    @InjectMock
     SaveUserPort saveUserPort;
-
-    @BeforeEach
-    void setup() {
-        findUserByEmailPort = mock(FindUserByEmailPort.class);
-        saveUserPort = mock(SaveUserPort.class);
-        userRegisterService = new MemberUserRegisterService();
-        userRegisterService.saveUserPort = saveUserPort;
-        userRegisterService.findUserByEmailPort = findUserByEmailPort;
-    }
-
 
     @Test
     public void testRegisterUser() {
@@ -41,7 +36,7 @@ public class UserRegisterServiceTest {
         when(findUserByEmailPort.findByEmail(email)).thenReturn(null);
         when(saveUserPort.save(any())).thenReturn(userCopy);
 
-        var result = userRegisterService.registerMember(user);
+        var result = memberRegisterService.registerMember(user);
         assertTrue(result instanceof RegisterUserResult.Success);
 
         verify(findUserByEmailPort, times(1)).findByEmail(email);
@@ -52,7 +47,7 @@ public class UserRegisterServiceTest {
     void testRegisterUserEmptyFields() {
         MemberRegisterCommand user = new MemberRegisterCommand("", "", "", "", Gender.MALE, null);
 
-        var registerUserResult = userRegisterService.registerMember(user);
+        var registerUserResult = memberRegisterService.registerMember(user);
 
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
         assertEquals(RegisterUserResult.UserRegisterFailureReason.FIELD_EMPTY, ((RegisterUserResult.Failure) registerUserResult).reason());
@@ -64,7 +59,7 @@ public class UserRegisterServiceTest {
     void testRegisterUserPasswordTooShort() {
         MemberRegisterCommand user = new MemberRegisterCommand("John", "Doe", "john@example.com", "123", Gender.MALE, LocalDate.of(2000, 1, 1));
 
-        var registerUserResult = userRegisterService.registerMember(user);
+        var registerUserResult = memberRegisterService.registerMember(user);
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
         assertEquals(RegisterUserResult.UserRegisterFailureReason.PASSWORD_TOO_WEAK, ((RegisterUserResult.Failure) registerUserResult).reason());
         verify(saveUserPort, never()).save(any());
@@ -75,7 +70,7 @@ public class UserRegisterServiceTest {
         LocalDate futureDate = LocalDate.now().plusDays(1);
         MemberRegisterCommand user = new MemberRegisterCommand("John", "Doe", "john@example.com", "password123", Gender.MALE, futureDate);
 
-        var registerUserResult = userRegisterService.registerMember(user);
+        var registerUserResult = memberRegisterService.registerMember(user);
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
         assertEquals(RegisterUserResult.UserRegisterFailureReason.INVALID_BIRTHDAY, ((RegisterUserResult.Failure) registerUserResult).reason());
 
@@ -91,7 +86,7 @@ public class UserRegisterServiceTest {
 
         when(findUserByEmailPort.findByEmail(user.email())).thenReturn(userCopy);
 
-        var registerUserResult = userRegisterService.registerMember(user);
+        var registerUserResult = memberRegisterService.registerMember(user);
         assertTrue(registerUserResult instanceof RegisterUserResult.Failure);
         assertEquals(RegisterUserResult.UserRegisterFailureReason.USER_ALREADY_EXISTS, ((RegisterUserResult.Failure) registerUserResult).reason());
 

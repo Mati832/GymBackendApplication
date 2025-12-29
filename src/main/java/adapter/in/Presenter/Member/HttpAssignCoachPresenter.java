@@ -2,7 +2,7 @@ package adapter.in.Presenter.Member;
 
 import adapter.in.DTOs.ErrorResponse;
 import adapter.in.DTOs.ResponseDTOs.CoachMemberResponse;
-import adapter.in.Links.MemberAssignsCoachLinks;
+import adapter.in.Links.member.MemberAssignsCoachLinks;
 import adapter.in.mapper.MemberMapper;
 import domain.Results.AssignCoachMemberRelationResult;
 import domain.Results.AssignCoachMemberRelationResult.AssignRelationFailureReason;
@@ -46,6 +46,14 @@ public class HttpAssignCoachPresenter {
             case AssignRelationFailureReason.RELATION_ALREADY_EXISTS -> {
                 links = MemberAssignsCoachLinks.getRelationAlreadyExistsLinks(uriInfo);
                 yield new ErrorResponse(Response.Status.CONFLICT, AssignRelationFailureReason.RELATION_ALREADY_EXISTS.toString(), "");
+            }
+            case AssignRelationFailureReason.UNAUTHORIZED -> {
+                links = MemberAssignsCoachLinks.getUnauthorizedLinks(uriInfo);
+                yield new ErrorResponse(Response.Status.UNAUTHORIZED, AssignRelationFailureReason.UNAUTHORIZED.toString(), "");
+            }
+            case  AssignCoachMemberRelationResult.AssignRelationFailureReason.FORBIDDEN -> {
+                links = MemberAssignsCoachLinks.getForbiddenLinks(uriInfo);
+                yield new ErrorResponse(Response.Status.FORBIDDEN, AssignCoachMemberRelationResult.AssignRelationFailureReason.FORBIDDEN.toString(), "");
             }
         };
         return Response

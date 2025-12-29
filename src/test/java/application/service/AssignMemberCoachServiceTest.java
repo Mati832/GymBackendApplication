@@ -42,7 +42,7 @@ public class AssignMemberCoachServiceTest {
 
     @Test
     void assignFailsWhenCoachNotFound() {
-        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand("coach@email.com", "member@email.com");
+        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand("coach@email.com", "member@email.com",1L);
 
         when(findUserByEmailPort.findByEmail("coach@email.com")).thenReturn(null);
 
@@ -57,7 +57,7 @@ public class AssignMemberCoachServiceTest {
 
     @Test
     void assignFailsWhenMemberNotFound() {
-        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand("coach@email.com", "member@email.com");
+        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand("coach@email.com", "member@email.com", 1L);
 
         Coach coach = new Coach("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         when(findUserByEmailPort.findByEmail("coach@email.com")).thenReturn(coach);
@@ -77,8 +77,9 @@ public class AssignMemberCoachServiceTest {
 
         Coach coach = new Coach("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         Member member = new Member("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
+        coach.setId(1L);
 
-        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail());
+        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(),1L);
 
         when(findUserByEmailPort.findByEmail(coach.getEmail())).thenReturn(coach);
         when(findUserByEmailPort.findByEmail(member.getEmail())).thenReturn(member);
@@ -99,8 +100,9 @@ public class AssignMemberCoachServiceTest {
 
         Coach coach = new Coach("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         Member member = new Member("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
+        coach.setId(1L);
         CoachMember savedRelation = new CoachMember(1L, 2L);
-        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail());
+        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(),1L);
 
         when(findUserByEmailPort.findByEmail(coach.getEmail())).thenReturn(coach);
         when(findUserByEmailPort.findByEmail(member.getEmail())).thenReturn(member);

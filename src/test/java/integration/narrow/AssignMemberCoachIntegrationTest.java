@@ -1,4 +1,4 @@
-package integration;
+package integration.narrow;
 
 import application.commands.AssignCoachMemberRelationCommand;
 import application.port.in.AssignCoachMemberRelationUseCase;
@@ -9,10 +9,13 @@ import domain.Results.AssignCoachMemberRelationResult;
 import domain.model.Coach;
 import domain.model.CoachMember;
 import domain.model.Member;
+import domain.model.User;
 import domain.valueobject.Gender;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -31,21 +34,33 @@ public class AssignMemberCoachIntegrationTest {
     AssignCoachMemberRelationUseCase assignCoachMember;
 
     @Inject
+    EntityManager em;
+
+    @Inject
     FindUserByEmailPort findUserByEmailPort;
     @Inject
     FindCoachMemberRelationPort findCoachMemberPort;
+
+    @AfterEach
+    @Transactional
+    public void tearDown() {
+        em.createQuery("delete from CoachMemberEntity ").executeUpdate();
+        em.createQuery("delete from MemberEntity").executeUpdate();
+        em.createQuery("delete from CoachEntity").executeUpdate();
+        em.createQuery("delete from UserEntity").executeUpdate();
+    }
 
     @Test
     @Transactional
     void assignCreatesRelationInDatabase() {
         Coach coach = new Coach("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
-        saveUserPort.save(coach);
+        User requester = saveUserPort.save(coach);
 
         Member member = new Member("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
         saveUserPort.save(member);
 
         AssignCoachMemberRelationCommand command =
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail());
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), requester.getId());
 
 
         AssignCoachMemberRelationResult result = assignCoachMember.assign(command);
@@ -68,8 +83,9 @@ public class AssignMemberCoachIntegrationTest {
     @Test
     void coachDoesNotExist() {
         Member member = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
+        User requester = saveUserPort.save(member);
         AssignCoachMemberRelationCommand cmd =
-                new AssignCoachMemberRelationCommand("nonexistent@email.com", member.getEmail());
+                new AssignCoachMemberRelationCommand("nonexistent@email.com", member.getEmail(), requester.getId());
 
         AssignCoachMemberRelationResult result = assignCoachMember.assign(cmd);
 
@@ -83,12 +99,12 @@ public class AssignMemberCoachIntegrationTest {
     void relationAlreadyExists() {
         Coach coach = new Coach("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         Member member = new Member("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
-        saveUserPort.save(coach);
+        User requester = saveUserPort.save(coach);
         saveUserPort.save(member);
-        assignCoachMember.assign(new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail()));
+        assignCoachMember.assign(new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), requester.getId()));
 
         AssignCoachMemberRelationResult result = assignCoachMember.assign(
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail()));
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), requester.getId()));
 
         assertTrue(result instanceof AssignCoachMemberRelationResult.Failure);
         assertEquals(AssignCoachMemberRelationResult.AssignRelationFailureReason.RELATION_ALREADY_EXISTS,
@@ -109,10 +125,10 @@ public class AssignMemberCoachIntegrationTest {
         Member member3 = new Member("name", "lastname", "email6", "password", Gender.MALE, LocalDate.now());
         Member member4 = new Member("name", "lastname", "email7", "password", Gender.MALE, LocalDate.now());
 
-        saveUserPort.save(coach);
-        saveUserPort.save(coach2);
-        saveUserPort.save(coach3);
-        saveUserPort.save(coach4);
+        User requester = saveUserPort.save(coach);
+        User requester2 = saveUserPort.save(coach2);
+        User requester3 = saveUserPort.save(coach3);
+        User requester4 = saveUserPort.save(coach4);
 
         saveUserPort.save(member);
         saveUserPort.save(member2);
@@ -121,16 +137,16 @@ public class AssignMemberCoachIntegrationTest {
 
 
         List<AssignCoachMemberRelationCommand> commands = List.of(
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail()),
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member2.getEmail()),
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member3.getEmail()),
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member4.getEmail()),
-                new AssignCoachMemberRelationCommand(coach2.getEmail(), member.getEmail()),
-                new AssignCoachMemberRelationCommand(coach2.getEmail(), member2.getEmail()),
-                new AssignCoachMemberRelationCommand(coach2.getEmail(), member3.getEmail()),
-                new AssignCoachMemberRelationCommand(coach3.getEmail(), member.getEmail()),
-                new AssignCoachMemberRelationCommand(coach3.getEmail(), member2.getEmail()),
-                new AssignCoachMemberRelationCommand(coach4.getEmail(), member.getEmail())
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), requester.getId()),
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member2.getEmail(), requester.getId()),
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member3.getEmail(), requester.getId()),
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member4.getEmail(), requester.getId()),
+                new AssignCoachMemberRelationCommand(coach2.getEmail(), member.getEmail(), requester2.getId()),
+                new AssignCoachMemberRelationCommand(coach2.getEmail(), member2.getEmail(), requester2.getId()),
+                new AssignCoachMemberRelationCommand(coach2.getEmail(), member3.getEmail(), requester2.getId()),
+                new AssignCoachMemberRelationCommand(coach3.getEmail(), member.getEmail(), requester3.getId()),
+                new AssignCoachMemberRelationCommand(coach3.getEmail(), member2.getEmail(), requester3.getId()),
+                new AssignCoachMemberRelationCommand(coach4.getEmail(), member.getEmail(), requester4.getId())
         );
 
 
