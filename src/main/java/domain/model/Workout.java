@@ -22,6 +22,10 @@ public class Workout {
         this.createdByUserId = createdByUserId;
     }
 
+    public Workout() {
+
+    }
+
     //getter and setter
     public Long getId() {
         return id;

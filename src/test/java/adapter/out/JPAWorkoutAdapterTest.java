@@ -1,9 +1,9 @@
 package adapter.out;
 
 import adapter.out.Entities.*;
-import application.port.out.UserPorts.AddWorkoutToUserPort;
-import application.port.out.UserPorts.DeleteWorkoutInUserPort;
-import application.port.out.UserPorts.EditWorkoutInUserPort;
+import application.port.in.workout.AddWorkoutToUserUseCase;
+import application.port.in.workout.DeleteWorkoutInUserUseCase;
+import application.port.in.workout.EditWorkoutInUserUseCase;
 import domain.Results.JPAWorkoutExerciseAdapterResult;
 import domain.model.User;
 import domain.model.Workout;
@@ -27,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestTransaction
 public class JPAWorkoutAdapterTest {
     @Inject
-    AddWorkoutToUserPort addWorkoutToUserPort;
+    AddWorkoutToUserUseCase addWorkoutToUserUseCase;
     @Inject
-    DeleteWorkoutInUserPort deleteWorkoutInUserPort;
+    DeleteWorkoutInUserUseCase deleteWorkoutInUserUseCase;
     @Inject
-    EditWorkoutInUserPort editWorkoutInUserPort;
+    EditWorkoutInUserUseCase editWorkoutInUserUseCase;
 
     @Inject
     EntityManager em;
@@ -57,7 +57,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testAddWorkout1(){
         em.persist(user);
-        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         WorkoutEntity expected = new WorkoutEntity(user.getWorkouts().getFirst().getId(), "Cardio", "doing cardio", now);
         expected.setOwner(user);
         //Test if workout is correctly saved in user:
@@ -73,9 +73,9 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testAddWorkout2(){
         em.persist(user);
-        JPAWorkoutExerciseAdapterResult<User> actualResult1 = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
-        JPAWorkoutExerciseAdapterResult<User> actualResult2 = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout2);
-        JPAWorkoutExerciseAdapterResult<User> actualResult3 = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout3);
+        JPAWorkoutExerciseAdapterResult<User> actualResult1 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
+        JPAWorkoutExerciseAdapterResult<User> actualResult2 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout2);
+        JPAWorkoutExerciseAdapterResult<User> actualResult3 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout3);
 
         WorkoutEntity expected1 = new WorkoutEntity(user.getWorkouts().getFirst().getId(), "Cardio", "doing cardio", now);
         WorkoutEntity expected2 = new WorkoutEntity(user.getWorkouts().get(1).getId(), "Upper body", "Everything related to upper body", now);
@@ -108,8 +108,8 @@ public class JPAWorkoutAdapterTest {
     public void testAddSameWorkout(){
         em.persist(user);
         //should be possible. It is in the users responsibility
-        JPAWorkoutExerciseAdapterResult<User> actualResult1 = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
-        JPAWorkoutExerciseAdapterResult<User> actualResult2 = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        JPAWorkoutExerciseAdapterResult<User> actualResult1 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
+        JPAWorkoutExerciseAdapterResult<User> actualResult2 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
 
         WorkoutEntity expected1 = new WorkoutEntity(user.getWorkouts().getFirst().getId(), "Cardio", "doing cardio", now);
         expected1.setOwner(user);
@@ -137,14 +137,14 @@ public class JPAWorkoutAdapterTest {
         em.persist(user);
         //workout1 is unknown to the DB, because a random key is set and it was never persisted before
         workout1.setId(2031L);
-        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         //Test if workout is saved in the user:
         assertTrue(user.getWorkouts().isEmpty());
         //Test if workout is saved in the DB:
         assertNull(em.find(WorkoutEntity.class, workout1.getId()));
         //Test result:
         JPAWorkoutExerciseAdapterResult<User> expectedResult =
-                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
         assertResultEquals(expectedResult, actualResult, User::getId);
     }
 
@@ -155,7 +155,7 @@ public class JPAWorkoutAdapterTest {
         WorkoutEntity knownWorkout = new WorkoutEntity(null, "Cardio", "doing cardio", now);
         knownWorkout.setOwner(user);
         em.persist(knownWorkout);
-        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserPort.addWorkoutToUser(user.getId(), toDomain(knownWorkout));
+        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), toDomain(knownWorkout));
         //Test if the workout is saved in the User:
         WorkoutEntity expected = new WorkoutEntity(null, "Cardio", "doing cardio", now);
         expected.setOwner(user);
@@ -179,7 +179,7 @@ public class JPAWorkoutAdapterTest {
         workout1.setCreatedByUserId(user.getId());
         //Exercise with the id 1235L doesn't exist
         workout1.getExercises().add(1235L);
-        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         //Test if the invalid workout is even saved in user
         assertTrue(user.getWorkouts().isEmpty());
         //Test result:
@@ -199,7 +199,7 @@ public class JPAWorkoutAdapterTest {
         em.persist(exerciseEntity);
         workout1.setCreatedByUserId(user.getId());
         workout1.getExercises().add(exerciseEntity.getId());
-        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         //Test if workout is saved in User
         assertTrue(user.getWorkouts().isEmpty());
         //test results:
@@ -225,7 +225,7 @@ public class JPAWorkoutAdapterTest {
         workout1.getExercises().add(exerciseEntity.getId());
         workout1.setId(workoutEntity.getId());
 
-        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         //Test if workout is saved in User:
         WorkoutEntity expected = new WorkoutEntity(user.getWorkouts().getFirst().getId(), "Cardio", "doing cardio", now);
         expected.setOwner(user);
@@ -244,7 +244,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testAddWorkoutWithWrongUserId(){
         em.persist(user);
-        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserPort.addWorkoutToUser(1231L, workout1);
+        JPAWorkoutExerciseAdapterResult<User> actualResult = addWorkoutToUserUseCase.addWorkoutToUser(1231L, workout1);
         //test if workout is saved in user:
         assertTrue(user.getWorkouts().isEmpty());
         //test result:
@@ -259,9 +259,9 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testDeleteWorkoutInUser(){
         em.persist(user);
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
-        JPAWorkoutExerciseAdapterResult<User> actualResult = deleteWorkoutInUserPort.deleteWorkoutInUser(user.getId(), user.getWorkouts().getFirst().getId());
+        JPAWorkoutExerciseAdapterResult<User> actualResult = deleteWorkoutInUserUseCase.deleteWorkoutInUser(user.getId(), user.getWorkouts().getFirst().getId());
         //test if workout is deleted in the user:
         assertTrue(user.getWorkouts().isEmpty());
         //test result
@@ -275,10 +275,10 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testDeleteWorkoutInUser2(){
         em.persist(user);
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout2);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout2);
         assertFalse(user.getWorkouts().isEmpty());
-        JPAWorkoutExerciseAdapterResult<User> actualResult = deleteWorkoutInUserPort.deleteWorkoutInUser(user.getId(), user.getWorkouts().getFirst().getId());
+        JPAWorkoutExerciseAdapterResult<User> actualResult = deleteWorkoutInUserUseCase.deleteWorkoutInUser(user.getId(), user.getWorkouts().getFirst().getId());
         //test if workout is deleted in the user:
         WorkoutEntity wEntityInList = new WorkoutEntity(null, "Upper body", "Everything related to upper body", now);
         wEntityInList.setOwner(user);
@@ -307,7 +307,7 @@ public class JPAWorkoutAdapterTest {
         workout1.setCreatedByUserId(user.getId());
         workout1.getExercises().add(exerciseEntity.getId());
         workout1.setId(workoutEntity.getId());
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
 
        //Test: how many entities are in the DB after saving one additional WorkoutEntity to User
@@ -317,8 +317,7 @@ public class JPAWorkoutAdapterTest {
         assertEquals(2, exerciseCount);
 
         //Delete the workout in user
-        JPAWorkoutExerciseAdapterResult<User> actualResult = deleteWorkoutInUserPort.deleteWorkoutInUser(user.getId(), user.getWorkouts().getFirst().getId());
-
+        JPAWorkoutExerciseAdapterResult<User> actualResult = deleteWorkoutInUserUseCase.deleteWorkoutInUser(user.getId(), user.getWorkouts().getFirst().getId());
         //Test if workout in user is deleted
         assertTrue(user.getWorkouts().isEmpty());
 
@@ -337,19 +336,19 @@ public class JPAWorkoutAdapterTest {
         em.persist(user);
         assertTrue(user.getWorkouts().isEmpty());
         //test results
-        JPAWorkoutExerciseAdapterResult<User> actualResult1 = deleteWorkoutInUserPort.deleteWorkoutInUser(user.getId(), user.getId());
+        JPAWorkoutExerciseAdapterResult<User> actualResult1 = deleteWorkoutInUserUseCase.deleteWorkoutInUser(user.getId(), user.getId());
         JPAWorkoutExerciseAdapterResult<User>  expectedResult1 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_IN_USER_NOT_FOUND);
         assertResultEquals(expectedResult1, actualResult1, User::getId);
 
-        JPAWorkoutExerciseAdapterResult<User> actualResult2 = deleteWorkoutInUserPort.deleteWorkoutInUser(10L, 10L);
+        JPAWorkoutExerciseAdapterResult<User> actualResult2 = deleteWorkoutInUserUseCase.deleteWorkoutInUser(10L, 10L);
         JPAWorkoutExerciseAdapterResult<User> expectedResult2 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
         assertResultEquals(expectedResult2, actualResult2, User::getId);
 
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
-        JPAWorkoutExerciseAdapterResult<User> actualResult3 = deleteWorkoutInUserPort.deleteWorkoutInUser(user.getId(), 100L);
+        JPAWorkoutExerciseAdapterResult<User> actualResult3 = deleteWorkoutInUserUseCase.deleteWorkoutInUser(user.getId(), 100L);
         JPAWorkoutExerciseAdapterResult<User> expectedResult3 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_IN_USER_NOT_FOUND);
         assertResultEquals(expectedResult3, actualResult3, User::getId);
@@ -361,12 +360,12 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testEditWorkoutInUser(){
         em.persist(user);
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
 
         Workout editedWorkout = new Workout(null, "strength training", "training for strength", now, new ArrayList<>(), user.getId());
         editedWorkout.setId(user.getWorkouts().getFirst().getId());
-        JPAWorkoutExerciseAdapterResult<Workout> actualResult = editWorkoutInUserPort.editWorkoutInUser(user.getWorkouts().getFirst().getId(), editedWorkout);
+        JPAWorkoutExerciseAdapterResult<Workout> actualResult = editWorkoutInUserUseCase.editWorkoutInUser(user.getWorkouts().getFirst().getId(), editedWorkout);
 
         WorkoutEntity expectedAfterEditing = new WorkoutEntity(user.getWorkouts().getFirst().getId(),  "strength training", "training for strength", now);
         expectedAfterEditing.setId(editedWorkout.getId());
@@ -381,12 +380,12 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testEditWorkoutInUser2(){
         em.persist(user);
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
 
         Workout editedWorkout = new Workout(null, null, "training for strength", now, new ArrayList<>(), user.getId());
         editedWorkout.setId(user.getWorkouts().getFirst().getId());
-        JPAWorkoutExerciseAdapterResult<Workout> actualResult = editWorkoutInUserPort.editWorkoutInUser(user.getWorkouts().getFirst().getId(), editedWorkout);
+        JPAWorkoutExerciseAdapterResult<Workout> actualResult = editWorkoutInUserUseCase.editWorkoutInUser(user.getWorkouts().getFirst().getId(), editedWorkout);
 
         WorkoutEntity expectedAfterEditing = new WorkoutEntity(user.getWorkouts().getFirst().getId(),  "Cardio", "training for strength", now);
         expectedAfterEditing.setId(editedWorkout.getId());
@@ -401,16 +400,16 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testEditWorkoutInUser3(){
         em.persist(user);
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout2);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout2);
         assertFalse(user.getWorkouts().isEmpty());
 
         Workout editedWorkout1 = new Workout(null, "strength training", "training for strength", now, new ArrayList<>(), user.getId());
         editedWorkout1.setId(user.getWorkouts().getFirst().getId());
         Workout editedWorkout2 = new Workout(null, "MMA", "doing some Boxing", now, new ArrayList<>(), user.getId());
         editedWorkout2.setId(user.getWorkouts().get(1).getId());
-        JPAWorkoutExerciseAdapterResult<Workout> actualResult1 = editWorkoutInUserPort.editWorkoutInUser(user.getWorkouts().getFirst().getId(), editedWorkout1);
-        JPAWorkoutExerciseAdapterResult<Workout> actualResult2 = editWorkoutInUserPort.editWorkoutInUser(user.getWorkouts().get(1).getId(), editedWorkout2);
+        JPAWorkoutExerciseAdapterResult<Workout> actualResult1 = editWorkoutInUserUseCase.editWorkoutInUser(user.getWorkouts().getFirst().getId(), editedWorkout1);
+        JPAWorkoutExerciseAdapterResult<Workout> actualResult2 = editWorkoutInUserUseCase.editWorkoutInUser(user.getWorkouts().get(1).getId(), editedWorkout2);
 
         WorkoutEntity expected1 = new WorkoutEntity(user.getWorkouts().getFirst().getId(),  "strength training", "training for strength", now);
         expected1.setId(editedWorkout1.getId());
@@ -433,7 +432,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testInvalidEditWorkoutInUser(){
         em.persist(user);
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
 
         //The workoutEntity stays the same before editing and after editing, since it is an invalid request
@@ -441,7 +440,7 @@ public class JPAWorkoutAdapterTest {
         Workout editedWorkout = new Workout(null, "MMA", "doing some Boxing", now, new ArrayList<>(), user.getId());
         editedWorkout.setId(1232L);
         //test results:
-        JPAWorkoutExerciseAdapterResult<Workout> actualResult1 = editWorkoutInUserPort.editWorkoutInUser(user.getId(), editedWorkout);
+        JPAWorkoutExerciseAdapterResult<Workout> actualResult1 = editWorkoutInUserUseCase.editWorkoutInUser(user.getId(), editedWorkout);
         JPAWorkoutExerciseAdapterResult<Workout> expectedResult =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
         assertResultEquals(expectedResult, actualResult1, Workout::getId);
@@ -453,18 +452,18 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testInvalidEditWorkoutInUser2(){
         em.persist(user);
-        addWorkoutToUserPort.addWorkoutToUser(user.getId(), workout1);
+        addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
 
 
         //test results:
         workout2.setId(9814L);
-        JPAWorkoutExerciseAdapterResult<Workout> actualResult1 = editWorkoutInUserPort.editWorkoutInUser(9814L, workout2);
+        JPAWorkoutExerciseAdapterResult<Workout> actualResult1 = editWorkoutInUserUseCase.editWorkoutInUser(9814L, workout2);
         JPAWorkoutExerciseAdapterResult<Workout> expectedResult1 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
         assertResultEquals(expectedResult1, actualResult1, Workout::getId);
 
         workout1.setCreatedByUserId(7301L);
-        JPAWorkoutExerciseAdapterResult<Workout> actualResult2 = editWorkoutInUserPort.editWorkoutInUser(user.getWorkouts().getFirst().getId(), workout1);
+        JPAWorkoutExerciseAdapterResult<Workout> actualResult2 = editWorkoutInUserUseCase.editWorkoutInUser(user.getWorkouts().getFirst().getId(), workout1);
         JPAWorkoutExerciseAdapterResult<Workout> expectedResult2 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
         assertResultEquals(expectedResult2, actualResult2, Workout::getId);

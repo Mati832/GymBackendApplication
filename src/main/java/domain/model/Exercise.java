@@ -1,5 +1,6 @@
 package domain.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Exercise {
@@ -9,7 +10,7 @@ public class Exercise {
     String type;
     Long durationInSec;
     Long createdByUserId;
-    List<Long> exerciseSets;
+    List<Long> exerciseSets = new ArrayList<>();
     Long workoutId;
 
     public Exercise(Long id, String name, String type, Long durationInSec, Long createdByUserId, List<Long> exerciseSets,  Long workoutId) {
@@ -20,6 +21,10 @@ public class Exercise {
         this.createdByUserId = createdByUserId;
         this.exerciseSets = exerciseSets;
         this.workoutId = workoutId;
+    }
+
+    public Exercise() {
+
     }
 
     public Long getId() {

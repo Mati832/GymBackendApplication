@@ -11,6 +11,7 @@ import domain.model.CoachMember;
 import domain.model.Member;
 import domain.model.User;
 import domain.valueobject.Gender;
+import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;

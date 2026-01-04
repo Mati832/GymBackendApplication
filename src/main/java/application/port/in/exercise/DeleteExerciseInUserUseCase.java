@@ -1,4 +1,4 @@
-package application.port.in;
+package application.port.in.exercise;
 
 import domain.Results.JPAWorkoutExerciseAdapterResult;
 import domain.model.User;

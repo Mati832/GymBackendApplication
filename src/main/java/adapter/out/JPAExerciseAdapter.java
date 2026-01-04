@@ -5,144 +5,80 @@ import adapter.out.Entities.ExerciseEntity;
 import adapter.out.Entities.ExerciseSetEntity;
 import adapter.out.Entities.UserEntity;
 import adapter.out.Entities.WorkoutEntity;
+import application.port.out.ExercisePorts.DeleteExercisePort;
+import application.port.out.ExercisePorts.FindExerciseByIdPort;
+import application.port.out.ExercisePorts.SaveExercisePort;
+import application.port.out.ExercisePorts.UpdateExercisePort;
 import application.port.out.UserPorts.*;
-import domain.Results.JPAWorkoutExerciseAdapterResult;
+import domain.exceptions.ExerciseNotFoundException;
 import domain.exceptions.ExerciseSetNotFoundException;
 import domain.model.Exercise;
-import domain.model.User;
-import domain.model.Workout;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+
+import java.util.ArrayList;
+
 import static adapter.mapper.JPAExerciseMapper.copyFromDB;
-import static adapter.mapper.JPAWorkoutMapper.toDomain;
-import static adapter.mapper.JPAUserMapper.toDomain;
 import static adapter.mapper.JPAExerciseMapper.toDomain;
 
 @ApplicationScoped
-public class JPAExerciseAdapter implements AddExerciseToWorkoutPort, AddExerciseToUserPort, DeleteExerciseInUserPort,
-        DeleteExerciseInWorkoutPort, EditExercisePort {
-
+public class JPAExerciseAdapter implements FindExerciseByIdPort, SaveExercisePort, UpdateExercisePort, DeleteExercisePort {
     @Inject
     EntityManager em;
 
     @Override
+    public Exercise findExerciseById(Long exerciseId) {
+        ExerciseEntity exerciseEntity = em.find(ExerciseEntity.class, exerciseId);
+        return exerciseEntity == null ? null : toDomain(exerciseEntity);
+    }
+
+    @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<Workout> addExerciseToWorkout(Long workoutId, Exercise exercise) {
-        if(workoutId == null || exercise == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
-
-        WorkoutEntity workoutEntity = em.find(WorkoutEntity.class, workoutId);
-        if (workoutEntity == null) return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
-
-        ExerciseEntity exerciseEntity = resolveExerciseEntityForAdd(exercise);
-        if(exerciseEntity == null) return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
-
-        exerciseEntity.setOwner(workoutEntity.getOwner());
-        exerciseEntity.setWorkout(workoutEntity);
+    public Exercise saveExercise(Exercise exercise) {
+        ExerciseEntity exerciseEntity = toEntity(exercise);
         em.persist(exerciseEntity);
-        workoutEntity.getExercises().add(exerciseEntity);
-        return new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(workoutEntity));
+        return toDomain(exerciseEntity);
     }
 
     @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<User> addExerciseToUser(Long userId, Exercise exercise) {
-        if(userId == null || exercise == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
-
-        UserEntity userEntity = em.find(UserEntity.class, userId);
-        if(userEntity == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
-
-        ExerciseEntity exerciseEntity =  resolveExerciseEntityForAdd(exercise);
-        if(exerciseEntity == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
-
-        exerciseEntity.setOwner(userEntity);
-        exerciseEntity.setWorkout(null);
-        em.persist(exerciseEntity);
-        userEntity.getExercises().add(exerciseEntity);
-
-        return new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(userEntity));
+    public Exercise updateExercise(Exercise exercise) {
+        ExerciseEntity exerciseEntity = em.find(ExerciseEntity.class, exercise.getId());
+        if(exerciseEntity == null) return null;
+        exerciseEntity.setId(exercise.getId());
+        exerciseEntity.setName(exercise.getName());
+        exerciseEntity.setType(exercise.getType());
+        exerciseEntity.setDurationInSec(exercise.getDurationInSec());
+        exerciseEntity.setOwner(em.find(UserEntity.class, exercise.getCreatedByUserId()));
+        exerciseEntity.getExerciseSets().clear();
+        exerciseEntity.getExerciseSets().addAll(exercise.getExerciseSets().stream()
+                .map(eSetId -> em.find(ExerciseSetEntity.class, eSetId)).toList());
+        if(exercise.getWorkoutId() != null)
+            exerciseEntity.setWorkout(em.find(WorkoutEntity.class, exercise.getWorkoutId()));
+        return toDomain(exerciseEntity);
     }
 
     @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<User> deleteExerciseInUser(Long userId, Long exerciseId) {
-        if(exerciseId == null || userId == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+    public void deleteExercise(Long exerciseId) {
+        ExerciseEntity exerciseEntity = em.find(ExerciseEntity.class, exerciseId);
+        if(exerciseEntity == null) return;
 
-        UserEntity userEntity = em.find(UserEntity.class, userId);
-        if(userEntity == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
-
-        ExerciseEntity exerciseEntityInUser = userEntity.getExercises().stream()
-                .filter(eEntity -> eEntity.getId().equals(exerciseId)).findFirst().orElse(null);
-        if(exerciseEntityInUser == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_IN_USER_NOT_FOUND);
-
-        //remove the exercise from the User
-        if(!userEntity.getExercises().remove(exerciseEntityInUser))
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_DELETED);
-
-        em.remove(exerciseEntityInUser);
-        return new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(userEntity));
-    }
-
-    @Override
-    @Transactional
-    public JPAWorkoutExerciseAdapterResult<Workout> deleteExerciseInWorkout(Long workoutId, Long exerciseId) {
-        if(exerciseId == null || workoutId == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
-
-        WorkoutEntity workoutEntity = em.find(WorkoutEntity.class, workoutId);
-        if(workoutEntity == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
-
-        ExerciseEntity exerciseEntityInWorkout = workoutEntity.getExercises().stream()
-                .filter(eEntity -> eEntity.getId().equals(exerciseId)).findFirst().orElse(null);
-        if(exerciseEntityInWorkout == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_IN_WORKOUT_NOT_FOUND);
-
-        //remove the exercise from the Workout
-        if(!workoutEntity.getExercises().remove(exerciseEntityInWorkout))
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_DELETED);
-
-        em.remove(exerciseEntityInWorkout);
-        return new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(workoutEntity));
-    }
-
-    @Override
-    @Transactional
-    //If you want to edit the sets of an exercise, then use the JPAExerciseSetAdapter
-    //it doesn't matter where the exercise is. It works for exercises both in user and workouts
-    public JPAWorkoutExerciseAdapterResult<Exercise> editExercise(Long exerciseId, Exercise exercise) {
-        if(exerciseId == null || exercise == null || exercise.getId() == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
-        if(!exercise.getId().equals(exerciseId))
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
-
-        ExerciseEntity eEntityToBeEdited  = em.find(ExerciseEntity.class, exerciseId);
-        if(eEntityToBeEdited == null)
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
-        if(!eEntityToBeEdited.getOwner().getId().equals(exercise.getCreatedByUserId()))
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
-
-        if(exercise.getName() != null) eEntityToBeEdited.setName(exercise.getName());
-        if(exercise.getType() != null) eEntityToBeEdited.setType(exercise.getType());
-        if(exercise.getDurationInSec() != null) eEntityToBeEdited.setDurationInSec(exercise.getDurationInSec());
-        return new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(eEntityToBeEdited));
+        exerciseEntity.getOwner().getExercises().remove(exerciseEntity);
+        if(exerciseEntity.getWorkout() != null)
+         exerciseEntity.getWorkout().getExercises().remove(exerciseEntity);
+        em.remove(exerciseEntity);
     }
 
     private ExerciseEntity toEntity(Exercise exercise) {
         ExerciseEntity exerciseEntity = JPAExerciseMapper.toEntity(exercise);
-        exerciseEntity.setExerciseSets(exercise.getExerciseSets().stream().map(eSetId -> {
+        exerciseEntity.setExerciseSets(new ArrayList<>(exercise.getExerciseSets().stream().map(eSetId -> {
             ExerciseSetEntity eSetEntity = em.find(ExerciseSetEntity.class, eSetId);
             if (eSetEntity == null) throw new ExerciseSetNotFoundException("exerciseSet not found: " + eSetId);
             return  eSetEntity;
-        }).toList());
+        }).toList()));
         if(exercise.getCreatedByUserId() != null) exerciseEntity.setOwner(em.find(UserEntity.class, exercise.getCreatedByUserId()));
         if(exercise.getWorkoutId() != null) exerciseEntity.setWorkout(em.find(WorkoutEntity.class, exercise.getWorkoutId()));
         return  exerciseEntity;

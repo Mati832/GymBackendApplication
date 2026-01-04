@@ -1,10 +1,9 @@
 package adapter.out;
 
 import adapter.mapper.JPAUserMapper;
-import adapter.out.Entities.CoachEntity;
-import adapter.out.Entities.MemberEntity;
-import adapter.out.Entities.UserEntity;
+import adapter.out.Entities.*;
 import application.port.out.UserPorts.*;
+import domain.exceptions.UserNotFoundException;
 import domain.model.Coach;
 import domain.model.Member;
 import domain.model.User;
@@ -45,16 +44,31 @@ public class JPAUserAdapter implements SaveUserPort, FindUserByEmailPort, FindUs
 
     @Override
     public User findUserById(Long id) {
-        return toDomain(em.find(UserEntity.class, id));
+        UserEntity userEntity = em.find(UserEntity.class, id);
+        return userEntity == null ? null : toDomain(em.find(UserEntity.class, id));
     }
 
     @Transactional
     @Override
-    public void update(User user) {
+    public User update(User user) {
         if(user.getId() == null) {
             throw new IllegalArgumentException("id of updated user is null");
         }
-        em.merge(toEntity(user));
+        UserEntity userEntity = em.find(UserEntity.class, user.getId());
+        userEntity.setId(user.getId());
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+        userEntity.setEmail(user.getEmail());
+        userEntity.setPassword(user.getPassword());
+        userEntity.setGender(user.getGender());
+        userEntity.setBornOn(user.getBornOn());
+        userEntity.setCreatedAt(user.getCreatedAt());
+        userEntity.getExercises().clear();
+        userEntity.getExercises().addAll(user.getExercises().stream().map(eId -> em.find(ExerciseEntity.class, eId)).toList());
+        userEntity.getWorkouts().clear();
+        userEntity.getWorkouts().addAll(user.getWorkouts().stream().map(wId -> em.find(WorkoutEntity.class, wId)).toList());
+
+        return toDomain(userEntity);
     }
 
     private UserEntity toEntity(User user) {

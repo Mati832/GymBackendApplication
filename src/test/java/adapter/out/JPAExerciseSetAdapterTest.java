@@ -4,9 +4,9 @@ import adapter.out.Entities.CoachEntity;
 import adapter.out.Entities.ExerciseEntity;
 import adapter.out.Entities.ExerciseSetEntity;
 import adapter.out.Entities.UserEntity;
-import application.port.out.UserPorts.AddExerciseSetToExercisePort;
-import application.port.out.UserPorts.DeleteExerciseSetInExercisePort;
-import application.port.out.UserPorts.EditExerciseSetPort;
+import application.port.in.exerciseSet.AddExerciseSetToExerciseUseCase;
+import application.port.in.exerciseSet.DeleteExerciseSetInExerciseUseCase;
+import application.port.in.exerciseSet.EditExerciseSetUseCase;
 import domain.Results.JPAWorkoutExerciseAdapterResult;
 import domain.model.Exercise;
 import domain.model.ExerciseSet;
@@ -32,11 +32,11 @@ public class JPAExerciseSetAdapterTest {
     @Inject
     EntityManager em;
     @Inject
-    AddExerciseSetToExercisePort  addExerciseSetToExercisePort;
+    AddExerciseSetToExerciseUseCase addExerciseSetToExerciseUseCase;
     @Inject
-    DeleteExerciseSetInExercisePort deleteExerciseSetInExercisePort;
+    DeleteExerciseSetInExerciseUseCase deleteExerciseSetInExerciseUseCase;
     @Inject
-    EditExerciseSetPort  editExerciseSetPort;
+    EditExerciseSetUseCase editExerciseSetUseCase;
 
     //ADD EXERCISE SET
 
@@ -72,7 +72,7 @@ public class JPAExerciseSetAdapterTest {
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
 
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult =
-                addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
         //test if exerciseSet is added in exercise
         assertFalse(exerciseEntity1.getExerciseSets().isEmpty());
         assertEquals(1, exerciseEntity1.getExerciseSets().size());
@@ -99,9 +99,9 @@ public class JPAExerciseSetAdapterTest {
         exerciseSet2.setBelongsToExercise(exerciseEntity1.getId());
 
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult1 =
-                addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet2);
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet2);
         //test if both sets are in exerciseEntity1
         assertFalse(exerciseEntity1.getExerciseSets().isEmpty());
         assertEquals(2, exerciseEntity1.getExerciseSets().size());
@@ -135,10 +135,10 @@ public class JPAExerciseSetAdapterTest {
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
 
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult1 =
-                addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
 
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
         //check if the same exerciseSet was added twice in exercise (should be possible)
         assertFalse(exerciseEntity1.getExerciseSets().isEmpty());
         assertEquals(2, exerciseEntity1.getExerciseSets().size());
@@ -169,18 +169,18 @@ public class JPAExerciseSetAdapterTest {
         exerciseSet1.setBelongsToExercise(4534872L);
         //invalid ids
         JPAWorkoutExerciseAdapterResult<Exercise> actualResul1 =
-                addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
 
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                addExerciseSetToExercisePort.addExerciseSetToExercise(98157L, exerciseSet1);
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(98157L, exerciseSet1);
 
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult3 =
-                addExerciseSetToExercisePort.addExerciseSetToExercise(null, null);
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(null, null);
 
         exerciseSet1.setBelongsToExercise(40872L);
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult4 =
-                addExerciseSetToExercisePort.addExerciseSetToExercise(40872L, exerciseSet1);
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(40872L, exerciseSet1);
 
         //check if there is an invalid exerciseSet saved in exercise
         assertTrue(exerciseEntity1.getExerciseSets().isEmpty());
@@ -214,10 +214,10 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
         //delete exerciseSet
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult =
-                deleteExerciseSetInExercisePort.deleteExerciseSetInExercise(exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
         System.out.println(actualResult.toString());
 
         //check if exerciseSet was deleted
@@ -238,14 +238,14 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
-        addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
 
         //delete exerciseSet
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult1 =
-                deleteExerciseSetInExercisePort.deleteExerciseSetInExercise(exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                deleteExerciseSetInExercisePort.deleteExerciseSetInExercise(exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
 
         //check if both exerciseSets have been deleted from exercise
         assertTrue(exerciseEntity1.getExerciseSets().isEmpty());
@@ -268,16 +268,16 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
 
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult1 =
-                deleteExerciseSetInExercisePort.deleteExerciseSetInExercise(null, null);
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(null, null);
 
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                deleteExerciseSetInExercisePort.deleteExerciseSetInExercise(71256L, exerciseEntity1.getExerciseSets().getFirst().getId());
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(71256L, exerciseEntity1.getExerciseSets().getFirst().getId());
 
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult3 =
-                deleteExerciseSetInExercisePort.deleteExerciseSetInExercise(exerciseEntity1.getId(), 8629561L);
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(exerciseEntity1.getId(), 8629561L);
         //check if the exerciseSets in exercise have NOT been deleted
         assertFalse(exerciseEntity1.getExerciseSets().isEmpty());
         //check results:
@@ -304,7 +304,7 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
 
         ExerciseSet toBeEdited = new ExerciseSet(null, 11, 22D, "nothing", 234L,
                 now2, exerciseEntity1.getId());
@@ -312,7 +312,7 @@ public class JPAExerciseSetAdapterTest {
         toBeEdited.setBelongsToExercise(exerciseEntity1.getId());
         //check if the exerciseSet was edited in exercise
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult =
-                editExerciseSetPort.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited);
+                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited);
 
         assertEquals(1, exerciseEntity1.getExerciseSets().size());
 
@@ -336,8 +336,8 @@ public class JPAExerciseSetAdapterTest {
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
         exerciseSet2.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
-        addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet2);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet2);
         assertEquals(2,  exerciseEntity1.getExerciseSets().size());
 
         ExerciseSet toBeEdited1 = new ExerciseSet(null, 11, 22D, "nothing", 234L,
@@ -351,10 +351,10 @@ public class JPAExerciseSetAdapterTest {
         toBeEdited2.setBelongsToExercise(exerciseEntity1.getId());
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult1 =
-                editExerciseSetPort.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited1);
+                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited1);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult2 =
-                editExerciseSetPort.editExerciseSet(exerciseEntity1.getExerciseSets().get(1).getId(), toBeEdited2);
+                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().get(1).getId(), toBeEdited2);
 
         //check if the exerciseSets were edited in exercise
         ExerciseSetEntity expected1 = new  ExerciseSetEntity(exerciseEntity1.getExerciseSets().getFirst().getId(), 11, 22D,
@@ -382,7 +382,7 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
 
         ExerciseSet toBeEdited1 = new ExerciseSet(null, 2, 40D, "best", 40L,
                 now1, exerciseEntity1.getId());
@@ -395,10 +395,10 @@ public class JPAExerciseSetAdapterTest {
         toBeEdited2.setBelongsToExercise(exerciseEntity1.getId());
         //check if the exerciseSet was edited in exercise
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult1 =
-                editExerciseSetPort.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited1);
+                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited1);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult2 =
-                editExerciseSetPort.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited2);
+                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited2);
 
         assertEquals(1, exerciseEntity1.getExerciseSets().size());
 
@@ -423,19 +423,19 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExercisePort.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
         ExerciseSet toBeEdited = new ExerciseSet(42671L, 2, 40D, "best", 40L,
                 now1, exerciseEntity1.getId());
 
         //check results
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult1 =
-                editExerciseSetPort.editExerciseSet(null, null);
+                editExerciseSetUseCase.editExerciseSet(null, null);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult2 =
-                editExerciseSetPort.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited);
+                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult3 =
-                editExerciseSetPort.editExerciseSet(42671L, toBeEdited);
+                editExerciseSetUseCase.editExerciseSet(42671L, toBeEdited);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult1 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);

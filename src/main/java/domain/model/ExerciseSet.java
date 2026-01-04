@@ -21,6 +21,10 @@ public class ExerciseSet {
         this.belongsToExercise = belongsToExercise;
     }
 
+    public ExerciseSet() {
+
+    }
+
     //getter and setter
     public Long getId() {
         return id;

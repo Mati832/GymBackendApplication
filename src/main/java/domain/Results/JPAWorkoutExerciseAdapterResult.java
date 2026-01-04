@@ -1,6 +1,5 @@
 package domain.Results;
 
-import domain.model.Workout;
 
 public sealed interface JPAWorkoutExerciseAdapterResult<T> permits JPAWorkoutExerciseAdapterResult.Failure, JPAWorkoutExerciseAdapterResult.Success{
     record Success<T>(T value) implements JPAWorkoutExerciseAdapterResult<T> {}
