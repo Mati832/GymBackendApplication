@@ -59,8 +59,8 @@ public class JPAExerciseAdapterTest {
         workoutEntity1.setOwner(user);
         workoutEntity2.setOwner(user);
         workoutEntity3.setOwner(user);
-        exercise1 = new Exercise(null, "Squats", "lower body", 650L, user.getId(), new ArrayList<>(), null);
-        exercise2 = new Exercise(null, "Cardio", "Jogging", 1200L, user.getId(), new ArrayList<>(), null);
+        exercise1 = new Exercise(null, "Squats", "lower body", 650L, user.getId(), new ArrayList<>(), now, null);
+        exercise2 = new Exercise(null, "Cardio", "Jogging", 1200L, user.getId(), new ArrayList<>(), now, null);
     }
 
     //ADD EXERCISE TO WORK OUT
@@ -72,7 +72,7 @@ public class JPAExerciseAdapterTest {
         JPAWorkoutExerciseAdapterResult<Workout> actualResult = addExerciseToWorkoutUseCase.addExerciseToWorkout(workoutEntity1.getId(), exercise1);
         //check if exercise is in workout
         assertFalse(workoutEntity1.getExercises().isEmpty());
-        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "lower body", 650L);
+        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "lower body", 650L, now);
         expected.setOwner(user);
         expected.setWorkout(workoutEntity1);
         exerciseEqualsWithKey(expected, workoutEntity1.getExercises().getFirst());
@@ -92,11 +92,11 @@ public class JPAExerciseAdapterTest {
         assertFalse(workoutEntity1.getExercises().isEmpty());
         assertFalse(workoutEntity2.getExercises().isEmpty());
 
-        ExerciseEntity expected1 = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "lower body", 650L);
+        ExerciseEntity expected1 = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "lower body", 650L, now);
         expected1.setOwner(user);
         expected1.setWorkout(workoutEntity1);
 
-        ExerciseEntity expected2 = new ExerciseEntity(workoutEntity2.getExercises().getFirst().getId(), "Squats", "lower body", 650L);
+        ExerciseEntity expected2 = new ExerciseEntity(workoutEntity2.getExercises().getFirst().getId(), "Squats", "lower body", 650L, now);
         expected2.setOwner(user);
         expected2.setWorkout(workoutEntity2);
 
@@ -146,7 +146,7 @@ public class JPAExerciseAdapterTest {
     public void testAddKnownExerciseToWorkout(){
         em.persist(user);
         em.persist(workoutEntity1);
-        ExerciseEntity knownExercise = new ExerciseEntity(null, "Squats", "legs", 670L);
+        ExerciseEntity knownExercise = new ExerciseEntity(null, "Squats", "legs", 670L, now);
         knownExercise.setOwner(user);
         em.persist(knownExercise);
 
@@ -156,7 +156,7 @@ public class JPAExerciseAdapterTest {
         JPAWorkoutExerciseAdapterResult<Workout> actualResult = addExerciseToWorkoutUseCase.addExerciseToWorkout(workoutEntity1.getId(), exercise1);
         //check if exercise is in workout
         assertFalse(workoutEntity1.getExercises().isEmpty());
-        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "legs", 670L);
+        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "legs", 670L, now);
         expected.setOwner(user);
         expected.setWorkout(workoutEntity1);
         exerciseEqualsWithKey(expected, workoutEntity1.getExercises().getFirst());
@@ -173,7 +173,7 @@ public class JPAExerciseAdapterTest {
     public void testAddKnownExerciseWithSetsToWorkout(){
         em.persist(user);
         em.persist(workoutEntity1);
-        ExerciseEntity knownExercise = new ExerciseEntity(null, "Squats", "legs", 670L);
+        ExerciseEntity knownExercise = new ExerciseEntity(null, "Squats", "legs", 670L, now);
         knownExercise.setOwner(user);
         em.persist(knownExercise);
         ExerciseSetEntity knownSet1 = new ExerciseSetEntity(null, 10, 30, "none", 120L, now);
@@ -189,7 +189,7 @@ public class JPAExerciseAdapterTest {
         JPAWorkoutExerciseAdapterResult<Workout> actualResult = addExerciseToWorkoutUseCase.addExerciseToWorkout(workoutEntity1.getId(), exercise1);
         //check the exercise in workout after adding it
         assertFalse(workoutEntity1.getExercises().isEmpty());
-        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "legs", 670L);
+        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "legs", 670L, now);
         expected.setOwner(user);
         expected.setWorkout(workoutEntity1);
         expected.getExerciseSets().add(knownSet1);
@@ -207,7 +207,7 @@ public class JPAExerciseAdapterTest {
     public void testAddKnownExerciseWithSetsToWorkout2(){
         em.persist(user);
         em.persist(workoutEntity1);
-        ExerciseEntity knownExercise = new ExerciseEntity(null, "Squats", "legs", 670L);
+        ExerciseEntity knownExercise = new ExerciseEntity(null, "Squats", "legs", 670L, now);
         knownExercise.setOwner(user);
         em.persist(knownExercise);
         ExerciseSetEntity knownSet1 = new ExerciseSetEntity(null, 10, 30, "none", 120L, now);
@@ -225,7 +225,7 @@ public class JPAExerciseAdapterTest {
         JPAWorkoutExerciseAdapterResult<Workout> actualResult = addExerciseToWorkoutUseCase.addExerciseToWorkout(workoutEntity1.getId(), exercise1);
         //check the exercise in workout after adding it
         assertFalse(workoutEntity1.getExercises().isEmpty());
-        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "legs", 670L);
+        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "legs", 670L, now);
         expected.setOwner(user);
         expected.setWorkout(workoutEntity1);
         //Wrong sets in expected (knownSet3 should have been knownSet2)
@@ -279,7 +279,7 @@ public class JPAExerciseAdapterTest {
         //test if exercise is added in the user
         assertFalse(user.getExercises().isEmpty());
         assertEquals(1,  user.getExercises().size());
-        ExerciseEntity expected =  new  ExerciseEntity(user.getExercises().getFirst().getId(), "Squats", "lower body", 650L);
+        ExerciseEntity expected =  new  ExerciseEntity(user.getExercises().getFirst().getId(), "Squats", "lower body", 650L, now);
         expected.setOwner(user);
         exerciseEqualsWithKey(expected, user.getExercises().getFirst());
         //test results
@@ -428,11 +428,11 @@ public class JPAExerciseAdapterTest {
 
         //change the attributes in exercise:
         Exercise attributesToBeChanged = new Exercise(workoutEntity1.getExercises().getFirst().getId(),
-                "Jogging", "doing cardio", 1200L, user.getId(), new ArrayList<>(), null);
+                "Jogging", "doing cardio", 1200L, user.getId(), new ArrayList<>(), now, null);
        JPAWorkoutExerciseAdapterResult<Exercise> actualResult =
                editExerciseUseCase.editExercise(workoutEntity1.getExercises().getFirst().getId(), attributesToBeChanged);
         //test if exercise was edited
-        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Jogging", "doing cardio", 1200L);
+        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Jogging", "doing cardio", 1200L, now);
         expected.setOwner(user);
         expected.setWorkout(workoutEntity1);
         exerciseEqualsWithKey(expected, workoutEntity1.getExercises().getFirst());
@@ -451,11 +451,11 @@ public class JPAExerciseAdapterTest {
 
         //change the attributes in exercise:
         Exercise attributesToBeChanged = new Exercise(workoutEntity1.getExercises().getFirst().getId(),
-                null, "doing cardio", 1200L, user.getId(), new ArrayList<>(), null);
+                null, "doing cardio", 1200L, user.getId(), new ArrayList<>(), now, null);
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult =
                 editExerciseUseCase.editExercise(workoutEntity1.getExercises().getFirst().getId(), attributesToBeChanged);
         //test if exercise was edited
-        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "doing cardio", 1200L);
+        ExerciseEntity expected = new ExerciseEntity(workoutEntity1.getExercises().getFirst().getId(), "Squats", "doing cardio", 1200L, now);
         expected.setOwner(user);
         expected.setWorkout(workoutEntity1);
         exerciseEqualsWithKey(expected, workoutEntity1.getExercises().getFirst());
@@ -471,12 +471,12 @@ public class JPAExerciseAdapterTest {
         addExerciseToUserUseCase.addExerciseToUser(user.getId(), exercise1);
 
         Exercise attributesToBeChanged = new Exercise(user.getExercises().getFirst().getId(),
-                "jogging", "doing cardio", 1200L, user.getId(), new ArrayList<>(), null);
+                "jogging", "doing cardio", 1200L, user.getId(), new ArrayList<>(), now, null);
 
         JPAWorkoutExerciseAdapterResult<Exercise> actualResult =
                 editExerciseUseCase.editExercise(user.getExercises().getFirst().getId(), attributesToBeChanged);
         //test if exercise was edited
-        ExerciseEntity expected = new ExerciseEntity(user.getExercises().getFirst().getId(), "jogging", "doing cardio", 1200L);
+        ExerciseEntity expected = new ExerciseEntity(user.getExercises().getFirst().getId(), "jogging", "doing cardio", 1200L, now);
         expected.setOwner(user);
         expected.setWorkout(workoutEntity1);
         exerciseEqualsWithKey(expected, user.getExercises().getFirst());
@@ -492,7 +492,7 @@ public class JPAExerciseAdapterTest {
         addExerciseToUserUseCase.addExerciseToUser(user.getId(), exercise1);
 
         Exercise attributesToBeChanged = new Exercise(user.getExercises().getFirst().getId(),
-                "jogging", "doing cardio", 1200L, user.getId(), new ArrayList<>(), null);
+                "jogging", "doing cardio", 1200L, user.getId(), new ArrayList<>(), now, null);
         //wrong ids
         //test result:
         attributesToBeChanged.setId(39761L);
@@ -521,7 +521,7 @@ public class JPAExerciseAdapterTest {
         assertResultEquals(expectedResult3, actualResult3, Exercise::getId);
 
         //test if the exercise has changed: (should not)
-        ExerciseEntity expected = new ExerciseEntity(user.getExercises().getFirst().getId(), "Squats", "lower body", 650L);
+        ExerciseEntity expected = new ExerciseEntity(user.getExercises().getFirst().getId(), "Squats", "lower body", 650L, now);
         expected.setOwner(user);
         exerciseEqualsWithKey(expected, user.getExercises().getFirst());
     }

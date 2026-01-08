@@ -57,9 +57,9 @@ public class JPAExerciseSetAdapterTest {
         now3 = LocalDateTime.now();
         exerciseSet1 = new ExerciseSet(null, 10, 15D, "smooth", 200L, now1, null);
         exerciseSet2 = new ExerciseSet(null, 8, 20.5, "rough", 100L, now1, null);
-        exerciseEntity1 = new ExerciseEntity(null, "Cardio", "doing cardio", 600L);
-        exerciseEntity2 = new ExerciseEntity(null, "MMA", "boxing", 1200L);
-        exerciseEntity3 = new ExerciseEntity(null, "gym", "strength training", 700L);
+        exerciseEntity1 = new ExerciseEntity(null, "Cardio", "doing cardio", 600L, now1);
+        exerciseEntity2 = new ExerciseEntity(null, "MMA", "boxing", 1200L, now1);
+        exerciseEntity3 = new ExerciseEntity(null, "gym", "strength training", 700L, now1);
         user = new CoachEntity(null, "firstName", "lastName", "email", "passsword",
                 Gender.MALE, LocalDate.of(2000, 2, 10), now1);
     }

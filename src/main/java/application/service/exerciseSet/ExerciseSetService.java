@@ -1,14 +1,10 @@
 package application.service.exerciseSet;
 
-import application.port.in.exerciseSet.AddExerciseSetToExerciseUseCase;
-import application.port.in.exerciseSet.DeleteExerciseSetInExerciseUseCase;
-import application.port.in.exerciseSet.EditExerciseSetUseCase;
+import application.commands.exerciseSet.ExerciseSetFilter;
+import application.port.in.exerciseSet.*;
 import application.port.out.ExercisePorts.FindExerciseByIdPort;
 import application.port.out.ExercisePorts.UpdateExercisePort;
-import application.port.out.ExerciseSetPorts.DeleteExerciseSetPort;
-import application.port.out.ExerciseSetPorts.FindExerciseSetByIdPort;
-import application.port.out.ExerciseSetPorts.SaveExerciseSetPort;
-import application.port.out.ExerciseSetPorts.UpdateExerciseSetPort;
+import application.port.out.ExerciseSetPorts.*;
 import domain.Results.JPAWorkoutExerciseAdapterResult;
 import domain.exceptions.ExerciseSetNotFoundException;
 import domain.model.Exercise;
@@ -17,8 +13,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.util.List;
+
 @ApplicationScoped
-public class ExerciseSetService implements AddExerciseSetToExerciseUseCase, DeleteExerciseSetInExerciseUseCase, EditExerciseSetUseCase {
+public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerciseSetsUseCase, AddExerciseSetToExerciseUseCase, DeleteExerciseSetInExerciseUseCase,
+        EditExerciseSetUseCase {
 
     @Inject
     FindExerciseSetByIdPort findExerciseSetByIdPort;
@@ -32,6 +31,34 @@ public class ExerciseSetService implements AddExerciseSetToExerciseUseCase, Dele
     FindExerciseByIdPort findExerciseByIdPort;
     @Inject
     UpdateExercisePort updateExercisePort;
+    @Inject
+    LoadExerciseSetsPort  loadExerciseSetsPort;
+    @Inject
+    CountExerciseSetsPort countExerciseSetsPort;
+
+    @Override
+    public JPAWorkoutExerciseAdapterResult<ExerciseSet> loadExerciseSetById(Long exerciseSetId){
+        if(exerciseSetId == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+        ExerciseSet exerciseSet = findExerciseSetByIdPort.findExerciseSetById(exerciseSetId);
+        if(exerciseSet == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_SET_NOT_FOUND);
+
+        return new JPAWorkoutExerciseAdapterResult.Success<>(exerciseSet);
+    }
+
+    @Override
+    public JPAWorkoutExerciseAdapterResult<ExerciseSet> loadExerciseSets(ExerciseSetFilter filter, int page, int size){
+        if(filter == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+        if(filter.exerciseId() != null && findExerciseByIdPort.findExerciseById(filter.exerciseId()) == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
+
+        List<ExerciseSet> loaded = loadExerciseSetsPort.loadExerciseSets(filter, page, size);
+        int totalPageCount =(int) Math.ceil((double) countExerciseSetsPort.countExerciseSets(filter)/size);
+
+        return new JPAWorkoutExerciseAdapterResult.Paginated<>(loaded, page, size, totalPageCount);
+    }
 
     @Override
     @Transactional

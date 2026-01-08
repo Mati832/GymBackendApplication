@@ -1,8 +1,12 @@
 package domain.Results;
 
 
-public sealed interface JPAWorkoutExerciseAdapterResult<T> permits JPAWorkoutExerciseAdapterResult.Failure, JPAWorkoutExerciseAdapterResult.Success{
+import java.util.List;
+
+public sealed interface JPAWorkoutExerciseAdapterResult<T> permits JPAWorkoutExerciseAdapterResult.Failure, JPAWorkoutExerciseAdapterResult.Success,
+JPAWorkoutExerciseAdapterResult.Paginated{
     record Success<T>(T value) implements JPAWorkoutExerciseAdapterResult<T> {}
+    record Paginated<T>(List<T> values, int page, int size, int totalPageCount) implements JPAWorkoutExerciseAdapterResult<T>{}
     record Failure<T>(FailureReason reason) implements JPAWorkoutExerciseAdapterResult<T> {}
     enum FailureReason {
         USER_NOT_FOUND(404),

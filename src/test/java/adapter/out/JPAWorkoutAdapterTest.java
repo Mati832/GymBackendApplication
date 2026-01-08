@@ -192,7 +192,7 @@ public class JPAWorkoutAdapterTest {
     // This is not possible. The user has to create a new empty workout first and then add exercises: see in JPAWorkoutAdapter
     public void testAddInvalidWorkoutWithExercise2(){
         em.persist(user);
-        ExerciseEntity exerciseEntity = new ExerciseEntity(null, "Bench press", "push", 600L);
+        ExerciseEntity exerciseEntity = new ExerciseEntity(null, "Bench press", "push", 600L, now);
         exerciseEntity.setOwner(user);
 
         //Known exercise to the DB
@@ -214,7 +214,7 @@ public class JPAWorkoutAdapterTest {
     public void testAddValidWorkoutWithExercise(){
         em.persist(user);
 
-        ExerciseEntity exerciseEntity = new ExerciseEntity(null, "Bench press", "push", 600L);
+        ExerciseEntity exerciseEntity = new ExerciseEntity(null, "Bench press", "push", 600L, now);
         exerciseEntity.setOwner(user);
         WorkoutEntity workoutEntity = new WorkoutEntity(null, "Cardio",  "doing cardio", now);
         workoutEntity.setOwner(user);
@@ -297,7 +297,7 @@ public class JPAWorkoutAdapterTest {
     public void testDeleteWorkoutWithExercises(){
         em.persist(user);
 
-        ExerciseEntity exerciseEntity = new ExerciseEntity(null, "Bench press", "push", 600L);
+        ExerciseEntity exerciseEntity = new ExerciseEntity(null, "Bench press", "push", 600L, now);
         exerciseEntity.setOwner(user);
         WorkoutEntity workoutEntity = new WorkoutEntity(null, "Cardio",  "doing cardio", now);
         workoutEntity.setOwner(user);

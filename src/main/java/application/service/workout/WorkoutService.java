@@ -1,14 +1,11 @@
 package application.service.workout;
 
-import application.port.in.workout.AddWorkoutToUserUseCase;
-import application.port.in.workout.DeleteWorkoutInUserUseCase;
-import application.port.in.workout.EditWorkoutInUserUseCase;
+import application.commands.workout.WorkoutFilter;
+import application.port.in.workout.*;
 import application.port.out.UserPorts.FindUserByIdPort;
+import application.port.out.UserPorts.LoadUserByIdPort;
 import application.port.out.UserPorts.UpdateUserPort;
-import application.port.out.WorkoutPorts.DeleteWorkoutPort;
-import application.port.out.WorkoutPorts.FindWorkoutByIdPort;
-import application.port.out.WorkoutPorts.SaveWorkoutPort;
-import application.port.out.WorkoutPorts.UpdateWorkoutPort;
+import application.port.out.WorkoutPorts.*;
 import application.service.exercise.ExerciseService;
 import domain.Results.JPAWorkoutExerciseAdapterResult;
 import domain.exceptions.ExerciseNotFoundException;
@@ -24,7 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
-public class WorkoutService implements AddWorkoutToUserUseCase, DeleteWorkoutInUserUseCase, EditWorkoutInUserUseCase {
+public class WorkoutService implements LoadWorkoutByIdUseCase, LoadWorkoutsUseCase, AddWorkoutToUserUseCase,
+        DeleteWorkoutInUserUseCase, EditWorkoutInUserUseCase {
 
     @Inject
     FindWorkoutByIdPort findWorkoutByIdPort;
@@ -40,6 +38,38 @@ public class WorkoutService implements AddWorkoutToUserUseCase, DeleteWorkoutInU
     FindUserByIdPort findUserByIdPort;
     @Inject
     UpdateUserPort updateUserPort;
+    @Inject
+    LoadWorkoutByIdPort loadWorkoutByIdPort;
+    @Inject
+    LoadUserByIdPort loadUserByIdPort;
+    @Inject
+    LoadWorkouts loadWorkouts;
+    @Inject
+    CountWorkouts countWorkoutsByUserIdPort;
+
+    @Override
+    public JPAWorkoutExerciseAdapterResult<Workout> loadWorkoutById(Long workoutId){
+        if(workoutId == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+        Workout inDB = loadWorkoutByIdPort.laodWorkout(workoutId);
+
+        if(inDB == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
+        return new JPAWorkoutExerciseAdapterResult.Success<>(inDB);
+    }
+
+    @Override
+    public JPAWorkoutExerciseAdapterResult<Workout> loadWorkouts(WorkoutFilter filter, int page, int size){
+        if(filter == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+        if(filter.userId() != null && loadUserByIdPort.loadUser(filter.userId())  == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
+
+        List<Workout> toBeLoaded =  loadWorkouts.loadWorkouts(filter, page, size);
+        int totalPageCount =(int) Math.ceil((double) countWorkoutsByUserIdPort.countWorkouts(filter)/size);
+
+        return new JPAWorkoutExerciseAdapterResult.Paginated<>(toBeLoaded, page, size, totalPageCount);
+    }
 
     @Override
     //Can Add workouts in the DB as a copy to the user OR create new ones

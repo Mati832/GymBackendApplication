@@ -1,14 +1,13 @@
 package application.service.exercise;
 
+import application.commands.exercise.ExerciseFilter;
 import application.port.in.exercise.*;
-import application.port.out.ExercisePorts.DeleteExercisePort;
-import application.port.out.ExercisePorts.FindExerciseByIdPort;
-import application.port.out.ExercisePorts.SaveExercisePort;
-import application.port.out.ExercisePorts.UpdateExercisePort;
-import application.port.out.ExerciseSetPorts.FindExerciseSetByIdPort;
+import application.port.out.ExercisePorts.*;
 import application.port.out.UserPorts.FindUserByIdPort;
+import application.port.out.UserPorts.LoadUserByIdPort;
 import application.port.out.UserPorts.UpdateUserPort;
 import application.port.out.WorkoutPorts.FindWorkoutByIdPort;
+import application.port.out.WorkoutPorts.LoadWorkoutByIdPort;
 import application.port.out.WorkoutPorts.UpdateWorkoutPort;
 import application.service.exerciseSet.ExerciseSetService;
 import domain.Results.JPAWorkoutExerciseAdapterResult;
@@ -27,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
-public class ExerciseService implements AddExerciseToUserUseCase, AddExerciseToWorkoutUseCase,
+public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUseCase, AddExerciseToUserUseCase, AddExerciseToWorkoutUseCase,
         DeleteExerciseInUserUseCase, DeleteExerciseInWorkoutUseCase, EditExerciseUseCase {
 
     @Inject
@@ -39,8 +38,6 @@ public class ExerciseService implements AddExerciseToUserUseCase, AddExerciseToW
     @Inject
     DeleteExercisePort deleteExercisePort;
     @Inject
-    FindExerciseSetByIdPort findExerciseSetByIdPort;
-    @Inject
     ExerciseSetService exerciseSetService;
     @Inject
     FindUserByIdPort findUserByIdPort;
@@ -50,6 +47,45 @@ public class ExerciseService implements AddExerciseToUserUseCase, AddExerciseToW
     FindWorkoutByIdPort findWorkoutByIdPort;
     @Inject
     UpdateWorkoutPort updateWorkoutPort;
+    @Inject
+    LoadExerciseByIdPort loadExerciseByIdPort;
+    @Inject
+    LoadExercisesPort loadExercisesPort;
+    @Inject
+    CountExercisesPort countExercisesPort;
+    @Inject
+    LoadUserByIdPort loadUserByIdPort;
+    @Inject
+    LoadWorkoutByIdPort loadWorkoutByIdPort;
+
+    @Override
+    public JPAWorkoutExerciseAdapterResult<Exercise> loadExerciseById(Long exerciseId) {
+        if(exerciseId == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+        Exercise loaded = loadExerciseByIdPort.loadExerciseById(exerciseId);
+        if(loaded == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
+        return new JPAWorkoutExerciseAdapterResult.Success<>(loaded);
+    }
+
+    @Override
+    public JPAWorkoutExerciseAdapterResult<Exercise> loadExercises(ExerciseFilter filter, int page, int size){
+        if(filter == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+        if(filter.userId() != null && filter.workoutId() != null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+
+        if(filter.userId() != null && loadUserByIdPort.loadUser(filter.userId())  == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
+        if(filter.workoutId() != null && loadWorkoutByIdPort.laodWorkout(filter.workoutId())  == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
+
+        List<Exercise> loaded = loadExercisesPort.loadExercises(filter, page, size);
+        int totalPageCount =(int) Math.ceil((double) countExercisesPort.countExercises(filter)/size);
+
+        return new JPAWorkoutExerciseAdapterResult.Paginated<>(loaded, page, size, totalPageCount);
+    }
+
 
     @Override
     @Transactional
