@@ -1,5 +1,6 @@
 package domain.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,21 +11,32 @@ public class Exercise {
     String type;
     Long durationInSec;
     Long createdByUserId;
+    LocalDateTime createdAt;
     List<Long> exerciseSets = new ArrayList<>();
     Long workoutId;
 
-    public Exercise(Long id, String name, String type, Long durationInSec, Long createdByUserId, List<Long> exerciseSets,  Long workoutId) {
+    public Exercise(Long id, String name, String type, Long durationInSec, Long createdByUserId, List<Long> exerciseSets, LocalDateTime createdAt, Long workoutId) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.durationInSec = durationInSec;
         this.createdByUserId = createdByUserId;
         this.exerciseSets = exerciseSets;
+        this.createdAt = createdAt;
         this.workoutId = workoutId;
     }
 
     public Exercise() {
 
+    }
+
+    public Exercise(Long id, String name, String type, Long durationInSec, Long userId, Long workoutId) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.durationInSec = durationInSec;
+        this.createdByUserId = userId;
+        this.workoutId = workoutId;
     }
 
     public Long getId() {
@@ -67,6 +79,12 @@ public class Exercise {
         this.createdByUserId = createdByUserId;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {}
+
     public List<Long> getExerciseSets() {
         return exerciseSets;
     }
@@ -82,4 +100,5 @@ public class Exercise {
     public void setWorkoutId(Long workoutId) {
         this.workoutId = workoutId;
     }
+
 }

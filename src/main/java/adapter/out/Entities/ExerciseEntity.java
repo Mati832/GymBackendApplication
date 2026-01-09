@@ -2,6 +2,7 @@ package adapter.out.Entities;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class ExerciseEntity {
     //maybe enum later
     String type;
     Long durationInSec;
+    LocalDateTime createdAt;
     @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     UserEntity owner;
@@ -28,11 +30,12 @@ public class ExerciseEntity {
     public ExerciseEntity() {
     }
 
-    public ExerciseEntity(Long id, String name, String type, Long durationInSec) {
+    public ExerciseEntity(Long id, String name, String type, Long durationInSec, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.durationInSec = durationInSec;
+        this.createdAt = createdAt;
     }
 
     //getter and setter
@@ -68,6 +71,15 @@ public class ExerciseEntity {
     public void setDurationInSec(Long durationInSec) {
         this.durationInSec = durationInSec;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public UserEntity getOwner() {
         return owner;
     }

@@ -33,6 +33,14 @@ public class Workout {
 
     }
 
+    public Workout(Long id, String name, String description, LocalDateTime createdAt, Long createdByUserId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.createdByUserId = createdByUserId;
+    }
+
     //getter and setter
     public Long getId() {
         return id;
