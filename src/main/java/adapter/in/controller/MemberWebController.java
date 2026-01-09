@@ -2,19 +2,20 @@ package adapter.in.controller;
 
 import adapter.in.DTOs.RequestDTOs.member.AssignCoachDTO;
 import adapter.in.DTOs.RequestDTOs.member.RegisterMemberDTO;
-import adapter.in.Presenter.Member.HttpAssignCoachPresenter;
-import adapter.in.Presenter.Member.HttpRegisterMemberPresenter;
+import adapter.in.Presenter.member.HttpAssignCoachPresenter;
+import adapter.in.Presenter.member.HttpGetAssignedWorkoutsPresenter;
+import adapter.in.Presenter.member.HttpRegisterMemberPresenter;
 import adapter.in.mapper.MemberMapper;
 import adapter.in.services.JwtAdapter;
+import application.commands.member.GetAssignedWorkoutsCommand;
 import application.port.in.AssignCoachMemberRelationUseCase;
+import application.port.in.member.MemberGetsAssignedWorkoutsUsecase;
 import application.port.in.member.MemberRegistrationUseCase;
 import domain.Results.AssignCoachMemberRelationResult;
 import domain.Results.RegisterUserResult;
+import domain.Results.member.AssignedWorkoutsResult;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -30,6 +31,10 @@ public class MemberWebController {
     MemberRegistrationUseCase memberRegistration;
     @Inject
     HttpRegisterMemberPresenter registerMemberPresenter;
+    @Inject
+    MemberGetsAssignedWorkoutsUsecase getAssignedWorkoutsUsecase;
+    @Inject
+    HttpGetAssignedWorkoutsPresenter httpGetAssignedWorkoutsPresenter;
 
     @Context
     UriInfo uriInfo;
@@ -37,11 +42,6 @@ public class MemberWebController {
     @Inject
     JwtAdapter jwtService;
 
-    @POST
-    @Path("/test")
-    public Response testing(String name) {
-        return Response.status(200).build();
-    }
 
     @POST//nicht put weil email nicht die id ist
     @Path("/register")
@@ -63,5 +63,17 @@ public class MemberWebController {
         AssignCoachMemberRelationResult result = assignCoach.assign(MemberMapper.toDomain(assignCoachDTO, requestedBy));
         return httpAssignCoachPresenter.toHttp(result, uriInfo);
 
+    }
+
+    @GET
+    @Path("{id}/assigned-workouts")
+    public Response getAssignedWorkouts(@HeaderParam("Authorization")String authHeader, @PathParam("id") Long memberId){
+
+        Long requestedBy = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            requestedBy = jwtService.validateToken(authHeader.substring(7));
+        }
+        AssignedWorkoutsResult result = getAssignedWorkoutsUsecase.getWorkouts(new GetAssignedWorkoutsCommand(requestedBy, memberId, null));
+        return httpGetAssignedWorkoutsPresenter.toHttp(result, uriInfo);
     }
 }

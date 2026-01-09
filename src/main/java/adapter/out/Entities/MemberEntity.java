@@ -16,6 +16,8 @@ public class MemberEntity extends UserEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     List<CoachMemberEntity> assignments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AssignedWorkoutEntity> assignedWorkouts = new ArrayList<>();
 
     //Constructors
     public MemberEntity() {

@@ -22,6 +22,13 @@ public class Workout {
         this.createdByUserId = createdByUserId;
     }
 
+    public Workout(String name, String description, LocalDateTime createdAt, Long createdByUserId) {
+        this.name = name;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.createdByUserId = createdByUserId;
+    }
+
     public Workout() {
 
     }

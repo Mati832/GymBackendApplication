@@ -3,17 +3,22 @@ package adapter.in.controller;
 import adapter.in.DTOs.RequestDTOs.coach.AssignMemberDTO;
 import adapter.in.DTOs.RequestDTOs.coach.RegisterCoachDTO;
 import adapter.in.Presenter.coach.HttpAssignMemberPresenter;
+import adapter.in.Presenter.coach.HttpCoachAssignsWorkoutPresenter;
 import adapter.in.Presenter.coach.HttpRegisterCoachPresenter;
 import adapter.in.mapper.CoachMapper;
 import adapter.in.services.JwtAdapter;
+import application.commands.coach.AssignWorkoutCommand;
 import application.port.in.AssignCoachMemberRelationUseCase;
+import application.port.in.coach.AssignWorkoutUseCase;
 import application.port.in.coach.CoachRegistrationUseCase;
 import domain.Results.AssignCoachMemberRelationResult;
 import domain.Results.RegisterUserResult;
+import domain.Results.coach.AssignWorkoutResult;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -31,6 +36,10 @@ public class CoachWebController {
     AssignCoachMemberRelationUseCase assignMember;
     @Inject
     HttpAssignMemberPresenter httpAssignMemberPresenter;
+    @Inject
+    AssignWorkoutUseCase assignWorkout;
+    @Inject
+    HttpCoachAssignsWorkoutPresenter  httpCoachAssignsWorkoutPresenter;
 
     @Context
     UriInfo uriInfo;
@@ -53,5 +62,16 @@ public class CoachWebController {
 
         AssignCoachMemberRelationResult result = assignMember.assign(CoachMapper.toDomain(assignMemberDTO, requestedBy));
         return httpAssignMemberPresenter.toHttp(result, uriInfo);
+    }
+
+    @POST
+    @Path("{coachID}/members/{memberID}/workouts/{workoutID}")
+    public Response assignWorkout(@HeaderParam("Authorization")String authHeader, @PathParam("coachID") Long coachId, @PathParam("memberID") Long memberID, @PathParam("workoutID")Long workoutID) {
+        Long requestedBy=null;
+        if(authHeader!=null && authHeader.startsWith("Bearer ")) {
+            requestedBy= jwtService.validateToken(authHeader.substring(7));
+        }
+        AssignWorkoutResult result = assignWorkout.assign(new AssignWorkoutCommand(requestedBy, coachId, memberID, workoutID));
+        return httpCoachAssignsWorkoutPresenter.toHttp(result, uriInfo);
     }
 }

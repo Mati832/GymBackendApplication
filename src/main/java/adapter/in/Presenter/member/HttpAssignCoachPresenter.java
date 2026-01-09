@@ -1,4 +1,4 @@
-package adapter.in.Presenter.Member;
+package adapter.in.Presenter.member;
 
 import adapter.in.DTOs.ErrorResponse;
 import adapter.in.DTOs.ResponseDTOs.CoachMemberResponse;
