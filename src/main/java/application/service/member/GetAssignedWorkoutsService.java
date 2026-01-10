@@ -1,19 +1,19 @@
 package application.service.member;
 
+import application.commands.PaginationCommand;
 import application.commands.member.GetAssignedWorkoutsCommand;
 import application.port.in.member.MemberGetsAssignedWorkoutsUsecase;
 import application.port.out.AssignedWorkoutPorts.GetAssignedWorkoutsPort;
 import application.port.out.UserPorts.FindUserByIdPort;
 import application.service.AuthorizationService;
 import domain.Results.member.AssignedWorkoutsResult;
+import domain.dbResults.PagedResult;
 import domain.model.AssignedWorkout;
 import domain.model.Coach;
 import domain.model.Member;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import java.util.List;
 
 @ApplicationScoped
 public class GetAssignedWorkoutsService implements MemberGetsAssignedWorkoutsUsecase {
@@ -48,7 +48,19 @@ public class GetAssignedWorkoutsService implements MemberGetsAssignedWorkoutsUse
                 return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.COACH_NOT_FOUND);
         }
 
-        List<AssignedWorkout> assignedWorkouts = getAssignedWorkoutsPort.getAssignedWorkouts(command.memberId(), command.coachId());
+        PaginationCommand pagination = command.pagination();
+
+        int pageSize = pagination.size();
+        int offset = pagination.offset();
+        if (pagination.size() > 100) {
+            pageSize = 100;
+        }
+        if (offset < 0) {
+            offset = 0;
+        }
+
+
+        PagedResult<AssignedWorkout> assignedWorkouts = getAssignedWorkoutsPort.getAssignedWorkouts(command.memberId(), command.coachId(), offset, pageSize);
         return new AssignedWorkoutsResult.Success(assignedWorkouts);
     }
 }

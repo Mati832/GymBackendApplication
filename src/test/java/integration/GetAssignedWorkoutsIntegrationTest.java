@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 public class GetAssignedWorkoutsIntegrationTest {
@@ -43,16 +44,20 @@ public class GetAssignedWorkoutsIntegrationTest {
         em.createQuery("delete from UserEntity").executeUpdate();
 
     }
+    private void setupWorkouts(int count, Long coachId, Long memberId){
+
+        for (int i = 0; i < count; i++) {
+            Workout w = saveWorkoutPort.saveWorkout(new Workout("W"+i, "D", LocalDateTime.now(), coachId));
+            createAssignedWorkoutPort.createAssignedWorkout(new AssignedWorkout(w.getId(), memberId, coachId));
+        }
+    }
 
     @Test
     public void getAssignedWorkoutsSuccessfully() {
         User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         String token = jwtService.generateToken(member.getId().toString());
-        Workout workout = saveWorkoutPort.saveWorkout(new Workout("workout", "description", LocalDateTime.now(), coach.getId()));
-        Workout workout2 = saveWorkoutPort.saveWorkout(new Workout("workout2", "description2", LocalDateTime.now(), member.getId()));
-        AssignedWorkout assignedWorkout = createAssignedWorkoutPort.createAssignedWorkout(new AssignedWorkout(workout.getId(), member.getId(), coach.getId()));
-        AssignedWorkout assignedWorkout2 = createAssignedWorkoutPort.createAssignedWorkout(new AssignedWorkout(workout2.getId(), member.getId(), coach.getId()));
+        setupWorkouts(22, coach.getId(), member.getId());
 
         given()
                 .header("Authorization", "Bearer " + token)
@@ -60,7 +65,68 @@ public class GetAssignedWorkoutsIntegrationTest {
                 .when()
                 .get("/users/members/" + member.getId() + "/assigned-workouts")
                 .then()
-                .log().all()
                 .statusCode(200);
     }
+    @Test
+    public void shouldReturnNextLinkWhenMoreDataExists() {
+        User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        setupWorkouts(3,coach.getId(), member.getId());
+
+        String token = jwtService.generateToken(member.getId().toString());
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .queryParam("offset", 0)
+                .queryParam("size", 2)
+                .when()
+                .get("/users/members/" + member.getId() + "/assigned-workouts")
+                .then()
+                .statusCode(200)
+                .body("data.size()", is(2))
+                .body("totalCount", is(3))
+                .header("Link", containsString("rel=\"next\""))
+                .header("Link", containsString("offset=2"));
+    }
+
+    @Test
+    public void shouldReturnPrevLinkOnSecondPage() {
+        User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        setupWorkouts(3,coach.getId(), member.getId());
+        String token = jwtService.generateToken(member.getId().toString());
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .queryParam("offset", 2)
+                .queryParam("size", 2)
+                .when()
+                .get("/users/members/" + member.getId() + "/assigned-workouts")
+                .then()
+                .statusCode(200)
+                .body("data.size()", is(1))
+                .body("next", is(nullValue()))
+                .header("Link", containsString("rel=\"prev\""));
+    }
+
+    @Test
+    public void shouldReturnEmptyListWhenOffsetIsOutOfBounds() {
+        User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        setupWorkouts(1,coach.getId(), member.getId());
+        String token = jwtService.generateToken(member.getId().toString());
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .queryParam("offset", 500)
+                .when()
+                .get("/users/members/" + member.getId() + "/assigned-workouts")
+                .then()
+                .log().all()
+                .statusCode(200)
+                .body("data.size()", is(0))
+                .body("totalCount", is(1))
+                .body("next", is(nullValue()));
+    }
 }
+

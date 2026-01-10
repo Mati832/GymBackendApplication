@@ -6,6 +6,7 @@ import adapter.out.Entities.MemberEntity;
 import adapter.out.Entities.WorkoutEntity;
 import application.port.out.AssignedWorkoutPorts.CreateAssignedWorkoutPort;
 import application.port.out.AssignedWorkoutPorts.GetAssignedWorkoutsPort;
+import domain.dbResults.PagedResult;
 import domain.model.AssignedWorkout;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -23,17 +24,36 @@ public class JPAAssignedWorkoutAdapter implements GetAssignedWorkoutsPort, Creat
     EntityManager em;
 
     @Override
-    public List<AssignedWorkout> getAssignedWorkouts(Long memberId, Long coachId) {
-        String sql = "SELECT a FROM AssignedWorkoutEntity a WHERE a.member.id=:memberId";
+    public PagedResult<AssignedWorkout> getAssignedWorkouts(Long memberId, Long coachId, int offset, int size) {
+        String dataSql = "SELECT a FROM AssignedWorkoutEntity a WHERE a.member.id=:memberId";
+        String countSql = "SELECT COUNT(a) FROM AssignedWorkoutEntity a WHERE a.member.id = :memberId";
+
         if (coachId != null) {
-            sql += " AND a.coach.id=:coachId";
+            dataSql += " AND a.coach.id=:coachId";
+            countSql += " AND a.coach.id = :coachId";
         }
-        TypedQuery<AssignedWorkoutEntity> query = em.createQuery(sql, AssignedWorkoutEntity.class);
+        TypedQuery<AssignedWorkoutEntity> query = em.createQuery(dataSql, AssignedWorkoutEntity.class);
         query.setParameter("memberId", memberId);
         if (coachId != null) {
             query.setParameter("coachId", coachId);
         }
-        return query.getResultList().stream().map(entity -> new AssignedWorkout(entity.getId(), entity.getWorkout().getId(), entity.getMember().getId(), entity.getCoach().getId(), entity.getAssignedAt())).collect(Collectors.toList());
+
+        query.setFirstResult(offset);
+        query.setMaxResults(size);
+
+        List<AssignedWorkout> workouts = query.getResultList().stream().map(entity -> new AssignedWorkout(entity.getId(),
+                entity.getWorkout().getId(),
+                entity.getMember().getId(),
+                entity.getCoach().getId(),
+                entity.getAssignedAt())).collect(Collectors.toList());
+
+        TypedQuery<Long> countQuery = em.createQuery(countSql, Long.class);
+        countQuery.setParameter("memberId", memberId);
+        if (coachId != null) countQuery.setParameter("coachId", coachId);
+
+        long totalCount = countQuery.getSingleResult();
+
+        return new PagedResult<AssignedWorkout>(workouts, totalCount, offset, size);
     }
 
     @Override

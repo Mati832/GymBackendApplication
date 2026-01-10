@@ -7,6 +7,7 @@ import adapter.in.Presenter.member.HttpGetAssignedWorkoutsPresenter;
 import adapter.in.Presenter.member.HttpRegisterMemberPresenter;
 import adapter.in.mapper.MemberMapper;
 import adapter.in.services.JwtAdapter;
+import application.commands.PaginationCommand;
 import application.commands.member.GetAssignedWorkoutsCommand;
 import application.port.in.AssignCoachMemberRelationUseCase;
 import application.port.in.member.MemberGetsAssignedWorkoutsUsecase;
@@ -67,13 +68,17 @@ public class MemberWebController {
 
     @GET
     @Path("{id}/assigned-workouts")
-    public Response getAssignedWorkouts(@HeaderParam("Authorization")String authHeader, @PathParam("id") Long memberId){
+    public Response getAssignedWorkouts(@HeaderParam("Authorization") String authHeader,
+                                        @PathParam("id") Long memberId,
+                                        @DefaultValue("0")@QueryParam("offset") int offset,
+                                        @DefaultValue("20")@QueryParam("size") int size) {
 
         Long requestedBy = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             requestedBy = jwtService.validateToken(authHeader.substring(7));
         }
-        AssignedWorkoutsResult result = getAssignedWorkoutsUsecase.getWorkouts(new GetAssignedWorkoutsCommand(requestedBy, memberId, null));
+        PaginationCommand pagination=new PaginationCommand(offset,size);
+        AssignedWorkoutsResult result = getAssignedWorkoutsUsecase.getWorkouts(new GetAssignedWorkoutsCommand(requestedBy, memberId, null, pagination));
         return httpGetAssignedWorkoutsPresenter.toHttp(result, uriInfo);
     }
 }

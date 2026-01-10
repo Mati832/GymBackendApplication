@@ -5,6 +5,7 @@ import application.port.out.AssignedWorkoutPorts.GetAssignedWorkoutsPort;
 import application.port.out.UserPorts.SaveCoachMemberRelationPort;
 import application.port.out.UserPorts.SaveUserPort;
 import application.port.out.WorkoutPorts.SaveWorkoutPort;
+import domain.dbResults.PagedResult;
 import domain.model.*;
 import domain.valueobject.Gender;
 import io.quarkus.test.junit.QuarkusTest;
@@ -66,12 +67,15 @@ public class AssignWorkoutIntegrationTest {
                 .then()
                 .log().all()
                 .statusCode(201);
-        List<AssignedWorkout> assignedWorkouts = getAssignedWorkoutsPort.getAssignedWorkouts(member.getId(), coach.getId());
+        PagedResult<AssignedWorkout> pagedResult = getAssignedWorkoutsPort.getAssignedWorkouts(member.getId(), coach.getId(), 0, 10);
+        List<AssignedWorkout> assignedWorkouts = pagedResult.data();
+
         Assertions.assertEquals(1, assignedWorkouts.size());
         AssignedWorkout first = assignedWorkouts.getFirst();
         Assertions.assertEquals(coach.getId(), first.getCoachId());
         Assertions.assertEquals(member.getId(), first.getMemberId());
         Assertions.assertNotNull(first.getAssignedAt());
+        Assertions.assertEquals(1,pagedResult.totalCount());
 
     }
 

@@ -1,4 +1,6 @@
 package application.commands.member;
 
-public record GetAssignedWorkoutsCommand(Long requestedBy, Long memberId, Long coachId) {
+import application.commands.PaginationCommand;
+
+public record GetAssignedWorkoutsCommand(Long requestedBy, Long memberId, Long coachId, PaginationCommand pagination) {
 }

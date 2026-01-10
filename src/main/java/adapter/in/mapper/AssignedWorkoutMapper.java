@@ -1,6 +1,6 @@
 package adapter.in.mapper;
 
-import adapter.in.DTOs.ResponseDTOs.AssignedWorkoutResponse;
+import adapter.in.DTOs.ResponseDTOs.member.AssignedWorkoutResponse;
 import adapter.in.controller.CoachWebController;
 import adapter.in.controller.MemberWebController;
 import domain.model.AssignedWorkout;
@@ -12,6 +12,7 @@ import java.net.URI;
 @ApplicationScoped
 public class AssignedWorkoutMapper {
     public static AssignedWorkoutResponse toResponse(AssignedWorkout assignedWorkout, UriInfo uriInfo) {
+
         URI self = uriInfo.getBaseUriBuilder()
                 .path("nochHinzufügen")
                 .build(assignedWorkout.getId());

@@ -1,9 +1,8 @@
 package application.port.out.AssignedWorkoutPorts;
 
+import domain.dbResults.PagedResult;
 import domain.model.AssignedWorkout;
 
-import java.util.List;
-
 public interface GetAssignedWorkoutsPort {
-    List<AssignedWorkout> getAssignedWorkouts(Long memberId, Long coachId);
+    PagedResult<AssignedWorkout> getAssignedWorkouts(Long memberId, Long coachId, int offset, int size);
 }

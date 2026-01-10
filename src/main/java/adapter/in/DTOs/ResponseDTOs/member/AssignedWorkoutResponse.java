@@ -1,4 +1,4 @@
-package adapter.in.DTOs.ResponseDTOs;
+package adapter.in.DTOs.ResponseDTOs.member;
 
 import java.net.URI;
 import java.time.LocalDateTime;

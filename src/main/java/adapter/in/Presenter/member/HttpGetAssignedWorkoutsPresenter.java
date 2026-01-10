@@ -1,10 +1,13 @@
 package adapter.in.Presenter.member;
 
 import adapter.in.DTOs.ErrorResponse;
-import adapter.in.DTOs.ResponseDTOs.AssignedWorkoutResponse;
+import adapter.in.DTOs.ResponseDTOs.member.AssignedWorkoutResponse;
+import adapter.in.DTOs.ResponseDTOs.member.PagedAssignedWorkoutResponse;
 import adapter.in.Links.member.MemberGetsAssignedWorkoutsLinks;
 import adapter.in.mapper.AssignedWorkoutMapper;
 import domain.Results.member.AssignedWorkoutsResult;
+import domain.dbResults.PagedResult;
+import domain.model.AssignedWorkout;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.Response;
@@ -20,8 +23,14 @@ public class HttpGetAssignedWorkoutsPresenter {
         if (result instanceof AssignedWorkoutsResult.Failure failure) return getFailureResponse(failure, uriInfo);
 
         if (result instanceof AssignedWorkoutsResult.Success success) {
-            List<AssignedWorkoutResponse> body = success.assignedWorkouts().stream().map(wo -> AssignedWorkoutMapper.toResponse(wo, uriInfo)).toList();
-            Link[] links = MemberGetsAssignedWorkoutsLinks.getLinks();
+            PagedResult<AssignedWorkout> pagedResult = success.assignedWorkouts();
+
+            List<AssignedWorkoutResponse> data = pagedResult
+                    .data().stream()
+                    .map(wo -> AssignedWorkoutMapper.toResponse(wo, uriInfo)).toList();
+            PagedAssignedWorkoutResponse body = new PagedAssignedWorkoutResponse(data, pagedResult.totalCount(), pagedResult.offset(), pagedResult.size());
+
+            Link[] links = MemberGetsAssignedWorkoutsLinks.getLinks(pagedResult, uriInfo);
             return Response.status(Response.Status.OK).entity(body).links(links).build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
