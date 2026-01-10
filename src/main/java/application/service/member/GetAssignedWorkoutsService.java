@@ -2,6 +2,7 @@ package application.service.member;
 
 import application.commands.PaginationCommand;
 import application.commands.member.GetAssignedWorkoutsCommand;
+import application.commands.member.GetAssignedWorkoutsFilterCommand;
 import application.port.in.member.MemberGetsAssignedWorkoutsUsecase;
 import application.port.out.AssignedWorkoutPorts.GetAssignedWorkoutsPort;
 import application.port.out.UserPorts.FindUserByIdPort;
@@ -9,7 +10,6 @@ import application.service.AuthorizationService;
 import domain.Results.member.AssignedWorkoutsResult;
 import domain.dbResults.PagedResult;
 import domain.model.AssignedWorkout;
-import domain.model.Coach;
 import domain.model.Member;
 import domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,7 +28,6 @@ public class GetAssignedWorkoutsService implements MemberGetsAssignedWorkoutsUse
     @Override
     public AssignedWorkoutsResult getWorkouts(GetAssignedWorkoutsCommand command) {
 
-
         if (command.requestedBy() == null) {
             return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.UNAUTHORIZED);
         }
@@ -42,14 +41,9 @@ public class GetAssignedWorkoutsService implements MemberGetsAssignedWorkoutsUse
         if (!authorizationService.isAuthorized(requester, Member.class)) {
             return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.UNAUTHORIZED);
         }
-        if (command.coachId() != null) {
-            User coach = findUserByIdUseCase.findUserById(command.coachId());
-            if (!(coach instanceof Coach))
-                return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.COACH_NOT_FOUND);
-        }
 
         PaginationCommand pagination = command.pagination();
-
+        GetAssignedWorkoutsFilterCommand filter = command.filter();
         int pageSize = pagination.size();
         int offset = pagination.offset();
         if (pagination.size() > 100) {
@@ -60,7 +54,7 @@ public class GetAssignedWorkoutsService implements MemberGetsAssignedWorkoutsUse
         }
 
 
-        PagedResult<AssignedWorkout> assignedWorkouts = getAssignedWorkoutsPort.getAssignedWorkouts(command.memberId(), command.coachId(), offset, pageSize);
+        PagedResult<AssignedWorkout> assignedWorkouts = getAssignedWorkoutsPort.getAssignedWorkouts(command.memberId(), filter.coachId(), filter.search(), offset, pageSize);
         return new AssignedWorkoutsResult.Success(assignedWorkouts);
     }
 }

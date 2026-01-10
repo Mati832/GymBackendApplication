@@ -24,18 +24,28 @@ public class JPAAssignedWorkoutAdapter implements GetAssignedWorkoutsPort, Creat
     EntityManager em;
 
     @Override
-    public PagedResult<AssignedWorkout> getAssignedWorkouts(Long memberId, Long coachId, int offset, int size) {
+    public PagedResult<AssignedWorkout> getAssignedWorkouts(Long memberId, Long coachId, String search, int offset, int size) {
         String dataSql = "SELECT a FROM AssignedWorkoutEntity a WHERE a.member.id=:memberId";
         String countSql = "SELECT COUNT(a) FROM AssignedWorkoutEntity a WHERE a.member.id = :memberId";
+        String searchSql = " AND ( LOWER( a.workout.description ) LIKE LOWER(CONCAT('%', :search, '%'))" +
+                " OR LOWER (a.workout.name) LIKE LOWER(CONCAT('%', :search, '%'))" +
+                " OR LOWER (a.coach.lastName) LIKE LOWER(CONCAT('%', :search, '%')))";
 
         if (coachId != null) {
             dataSql += " AND a.coach.id=:coachId";
             countSql += " AND a.coach.id = :coachId";
         }
+        if (search != null && !search.isEmpty()) {
+            dataSql += searchSql;
+            countSql += searchSql;
+        }
         TypedQuery<AssignedWorkoutEntity> query = em.createQuery(dataSql, AssignedWorkoutEntity.class);
         query.setParameter("memberId", memberId);
         if (coachId != null) {
             query.setParameter("coachId", coachId);
+        }
+        if (search != null && !search.isEmpty()) {
+            query.setParameter("search", search);
         }
 
         query.setFirstResult(offset);
@@ -50,6 +60,7 @@ public class JPAAssignedWorkoutAdapter implements GetAssignedWorkoutsPort, Creat
         TypedQuery<Long> countQuery = em.createQuery(countSql, Long.class);
         countQuery.setParameter("memberId", memberId);
         if (coachId != null) countQuery.setParameter("coachId", coachId);
+        if (search != null && !search.isEmpty()) countQuery.setParameter("search", search);
 
         long totalCount = countQuery.getSingleResult();
 

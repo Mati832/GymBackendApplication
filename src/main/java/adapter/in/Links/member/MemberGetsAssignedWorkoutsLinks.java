@@ -10,12 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MemberGetsAssignedWorkoutsLinks {
+
+
     public static Link[] getLinks(PagedResult<AssignedWorkout> result, UriInfo uriInfo) {
         List<Link> links = new ArrayList<>();
-
+        //self
         links.add(Link.fromUriBuilder(uriInfo.getRequestUriBuilder()).rel("self").build());
 
-
+        //next
         int nextOffset = result.offset() + result.size();
         if (nextOffset < result.totalCount()) {
             URI nextUri = uriInfo.getRequestUriBuilder()
@@ -25,7 +27,7 @@ public class MemberGetsAssignedWorkoutsLinks {
 
             links.add(Link.fromUri(nextUri).rel("next").build());
         }
-
+        //prev
         if (result.offset() > 0) {
             int prevOffset = Math.max(0, result.offset() - result.size());
             URI prevUri = uriInfo.getRequestUriBuilder()
@@ -35,6 +37,7 @@ public class MemberGetsAssignedWorkoutsLinks {
 
             links.add(Link.fromUri(prevUri).rel("prev").build());
         }
+
         return links.toArray(new Link[0]);
     }
 
@@ -43,10 +46,6 @@ public class MemberGetsAssignedWorkoutsLinks {
     }
 
     public static Link[] getUnauthorizedLinks(UriInfo uriInfo) {
-        return null;
-    }
-
-    public static Link[] getCoachNotFoundLinks(UriInfo uriInfo) {
         return null;
     }
 

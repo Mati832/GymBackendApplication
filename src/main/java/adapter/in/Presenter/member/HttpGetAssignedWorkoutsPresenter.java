@@ -3,6 +3,7 @@ package adapter.in.Presenter.member;
 import adapter.in.DTOs.ErrorResponse;
 import adapter.in.DTOs.ResponseDTOs.member.AssignedWorkoutResponse;
 import adapter.in.DTOs.ResponseDTOs.member.PagedAssignedWorkoutResponse;
+import adapter.in.Links.LinkHelper;
 import adapter.in.Links.member.MemberGetsAssignedWorkoutsLinks;
 import adapter.in.mapper.AssignedWorkoutMapper;
 import domain.Results.member.AssignedWorkoutsResult;
@@ -31,7 +32,10 @@ public class HttpGetAssignedWorkoutsPresenter {
             PagedAssignedWorkoutResponse body = new PagedAssignedWorkoutResponse(data, pagedResult.totalCount(), pagedResult.offset(), pagedResult.size());
 
             Link[] links = MemberGetsAssignedWorkoutsLinks.getLinks(pagedResult, uriInfo);
-            return Response.status(Response.Status.OK).entity(body).links(links).build();
+            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).entity(body).links(links);
+
+            LinkHelper.addTemplateLink(responseBuilder,uriInfo,"filter","search","coachId");
+            return responseBuilder.build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
@@ -46,10 +50,6 @@ public class HttpGetAssignedWorkoutsPresenter {
             case UNAUTHORIZED -> {
                 links = MemberGetsAssignedWorkoutsLinks.getUnauthorizedLinks(uriInfo);
                 yield new ErrorResponse(Response.Status.UNAUTHORIZED, failure.reason().name(), "");
-            }
-            case COACH_NOT_FOUND -> {
-                links = MemberGetsAssignedWorkoutsLinks.getCoachNotFoundLinks(uriInfo);
-                yield new ErrorResponse(Response.Status.NOT_FOUND, failure.reason().name(), "");
             }
             case MEMBER_NOT_FOUND -> {
                 links = MemberGetsAssignedWorkoutsLinks.getMemberNotFoundLinks(uriInfo);

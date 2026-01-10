@@ -14,21 +14,21 @@ public class AssignedWorkoutMapper {
     public static AssignedWorkoutResponse toResponse(AssignedWorkout assignedWorkout, UriInfo uriInfo) {
 
         URI self = uriInfo.getBaseUriBuilder()
-                .path("nochHinzufügen")
+                .path("todo")
                 .build(assignedWorkout.getId());
 
         URI member = uriInfo.getBaseUriBuilder()
+                .path("todo")
                 .path(MemberWebController.class)
-                //gibtsnochnicht.path(MemberWebController.class, "getMember")
-                .path("nochHinzufügen")
-                .build(assignedWorkout.getMemberId());
+                .path(assignedWorkout.getMemberId().toString()).build();
+        //eigtl so.build(assignedWorkout.getMemberId());
         URI coach = uriInfo.getBaseUriBuilder()
+                .path("todo")
                 .path(CoachWebController.class)
-                //gibtsnochnicht.path(CoachWebController.class, "getCoach")
-                .path("nochHinzufügen")
-                .build(assignedWorkout.getCoachId());
+                .path(assignedWorkout.getCoachId().toString()).build();
+        //eigtl so.build(assignedWorkout.getCoachId());
         URI workout = uriInfo.getBaseUriBuilder()
-                .path("nochHinzufügen")
+                .path("todo")
                 .build(assignedWorkout.getWorkoutId());
 
         return new AssignedWorkoutResponse(self, member, coach, workout, assignedWorkout.getAssignedAt());

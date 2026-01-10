@@ -67,7 +67,7 @@ public class AssignWorkoutIntegrationTest {
                 .then()
                 .log().all()
                 .statusCode(201);
-        PagedResult<AssignedWorkout> pagedResult = getAssignedWorkoutsPort.getAssignedWorkouts(member.getId(), coach.getId(), 0, 10);
+        PagedResult<AssignedWorkout> pagedResult = getAssignedWorkoutsPort.getAssignedWorkouts(member.getId(), coach.getId(), "",0, 10);
         List<AssignedWorkout> assignedWorkouts = pagedResult.data();
 
         Assertions.assertEquals(1, assignedWorkouts.size());

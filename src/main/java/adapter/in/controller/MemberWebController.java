@@ -9,6 +9,7 @@ import adapter.in.mapper.MemberMapper;
 import adapter.in.services.JwtAdapter;
 import application.commands.PaginationCommand;
 import application.commands.member.GetAssignedWorkoutsCommand;
+import application.commands.member.GetAssignedWorkoutsFilterCommand;
 import application.port.in.AssignCoachMemberRelationUseCase;
 import application.port.in.member.MemberGetsAssignedWorkoutsUsecase;
 import application.port.in.member.MemberRegistrationUseCase;
@@ -66,19 +67,23 @@ public class MemberWebController {
 
     }
 
+    //Cursor implementation not necessary, because content wont change frequently and its not a big problem if one object isnt shown
     @GET
     @Path("{id}/assigned-workouts")
     public Response getAssignedWorkouts(@HeaderParam("Authorization") String authHeader,
                                         @PathParam("id") Long memberId,
-                                        @DefaultValue("0")@QueryParam("offset") int offset,
-                                        @DefaultValue("20")@QueryParam("size") int size) {
+                                        @DefaultValue("") @QueryParam("search") String search,
+                                        @QueryParam("coachId") Long coachId,
+                                        @DefaultValue("0") @QueryParam("offset") int offset,
+                                        @DefaultValue("20") @QueryParam("size") int size) {
 
         Long requestedBy = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             requestedBy = jwtService.validateToken(authHeader.substring(7));
         }
-        PaginationCommand pagination=new PaginationCommand(offset,size);
-        AssignedWorkoutsResult result = getAssignedWorkoutsUsecase.getWorkouts(new GetAssignedWorkoutsCommand(requestedBy, memberId, null, pagination));
+        GetAssignedWorkoutsFilterCommand filterCommand = new GetAssignedWorkoutsFilterCommand(coachId, search);
+        PaginationCommand pagination = new PaginationCommand(offset, size);
+        AssignedWorkoutsResult result = getAssignedWorkoutsUsecase.getWorkouts(new GetAssignedWorkoutsCommand(requestedBy, memberId, pagination, filterCommand));
         return httpGetAssignedWorkoutsPresenter.toHttp(result, uriInfo);
     }
 }

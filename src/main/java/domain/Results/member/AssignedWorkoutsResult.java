@@ -16,8 +16,7 @@ public sealed interface AssignedWorkoutsResult permits AssignedWorkoutsResult.Su
     enum Reason {
         UNAUTHORIZED,
         FORBIDDEN,
-        MEMBER_NOT_FOUND,
-        COACH_NOT_FOUND
+        MEMBER_NOT_FOUND
     }
 }
 
