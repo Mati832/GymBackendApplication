@@ -1,4 +1,6 @@
 package application.commands.coach;
 
-public record AssignWorkoutCommand(Long requestedBy, Long coachId, Long memberId, Long workoutId) {
+import application.commands.AuthenticatedUser;
+
+public record AssignWorkoutCommand(AuthenticatedUser authenticatedUser, Long coachId, Long memberId, Long workoutId) {
 }

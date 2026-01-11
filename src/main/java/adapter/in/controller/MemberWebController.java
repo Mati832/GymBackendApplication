@@ -7,6 +7,7 @@ import adapter.in.Presenter.member.HttpGetAssignedWorkoutsPresenter;
 import adapter.in.Presenter.member.HttpRegisterMemberPresenter;
 import adapter.in.mapper.MemberMapper;
 import adapter.in.services.JwtAdapter;
+import application.commands.AuthenticatedUser;
 import application.commands.PaginationCommand;
 import application.commands.member.GetAssignedWorkoutsCommand;
 import application.commands.member.GetAssignedWorkoutsFilterCommand;
@@ -58,7 +59,7 @@ public class MemberWebController {
     @Path("/assign")
     public Response assignCoach(@HeaderParam("Authorization") String authHeader, AssignCoachDTO assignCoachDTO) {
         //validiert Token. wenn nicht valide ist requestedBy null -> muss dann in application service überprüft werden
-        Long requestedBy = null;
+        AuthenticatedUser requestedBy = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             requestedBy = jwtService.validateToken(authHeader.substring(7));
         }
@@ -77,7 +78,7 @@ public class MemberWebController {
                                         @DefaultValue("0") @QueryParam("offset") int offset,
                                         @DefaultValue("20") @QueryParam("size") int size) {
 
-        Long requestedBy = null;
+        AuthenticatedUser requestedBy = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             requestedBy = jwtService.validateToken(authHeader.substring(7));
         }

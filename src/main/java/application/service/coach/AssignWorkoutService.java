@@ -1,5 +1,6 @@
 package application.service.coach;
 
+import application.commands.AuthenticatedUser;
 import application.commands.coach.AssignWorkoutCommand;
 import application.port.in.coach.AssignWorkoutUseCase;
 import application.port.out.AssignedWorkoutPorts.CreateAssignedWorkoutPort;
@@ -28,17 +29,19 @@ public class AssignWorkoutService implements AssignWorkoutUseCase {
 
     @Override
     public AssignWorkoutResult assign(AssignWorkoutCommand command) {
+        AuthenticatedUser authenticatedUser=command.authenticatedUser();
+
         if (command.workoutId() == null || command.coachId() == null || command.memberId() == null) {
             return new AssignWorkoutResult.Failure(AssignWorkoutResult.Reason.EMTPY_FIELD);
         }
-        if (command.requestedBy() == null) {
+        if (authenticatedUser == null) {
             return new AssignWorkoutResult.Failure(AssignWorkoutResult.Reason.UNAUTHORZIED);
         }
         User requester = findUserByIdPort.findUserById(command.coachId());
         if (requester == null) {
             return new AssignWorkoutResult.Failure(AssignWorkoutResult.Reason.COACH_NOT_FOUND);
         }
-        if (!command.requestedBy().equals(command.coachId()) || !authorizationService.isAuthorized(requester, Coach.class)) {
+        if (!authenticatedUser.userId().equals(command.coachId()) || !authorizationService.isAuthorized(requester, Coach.class)) {
             return new AssignWorkoutResult.Failure(AssignWorkoutResult.Reason.FORBIDDEN);
         }
         User member = findUserByIdPort.findUserById(command.memberId());

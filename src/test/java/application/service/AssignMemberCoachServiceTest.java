@@ -1,6 +1,7 @@
 package application.service;
 
 import application.commands.AssignCoachMemberRelationCommand;
+import application.commands.AuthenticatedUser;
 import application.port.out.UserPorts.FindCoachMemberRelationPort;
 import application.port.out.UserPorts.FindUserByEmailPort;
 import application.port.out.UserPorts.SaveCoachMemberRelationPort;
@@ -9,6 +10,7 @@ import domain.model.Coach;
 import domain.model.CoachMember;
 import domain.model.Member;
 import domain.valueobject.Gender;
+import domain.valueobject.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -42,7 +44,7 @@ public class AssignMemberCoachServiceTest {
 
     @Test
     void assignFailsWhenCoachNotFound() {
-        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand("coach@email.com", "member@email.com",1L);
+        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand("coach@email.com", "member@email.com",new AuthenticatedUser(1L, UserRole.COACH));
 
         when(findUserByEmailPort.findByEmail("coach@email.com")).thenReturn(null);
 
@@ -57,7 +59,7 @@ public class AssignMemberCoachServiceTest {
 
     @Test
     void assignFailsWhenMemberNotFound() {
-        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand("coach@email.com", "member@email.com", 1L);
+        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand("coach@email.com", "member@email.com", new AuthenticatedUser(1L, UserRole.COACH));
 
         Coach coach = new Coach("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         when(findUserByEmailPort.findByEmail("coach@email.com")).thenReturn(coach);
@@ -79,7 +81,7 @@ public class AssignMemberCoachServiceTest {
         Member member = new Member("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
         coach.setId(1L);
 
-        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(),1L);
+        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(),new AuthenticatedUser(1L, UserRole.COACH));
 
         when(findUserByEmailPort.findByEmail(coach.getEmail())).thenReturn(coach);
         when(findUserByEmailPort.findByEmail(member.getEmail())).thenReturn(member);
@@ -102,7 +104,7 @@ public class AssignMemberCoachServiceTest {
         Member member = new Member("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
         coach.setId(1L);
         CoachMember savedRelation = new CoachMember(1L, 2L);
-        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(),1L);
+        AssignCoachMemberRelationCommand command = new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(),new AuthenticatedUser(1L, UserRole.COACH));
 
         when(findUserByEmailPort.findByEmail(coach.getEmail())).thenReturn(coach);
         when(findUserByEmailPort.findByEmail(member.getEmail())).thenReturn(member);

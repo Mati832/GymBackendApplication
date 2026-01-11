@@ -58,7 +58,7 @@ public class GetAssignedWorkoutsIntegrationTest {
     public void getAssignedWorkoutsSuccessfully() {
         User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
-        String token = jwtService.generateToken(member.getId().toString());
+        String token = jwtService.generateToken(member);
         setupWorkouts(22, coach.getId(), member.getId());
 
         given()
@@ -77,7 +77,7 @@ public class GetAssignedWorkoutsIntegrationTest {
         User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         setupWorkouts(3, coach.getId(), member.getId());
 
-        String token = jwtService.generateToken(member.getId().toString());
+        String token = jwtService.generateToken(member);
 
         var response = given()
                 .header("Authorization", "Bearer " + token)
@@ -101,7 +101,7 @@ public class GetAssignedWorkoutsIntegrationTest {
         User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         setupWorkouts(3, coach.getId(), member.getId());
-        String token = jwtService.generateToken(member.getId().toString());
+        String token = jwtService.generateToken(member);
 
         var response = given()
                 .header("Authorization", "Bearer " + token)
@@ -124,7 +124,7 @@ public class GetAssignedWorkoutsIntegrationTest {
         User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         setupWorkouts(1, coach.getId(), member.getId());
-        String token = jwtService.generateToken(member.getId().toString());
+        String token = jwtService.generateToken(member);
 
         given()
                 .header("Authorization", "Bearer " + token)
@@ -145,7 +145,7 @@ public class GetAssignedWorkoutsIntegrationTest {
         User coach1 = saveUserPort.save(new Coach("Coach", "One", "c1@example.com", "pw", Gender.MALE, LocalDate.of(2000, 1, 1)));
         User coach2 = saveUserPort.save(new Coach("Coach", "Two", "c2@example.com", "pw", Gender.MALE, LocalDate.of(2000, 1, 1)));
         User member = saveUserPort.save(new Member("Member", "One", "m1@example.com", "pw", Gender.MALE, LocalDate.of(2000, 1, 1)));
-        String token = jwtService.generateToken(member.getId().toString());
+        String token = jwtService.generateToken(member);
 
 
         Workout w1 = saveWorkoutPort.saveWorkout(new Workout("Workout 1", "Desc", LocalDateTime.now(), coach1.getId()));
@@ -171,7 +171,7 @@ public class GetAssignedWorkoutsIntegrationTest {
     public void shouldFilterBySearchStringInWorkoutName() {
         User coach = saveUserPort.save(new Coach("C", "L", "c@ex.com", "pw", Gender.MALE, LocalDate.of(2000, 1, 1)));
         User member = saveUserPort.save(new Member("M", "L", "m@ex.com", "pw", Gender.MALE, LocalDate.of(2000, 1, 1)));
-        String token = jwtService.generateToken(member.getId().toString());
+        String token = jwtService.generateToken(member);
 
 
         Workout w1 = saveWorkoutPort.saveWorkout(new Workout("Rückentraining", "Fokus unterer Rücken", LocalDateTime.now(), coach.getId()));
@@ -197,7 +197,7 @@ public class GetAssignedWorkoutsIntegrationTest {
         User coachMueller = saveUserPort.save(new Coach("Thomas", "Mueller", "mueller@ex.com", "pw", Gender.MALE, LocalDate.of(1990, 1, 1)));
         User coachSchmidt = saveUserPort.save(new Coach("Kevin", "Schmidt", "schmidt@ex.com", "pw", Gender.MALE, LocalDate.of(1990, 1, 1)));
         User member = saveUserPort.save(new Member("M", "L", "m@ex.com", "pw", Gender.MALE, LocalDate.of(2000, 1, 1)));
-        String token = jwtService.generateToken(member.getId().toString());
+        String token = jwtService.generateToken(member);
 
         Workout w1 = saveWorkoutPort.saveWorkout(new Workout("Plan 1", "D", LocalDateTime.now(), coachMueller.getId()));
         createAssignedWorkoutPort.createAssignedWorkout(new AssignedWorkout(w1.getId(), member.getId(), coachMueller.getId()));
@@ -223,7 +223,7 @@ public class GetAssignedWorkoutsIntegrationTest {
         User coach = saveUserPort.save(new Coach("C", "L", "c@ex.com", "pw", Gender.MALE, LocalDate.of(2000, 1, 1)));
         User member = saveUserPort.save(new Member("M", "L", "m@ex.com", "pw", Gender.MALE, LocalDate.of(2000, 1, 1)));
         setupWorkouts(2, coach.getId(), member.getId());
-        String token = jwtService.generateToken(member.getId().toString());
+        String token = jwtService.generateToken(member);
 
         given()
                 .header("Authorization", "Bearer " + token)

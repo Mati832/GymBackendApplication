@@ -4,12 +4,13 @@ import adapter.in.DTOs.RequestDTOs.coach.AssignMemberDTO;
 import adapter.in.DTOs.RequestDTOs.coach.RegisterCoachDTO;
 import adapter.in.DTOs.ResponseDTOs.CoachMemberResponse;
 import application.commands.AssignCoachMemberRelationCommand;
+import application.commands.AuthenticatedUser;
 import application.commands.coach.CoachRegisterCommand;
 import domain.model.CoachMember;
 
 public class CoachMapper {
 
-    public static AssignCoachMemberRelationCommand toDomain(AssignMemberDTO dto, Long requestedBy) {
+    public static AssignCoachMemberRelationCommand toDomain(AssignMemberDTO dto, AuthenticatedUser requestedBy) {
         return new AssignCoachMemberRelationCommand(dto.coachEmail(), dto.memberEmail(), requestedBy);
     }
 

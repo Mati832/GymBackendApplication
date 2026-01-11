@@ -44,7 +44,7 @@ public class MemberAssignsCoachIntegrationTest {
     public void testAssignCoachSuccess() {
         User coach = saveUser.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         User member = saveUser.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
-        String token = jwtService.generateToken(member.getId().toString());
+        String token = jwtService.generateToken(member);
         given()
                 .header("Authorization", "Bearer " + token)
                 .contentType(io.restassured.http.ContentType.JSON)
@@ -95,7 +95,7 @@ public class MemberAssignsCoachIntegrationTest {
         User memberRequester = saveUser.save(new Member("firstname", "lastname", "requester@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         User coach = saveUser.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         User member = saveUser.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
-        String token = jwtService.generateToken(memberRequester.getId().toString());
+        String token = jwtService.generateToken(memberRequester);
         given()
                 .header("Authorization", "Bearer " + token)
                 .contentType(io.restassured.http.ContentType.JSON)

@@ -7,6 +7,7 @@ import adapter.in.Presenter.coach.HttpCoachAssignsWorkoutPresenter;
 import adapter.in.Presenter.coach.HttpRegisterCoachPresenter;
 import adapter.in.mapper.CoachMapper;
 import adapter.in.services.JwtAdapter;
+import application.commands.AuthenticatedUser;
 import application.commands.coach.AssignWorkoutCommand;
 import application.port.in.AssignCoachMemberRelationUseCase;
 import application.port.in.coach.AssignWorkoutUseCase;
@@ -55,7 +56,7 @@ public class CoachWebController {
     @Path("/assign")
     public Response assignCoach(@HeaderParam("Authorization") String authHeader, AssignMemberDTO assignMemberDTO) {
         //validiert Token. wenn nicht valide ist requestedBy null -> muss dann in application service überprüft werden
-        Long requestedBy=null;
+        application.commands.AuthenticatedUser requestedBy = null;
         if(authHeader!=null && authHeader.startsWith("Bearer ")) {
             requestedBy= jwtService.validateToken(authHeader.substring(7));
         }
@@ -67,7 +68,7 @@ public class CoachWebController {
     @POST
     @Path("{coachID}/members/{memberID}/workouts/{workoutID}")
     public Response assignWorkout(@HeaderParam("Authorization")String authHeader, @PathParam("coachID") Long coachId, @PathParam("memberID") Long memberID, @PathParam("workoutID")Long workoutID) {
-        Long requestedBy=null;
+        AuthenticatedUser requestedBy=null;
         if(authHeader!=null && authHeader.startsWith("Bearer ")) {
             requestedBy= jwtService.validateToken(authHeader.substring(7));
         }

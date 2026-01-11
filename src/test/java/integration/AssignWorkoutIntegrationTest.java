@@ -1,6 +1,7 @@
 package integration;
 
 import adapter.in.services.JwtAdapter;
+import application.commands.AuthenticatedUser;
 import application.port.out.AssignedWorkoutPorts.GetAssignedWorkoutsPort;
 import application.port.out.UserPorts.SaveCoachMemberRelationPort;
 import application.port.out.UserPorts.SaveUserPort;
@@ -8,6 +9,7 @@ import application.port.out.WorkoutPorts.SaveWorkoutPort;
 import domain.dbResults.PagedResult;
 import domain.model.*;
 import domain.valueobject.Gender;
+import domain.valueobject.UserRole;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -55,7 +57,7 @@ public class AssignWorkoutIntegrationTest {
     public void AssignWorkoutSuccessfully() {
         User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
         User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
-        String token = jwtService.generateToken(coach.getId().toString());
+        String token = jwtService.generateToken(coach);
         Workout workout = saveWorkoutPort.saveWorkout(new Workout("workout", "description", LocalDateTime.now(), coach.getId()));
         saveCoachMemberRelationPort.save(new CoachMember(coach.getId(), member.getId()));
 

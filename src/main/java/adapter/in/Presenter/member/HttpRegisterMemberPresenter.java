@@ -19,7 +19,7 @@ public class HttpRegisterMemberPresenter {
         if (result instanceof RegisterUserResult.Success success) {
 
             URI self = adapter.in.Links.member.MemberRegistrationLinks.getSelfUri(success.user().getId(), uriInfo);
-            Link[] links = adapter.in.Links.member.MemberRegistrationLinks.getLinks(success.user().getId(), uriInfo);
+            Link[] links = adapter.in.Links.member.MemberRegistrationLinks.getLinks( success.user().getId(),uriInfo);
             return Response.created(self).links(links).build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

@@ -1,5 +1,6 @@
 package application.service.member;
 
+import application.commands.AuthenticatedUser;
 import application.commands.PaginationCommand;
 import application.commands.member.GetAssignedWorkoutsCommand;
 import application.commands.member.GetAssignedWorkoutsFilterCommand;
@@ -28,10 +29,12 @@ public class GetAssignedWorkoutsService implements MemberGetsAssignedWorkoutsUse
     @Override
     public AssignedWorkoutsResult getWorkouts(GetAssignedWorkoutsCommand command) {
 
-        if (command.requestedBy() == null) {
+        AuthenticatedUser authenticatedUser=command.authenticatedUser();
+
+        if (authenticatedUser == null) {
             return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.UNAUTHORIZED);
         }
-        if (!command.requestedBy().equals(command.memberId())) {
+        if (!authenticatedUser.userId().equals(command.memberId())) {
             return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.FORBIDDEN);
         }
         User requester = findUserByIdUseCase.findUserById(command.memberId());

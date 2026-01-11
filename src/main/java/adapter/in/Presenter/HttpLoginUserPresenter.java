@@ -27,7 +27,7 @@ public class HttpLoginUserPresenter {
             User res = success.user();
             var response = new LoginUserResponse(res.getId(), res.getEmail(), res.getFirstName(), res.getLastName(), res.getGender(), res.getBornOn(), res.getCreatedAt());
             Link[] links = LoginUserLinks.getLinks(response, uriInfo);
-            String jwt = jwtService.generateToken(res.getId().toString());
+            String jwt = jwtService.generateToken(res);
             return Response
                     .ok(response)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)

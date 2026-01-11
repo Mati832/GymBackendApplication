@@ -1,6 +1,7 @@
 package integration.narrow;
 
 import application.commands.AssignCoachMemberRelationCommand;
+import application.commands.AuthenticatedUser;
 import application.port.in.AssignCoachMemberRelationUseCase;
 import application.port.out.UserPorts.FindCoachMemberRelationPort;
 import application.port.out.UserPorts.FindUserByEmailPort;
@@ -11,6 +12,7 @@ import domain.model.CoachMember;
 import domain.model.Member;
 import domain.model.User;
 import domain.valueobject.Gender;
+import domain.valueobject.UserRole;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -61,7 +63,7 @@ public class AssignMemberCoachIntegrationTest {
         saveUserPort.save(member);
 
         AssignCoachMemberRelationCommand command =
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), requester.getId());
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), new AuthenticatedUser(requester.getId(), UserRole.COACH));
 
 
         AssignCoachMemberRelationResult result = assignCoachMember.assign(command);
@@ -86,7 +88,7 @@ public class AssignMemberCoachIntegrationTest {
         Member member = new Member("name", "lastname", "email", "password", Gender.MALE, LocalDate.now());
         User requester = saveUserPort.save(member);
         AssignCoachMemberRelationCommand cmd =
-                new AssignCoachMemberRelationCommand("nonexistent@email.com", member.getEmail(), requester.getId());
+                new AssignCoachMemberRelationCommand("nonexistent@email.com", member.getEmail(), new AuthenticatedUser(requester.getId(), UserRole.MEMBER));
 
         AssignCoachMemberRelationResult result = assignCoachMember.assign(cmd);
 
@@ -102,10 +104,10 @@ public class AssignMemberCoachIntegrationTest {
         Member member = new Member("name", "lastname", "email2", "password", Gender.MALE, LocalDate.now());
         User requester = saveUserPort.save(coach);
         saveUserPort.save(member);
-        assignCoachMember.assign(new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), requester.getId()));
+        assignCoachMember.assign(new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), new AuthenticatedUser(requester.getId(), UserRole.COACH)));
 
         AssignCoachMemberRelationResult result = assignCoachMember.assign(
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), requester.getId()));
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), new AuthenticatedUser(requester.getId(), UserRole.COACH)));
 
         assertTrue(result instanceof AssignCoachMemberRelationResult.Failure);
         assertEquals(AssignCoachMemberRelationResult.AssignRelationFailureReason.RELATION_ALREADY_EXISTS,
@@ -138,16 +140,16 @@ public class AssignMemberCoachIntegrationTest {
 
 
         List<AssignCoachMemberRelationCommand> commands = List.of(
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), requester.getId()),
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member2.getEmail(), requester.getId()),
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member3.getEmail(), requester.getId()),
-                new AssignCoachMemberRelationCommand(coach.getEmail(), member4.getEmail(), requester.getId()),
-                new AssignCoachMemberRelationCommand(coach2.getEmail(), member.getEmail(), requester2.getId()),
-                new AssignCoachMemberRelationCommand(coach2.getEmail(), member2.getEmail(), requester2.getId()),
-                new AssignCoachMemberRelationCommand(coach2.getEmail(), member3.getEmail(), requester2.getId()),
-                new AssignCoachMemberRelationCommand(coach3.getEmail(), member.getEmail(), requester3.getId()),
-                new AssignCoachMemberRelationCommand(coach3.getEmail(), member2.getEmail(), requester3.getId()),
-                new AssignCoachMemberRelationCommand(coach4.getEmail(), member.getEmail(), requester4.getId())
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member.getEmail(), new AuthenticatedUser(requester.getId(), UserRole.COACH)),
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member2.getEmail(), new AuthenticatedUser(requester.getId(), UserRole.COACH)),
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member3.getEmail(), new AuthenticatedUser(requester.getId(), UserRole.COACH)),
+                new AssignCoachMemberRelationCommand(coach.getEmail(), member4.getEmail(), new AuthenticatedUser(requester.getId(), UserRole.COACH)),
+                new AssignCoachMemberRelationCommand(coach2.getEmail(), member.getEmail(),new AuthenticatedUser(requester2.getId(), UserRole.COACH)),
+                new AssignCoachMemberRelationCommand(coach2.getEmail(), member2.getEmail(), new AuthenticatedUser(requester2.getId(), UserRole.COACH)),
+                new AssignCoachMemberRelationCommand(coach2.getEmail(), member3.getEmail(), new AuthenticatedUser(requester2.getId(), UserRole.COACH)),
+                new AssignCoachMemberRelationCommand(coach3.getEmail(), member.getEmail(), new AuthenticatedUser(requester3.getId(), UserRole.COACH)),
+                new AssignCoachMemberRelationCommand(coach3.getEmail(), member2.getEmail(), new AuthenticatedUser(requester3.getId(), UserRole.COACH)),
+                new AssignCoachMemberRelationCommand(coach4.getEmail(), member.getEmail(), new AuthenticatedUser(requester4.getId(), UserRole.COACH))
         );
 
 
