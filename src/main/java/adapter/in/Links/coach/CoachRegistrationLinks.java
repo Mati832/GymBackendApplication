@@ -1,34 +1,36 @@
 package adapter.in.Links.coach;
 
-import adapter.in.controller.AuthenticationController;
 import adapter.in.controller.CoachWebController;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
+import static adapter.in.Links.LinkFactory.*;
+
 public class CoachRegistrationLinks {
-    public static URI getSelfUri(Long coachId, UriInfo uriInfo) {
+    public static URI selfUri( UriInfo uriInfo, Long coachId) {
         return uriInfo
                 .getBaseUriBuilder()
-                .path("todo")
                 .path(CoachWebController.class)
                 .path("/" + coachId)
                 .build();
         //eigtl.build(coachId);
     }
 
-    public static Link[] getLinks(Long coachId, UriInfo uriInfo) {
-        Link self = Link.fromUri(getSelfUri(coachId, uriInfo)).rel("self").build();
+    public static Link[] getLinks( UriInfo uriInfo, Long coachId) {
+        return getUnauthenticatedLinks(uriInfo, coachId);
 
-        Link login = Link.fromUri(
-                uriInfo.getBaseUriBuilder()
-                        .path(AuthenticationController.class)
-                        .path(AuthenticationController.class, "login")
-                        .build()
-        ).rel("login").build();
-        return new Link[]{self, login};
     }
+
+    private static Link[] getUnauthenticatedLinks(UriInfo uriInfo, Long coachId) {
+        return new Link[]{
+                self(selfUri(uriInfo,coachId)),
+                dispatcherLink(uriInfo),
+                loginLink(uriInfo)
+        };
+    }
+
 
     public static Link[] getInvalidBirthdayLinks() {
         return new Link[]{};

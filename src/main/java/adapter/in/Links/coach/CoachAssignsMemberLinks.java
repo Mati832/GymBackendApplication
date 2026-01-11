@@ -1,29 +1,31 @@
 package adapter.in.Links.coach;
 
-import adapter.in.DTOs.ResponseDTOs.CoachMemberResponse;
-import adapter.in.controller.MemberWebController;
+import domain.valueobject.UserRole;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
+import static adapter.in.Links.LinkFactory.*;
+
 public class CoachAssignsMemberLinks {
-    public static URI getSelfUri(CoachMemberResponse dto, UriInfo uriInfo) {
-        return uriInfo
-                .getBaseUriBuilder()
-                .path(MemberWebController.class)
-                .path(MemberWebController.class, "assignCoach")
-                .build(dto.getId());
+    public static URI selfUri( UriInfo uriInfo, Long relationId) {
+        return uriInfo.getBaseUriBuilder().path("/coach-members/"+ relationId ).build();
     }
 
-    public static Link[] getLinks(CoachMemberResponse dto, UriInfo uriInfo) {
-        URI self = uriInfo
-                .getBaseUriBuilder()
-                .path(MemberWebController.class)
-                .path(MemberWebController.class, "assignCoach")
-                .build(dto.getId());
-        Link selfLink = Link.fromUri(self).rel("self").build();
-        return new Link[]{selfLink};
+    public static Link[] getLinks( UriInfo uriInfo, Long coachId, Long relationId, Long memberId) {
+
+        return getCoachLinks( uriInfo, coachId, relationId, memberId);
+    }
+
+    private static Link[] getCoachLinks( UriInfo uriInfo,Long coachId,Long relationId, Long memberId) {
+        return new Link[]{
+                self(selfUri(uriInfo, relationId)),
+                dispatcherLink(uriInfo),
+                getAssignedCoachesLink(uriInfo, coachId),
+                getUserLink(uriInfo,coachId, UserRole.COACH),
+                getUserLink(uriInfo,memberId, UserRole.MEMBER),
+        };
     }
 
     public static Link[] getCoachNotFoundLinks(UriInfo uriInfo) {

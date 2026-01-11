@@ -42,7 +42,7 @@ public class GetAssignedWorkoutsService implements MemberGetsAssignedWorkoutsUse
             return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.MEMBER_NOT_FOUND);
         }
         if (!authorizationService.isAuthorized(requester, Member.class)) {
-            return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.UNAUTHORIZED);
+            return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.FORBIDDEN);
         }
 
         PaginationCommand pagination = command.pagination();

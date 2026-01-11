@@ -25,11 +25,10 @@ public class HttpLoginUserPresenter {
         }
         if (result instanceof LoginUserResult.Success success) {
             User res = success.user();
-            var response = new LoginUserResponse(res.getId(), res.getEmail(), res.getFirstName(), res.getLastName(), res.getGender(), res.getBornOn(), res.getCreatedAt());
-            Link[] links = LoginUserLinks.getLinks(response, uriInfo);
+            Link[] links = LoginUserLinks.getLinks(uriInfo, success.user());
             String jwt = jwtService.generateToken(res);
             return Response
-                    .ok(response)
+                    .ok()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
                     .links(links)
                     .build();

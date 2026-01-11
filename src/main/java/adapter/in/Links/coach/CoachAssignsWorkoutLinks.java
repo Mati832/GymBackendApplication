@@ -1,18 +1,36 @@
 package adapter.in.Links.coach;
 
+
+import adapter.in.controller.CoachWebController;
+import domain.valueobject.UserRole;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
+import static adapter.in.Links.LinkFactory.*;
+
 public class CoachAssignsWorkoutLinks {
-    public static URI getSelf() {
-        return null;
+
+    public static Link[] getLinks(UriInfo uriInfo, Long coachId, Long workoutId, Long memberId) {
+        return getCoachLinks(uriInfo, coachId, workoutId, memberId);
+
     }
 
-    public static Link[] getLinks() {
-        return null;
+    private static Link[] getCoachLinks(UriInfo uriInfo, Long coachId, Long workoutId, Long memberId) {
+        return new Link[]{
+                self(selfUri(uriInfo, workoutId, coachId)),
+                getWorkoutlLink(uriInfo, workoutId),
+                getUserLink(uriInfo, coachId, UserRole.COACH),
+                getUserLink(uriInfo, memberId, UserRole.MEMBER),
+                dispatcherLink(uriInfo)
+        };
     }
+
+    public static URI selfUri(UriInfo uriInfo, Long workoutId, Long coachId) {
+        return uriInfo.getBaseUriBuilder().path(CoachWebController.class).path("/" + coachId + "/workouts/" + workoutId).build();
+    }
+
 
     public static Link[] getForbiddenLinks(UriInfo uriInfo) {
         return null;

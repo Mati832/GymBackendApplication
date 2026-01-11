@@ -54,7 +54,7 @@ public class CoachWebController {
 
     @POST
     @Path("/assign")
-    public Response assignCoach(@HeaderParam("Authorization") String authHeader, AssignMemberDTO assignMemberDTO) {
+    public Response assignMember(@HeaderParam("Authorization") String authHeader, AssignMemberDTO assignMemberDTO) {
         //validiert Token. wenn nicht valide ist requestedBy null -> muss dann in application service überprüft werden
         application.commands.AuthenticatedUser requestedBy = null;
         if(authHeader!=null && authHeader.startsWith("Bearer ")) {

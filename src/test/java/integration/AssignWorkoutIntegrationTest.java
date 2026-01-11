@@ -67,7 +67,6 @@ public class AssignWorkoutIntegrationTest {
                 .when()
                 .post("/users/coaches/" + coach.getId() + "/members/" + member.getId() + "/workouts/" + workout.getId())
                 .then()
-                .log().all()
                 .statusCode(201);
         PagedResult<AssignedWorkout> pagedResult = getAssignedWorkoutsPort.getAssignedWorkouts(member.getId(), coach.getId(), "",0, 10);
         List<AssignedWorkout> assignedWorkouts = pagedResult.data();

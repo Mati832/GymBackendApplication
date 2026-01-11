@@ -1,16 +1,14 @@
 package adapter.in.Presenter.coach;
 
 import adapter.in.DTOs.ErrorResponse;
-import adapter.in.DTOs.ResponseDTOs.CoachMemberResponse;
 import adapter.in.Links.coach.CoachAssignsMemberLinks;
 import adapter.in.mapper.CoachMapper;
 import domain.Results.AssignCoachMemberRelationResult;
+import domain.model.CoachMember;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-
-import java.net.URI;
 
 
 @ApplicationScoped
@@ -21,10 +19,11 @@ public class HttpAssignMemberPresenter {
             return getFailureResponse(failure, uriInfo);
         }
         if (result instanceof AssignCoachMemberRelationResult.Success success) {
-            CoachMemberResponse dto = CoachMapper.toDTO(success.coachMember());
-            URI selfUri = CoachAssignsMemberLinks.getSelfUri(dto, uriInfo);
-            Link[] links = CoachAssignsMemberLinks.getLinks(dto, uriInfo);
-            return Response.created(selfUri).links(links).build();
+
+            CoachMember coachMember = success.coachMember();
+
+            Link[] links = CoachAssignsMemberLinks.getLinks( uriInfo, coachMember.getCoachId(), coachMember.getId(), coachMember.getMemberId());
+            return Response.status(Response.Status.CREATED).links(links).build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }

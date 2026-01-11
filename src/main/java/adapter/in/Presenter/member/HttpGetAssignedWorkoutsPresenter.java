@@ -6,6 +6,7 @@ import adapter.in.DTOs.ResponseDTOs.member.PagedAssignedWorkoutResponse;
 import adapter.in.Links.LinkHelper;
 import adapter.in.Links.member.MemberGetsAssignedWorkoutsLinks;
 import adapter.in.mapper.AssignedWorkoutMapper;
+import application.commands.AuthenticatedUser;
 import domain.Results.member.AssignedWorkoutsResult;
 import domain.dbResults.PagedResult;
 import domain.model.AssignedWorkout;
@@ -20,8 +21,8 @@ import java.util.List;
 @ApplicationScoped
 public class HttpGetAssignedWorkoutsPresenter {
 
-    public Response toHttp(AssignedWorkoutsResult result, UriInfo uriInfo) {
-        if (result instanceof AssignedWorkoutsResult.Failure failure) return getFailureResponse(failure, uriInfo);
+    public Response toHttp(AssignedWorkoutsResult result, UriInfo uriInfo, AuthenticatedUser authUser) {
+        if (result instanceof AssignedWorkoutsResult.Failure failure) return getFailureResponse(failure, uriInfo, authUser);
 
         if (result instanceof AssignedWorkoutsResult.Success success) {
             PagedResult<AssignedWorkout> pagedResult = success.assignedWorkouts();
@@ -40,11 +41,11 @@ public class HttpGetAssignedWorkoutsPresenter {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 
-    private Response getFailureResponse(AssignedWorkoutsResult.Failure failure, UriInfo uriInfo) {
+    private Response getFailureResponse(AssignedWorkoutsResult.Failure failure, UriInfo uriInfo, AuthenticatedUser user) {
         Link[] links;
         ErrorResponse errorResponse = switch (failure.reason()) {
             case FORBIDDEN -> {
-                links = MemberGetsAssignedWorkoutsLinks.getForbiddenLinks(uriInfo);
+                links = MemberGetsAssignedWorkoutsLinks.getForbiddenLinks(uriInfo, user);
                 yield new ErrorResponse(Response.Status.FORBIDDEN, failure.reason().name(), "");
             }
             case UNAUTHORIZED -> {
@@ -52,7 +53,7 @@ public class HttpGetAssignedWorkoutsPresenter {
                 yield new ErrorResponse(Response.Status.UNAUTHORIZED, failure.reason().name(), "");
             }
             case MEMBER_NOT_FOUND -> {
-                links = MemberGetsAssignedWorkoutsLinks.getMemberNotFoundLinks(uriInfo);
+                links = MemberGetsAssignedWorkoutsLinks.getMemberNotFoundLinks(uriInfo, user);
                 yield new ErrorResponse(Response.Status.NOT_FOUND, failure.reason().name(), "");
             }
         };

@@ -70,9 +70,9 @@ public class MemberWebController {
 
     //Cursor implementation not necessary, because content wont change frequently and its not a big problem if one object isnt shown
     @GET
-    @Path("{id}/assigned-workouts")
+    @Path("{memberId}/assigned-workouts")
     public Response getAssignedWorkouts(@HeaderParam("Authorization") String authHeader,
-                                        @PathParam("id") Long memberId,
+                                        @PathParam("memberId") Long memberId,
                                         @DefaultValue("") @QueryParam("search") String search,
                                         @QueryParam("coachId") Long coachId,
                                         @DefaultValue("0") @QueryParam("offset") int offset,
@@ -85,6 +85,6 @@ public class MemberWebController {
         GetAssignedWorkoutsFilterCommand filterCommand = new GetAssignedWorkoutsFilterCommand(coachId, search);
         PaginationCommand pagination = new PaginationCommand(offset, size);
         AssignedWorkoutsResult result = getAssignedWorkoutsUsecase.getWorkouts(new GetAssignedWorkoutsCommand(requestedBy, memberId, pagination, filterCommand));
-        return httpGetAssignedWorkoutsPresenter.toHttp(result, uriInfo);
+        return httpGetAssignedWorkoutsPresenter.toHttp(result, uriInfo, requestedBy);
     }
 }

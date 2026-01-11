@@ -2,7 +2,6 @@ package adapter.in.mapper;
 
 import adapter.in.DTOs.RequestDTOs.coach.AssignMemberDTO;
 import adapter.in.DTOs.RequestDTOs.coach.RegisterCoachDTO;
-import adapter.in.DTOs.ResponseDTOs.CoachMemberResponse;
 import application.commands.AssignCoachMemberRelationCommand;
 import application.commands.AuthenticatedUser;
 import application.commands.coach.CoachRegisterCommand;
@@ -12,10 +11,6 @@ public class CoachMapper {
 
     public static AssignCoachMemberRelationCommand toDomain(AssignMemberDTO dto, AuthenticatedUser requestedBy) {
         return new AssignCoachMemberRelationCommand(dto.coachEmail(), dto.memberEmail(), requestedBy);
-    }
-
-    public static CoachMemberResponse toDTO(CoachMember coachMember) {
-        return new CoachMemberResponse(coachMember.getId(), coachMember.getCoachId(), coachMember.getMemberId(), coachMember.getAssignedAt());
     }
 
     public static CoachRegisterCommand toDomain(RegisterCoachDTO dto) {

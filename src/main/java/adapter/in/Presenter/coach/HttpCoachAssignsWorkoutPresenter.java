@@ -3,6 +3,7 @@ package adapter.in.Presenter.coach;
 import adapter.in.DTOs.ErrorResponse;
 import adapter.in.Links.coach.CoachAssignsWorkoutLinks;
 import domain.Results.coach.AssignWorkoutResult;
+import domain.model.AssignedWorkout;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.Response;
@@ -18,11 +19,10 @@ public class HttpCoachAssignsWorkoutPresenter {
             return getFailureResponse(failure, uriInfo);
         }
         if (result instanceof AssignWorkoutResult.Success success) {
-            URI self = CoachAssignsWorkoutLinks.getSelf();
-            Link[] links = CoachAssignsWorkoutLinks.getLinks();
-            return Response.created(self).links(links).build();
+            AssignedWorkout assignedWorkout = success.assignedWorkout();
+            Link[] links = CoachAssignsWorkoutLinks.getLinks(uriInfo,assignedWorkout.getCoachId(), assignedWorkout.getWorkoutId(),  assignedWorkout.getMemberId());
+            return Response.status(Response.Status.CREATED).links(links).build();
         }
-
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 

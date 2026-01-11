@@ -2,6 +2,7 @@ package adapter.in.Presenter.coach;
 
 import adapter.in.DTOs.ErrorResponse;
 import adapter.in.Links.coach.CoachRegistrationLinks;
+import application.commands.AuthenticatedUser;
 import domain.Results.RegisterUserResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Link;
@@ -18,9 +19,8 @@ public class HttpRegisterCoachPresenter {
         }
         if (result instanceof RegisterUserResult.Success success) {
 
-            URI self = CoachRegistrationLinks.getSelfUri(success.user().getId(), uriInfo);
-            Link[] links = CoachRegistrationLinks.getLinks(success.user().getId(), uriInfo);
-            return Response.created(self).links(links).build();
+            Link[] links = CoachRegistrationLinks.getLinks( uriInfo, success.user().getId());
+            return Response.status(Response.Status.CREATED).links(links).build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
