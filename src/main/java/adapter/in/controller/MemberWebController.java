@@ -68,7 +68,7 @@ public class MemberWebController {
 
     }
 
-    //Cursor implementation not necessary, because content wont change frequently and its not a big problem if one object isnt shown
+    //Cursor implementation for pagination not necessary, because content wont change frequently and its not a big problem if one object isnt shown
     @GET
     @Path("{memberId}/assigned-workouts")
     public Response getAssignedWorkouts(@HeaderParam("Authorization") String authHeader,

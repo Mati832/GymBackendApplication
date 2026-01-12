@@ -1,5 +1,6 @@
 package adapter.in.Links;
 
+import adapter.in.controller.DispatcherController;
 import domain.valueobject.UserRole;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.UriInfo;
@@ -11,7 +12,7 @@ import static adapter.in.Links.LinkFactory.*;
 public class DispatcherLinks {
 
     private static URI selfUri(UriInfo uriInfo) {
-        return uriInfo.getBaseUriBuilder().path(DispatcherLinks.class).build();
+        return uriInfo.getBaseUriBuilder().path(DispatcherController.class).build();
     }
 
     public static Link[] getUnauthenticatedLinks(UriInfo uriInfo) {
