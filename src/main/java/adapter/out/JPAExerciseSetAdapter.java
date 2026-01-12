@@ -40,8 +40,8 @@ public class JPAExerciseSetAdapter implements FindExerciseSetByIdPort, LoadExerc
     }
 
     @Override
-    public int countExerciseSets(ExerciseSetFilter filter){
-        return buildQuery(filter, int.class, true).getSingleResult();
+    public Long countExerciseSets(ExerciseSetFilter filter){
+        return buildQuery(filter, Long.class, true).getSingleResult();
     }
 
     @Override

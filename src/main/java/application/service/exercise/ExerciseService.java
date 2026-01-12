@@ -82,22 +82,24 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
 
         List<Exercise> loaded = loadExercisesPort.loadExercises(filter, page, size);
         int totalPageCount =(int) Math.ceil((double) countExercisesPort.countExercises(filter)/size);
-
         return new JPAWorkoutExerciseAdapterResult.Paginated<>(loaded, page, size, totalPageCount);
     }
 
 
     @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<User> addExerciseToUser(Long userId, Exercise exercise) {
-        if(userId == null || exercise == null)
+    public JPAWorkoutExerciseAdapterResult<Exercise> addExerciseToUser(Long userId, Exercise exercise) {
+        if(userId == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
+        if(exercise == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
         User user = findUserByIdPort.findUserById(userId);
         if(user == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
+        if(!user.getId().equals(userId))
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
-        exercise.setCreatedByUserId(userId);
         Exercise persistedExercise;
         try{
             if(exercise.getId() == null) persistedExercise = saveExercisePort.saveExercise(exercise);
@@ -117,20 +119,24 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
         if(updated == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
 
-        return new JPAWorkoutExerciseAdapterResult.Success<>(updated);
+        return new JPAWorkoutExerciseAdapterResult.Created<>(persistedExercise);
     }
 
     @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<Workout> addExerciseToWorkout(Long workoutId, Exercise exercise) {
+    public JPAWorkoutExerciseAdapterResult<Exercise> addExerciseToWorkout(Long workoutId, Exercise exercise) {
         if(workoutId == null || exercise == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+        if(exercise.getCreatedByUserId() == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
 
         Workout workout = findWorkoutByIdPort.findWorkoutById(workoutId);
         if(workout == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
+        if(!workout.getCreatedByUserId().equals(exercise.getCreatedByUserId()))
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
-        exercise.setCreatedByUserId(workout.getCreatedByUserId());
+        exercise.setWorkoutId(workoutId);
         Exercise persistedExercise;
         try{
             if(exercise.getId() == null) persistedExercise = saveExercisePort.saveExercise(exercise);
@@ -146,17 +152,20 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
         }
 
         workout.getExercises().add(persistedExercise.getId());
-        Workout updated = updateWorkoutPort.update(workout);
-        if(updated == null)
+        Workout updatedWorkout = updateWorkoutPort.update(workout);
+
+        if(updatedWorkout == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
 
-        return new  JPAWorkoutExerciseAdapterResult.Success<>(updated);
+        return new  JPAWorkoutExerciseAdapterResult.Created<>(persistedExercise);
     }
 
     @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<User> deleteExerciseInUser(Long userId, Long exerciseId) {
-        if(exerciseId == null || userId == null)
+    public JPAWorkoutExerciseAdapterResult<Void> deleteExerciseInUser(Long userId, Long exerciseId) {
+        if(userId == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
+        if(exerciseId == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
         User user = findUserByIdPort.findUserById(userId);
@@ -166,8 +175,11 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
         if(!user.getExercises().contains(exerciseId))
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_IN_USER_NOT_FOUND);
 
-        if(findExerciseByIdPort.findExerciseById(exerciseId) == null)
+        Exercise exercise = findExerciseByIdPort.findExerciseById(exerciseId);
+        if(exercise == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
+        if(!exercise.getCreatedByUserId().equals(user.getId()))
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
         try{
             deleteExercisePort.deleteExercise(exerciseId);
@@ -179,18 +191,22 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
         User updated = updateUserPort.update(user);
         if(updated == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
-        return new JPAWorkoutExerciseAdapterResult.Success<>(updated);
+        return new JPAWorkoutExerciseAdapterResult.Deleted<>(true);
     }
 
     @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<Workout> deleteExerciseInWorkout(Long workoutId, Long exerciseId) {
+    public JPAWorkoutExerciseAdapterResult<Void> deleteExerciseInWorkout(Long userId, Long workoutId, Long exerciseId) {
+        if(userId == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
         if(exerciseId == null || workoutId == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
         Workout workout = findWorkoutByIdPort.findWorkoutById(workoutId);
         if(workout == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
+        if(!workout.getCreatedByUserId().equals(userId))
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
         if(!workout.getExercises().contains(exerciseId))
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_IN_WORKOUT_NOT_FOUND);
@@ -209,7 +225,7 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
         if(updated == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
 
-        return new JPAWorkoutExerciseAdapterResult.Success<>(updated);
+        return new JPAWorkoutExerciseAdapterResult.Deleted<>(true);
     }
 
     @Override
@@ -217,22 +233,25 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
     public JPAWorkoutExerciseAdapterResult<Exercise> editExercise(Long exerciseId, Exercise exercise) {
         if(exercise == null || exercise.getId() == null || !exercise.getId().equals(exerciseId))
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+        if(exercise.getCreatedByUserId() == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
 
         Exercise toBeEdited = findExerciseByIdPort.findExerciseById(exerciseId);
         if(toBeEdited == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
         if(!toBeEdited.getCreatedByUserId().equals(exercise.getCreatedByUserId()))
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
         if(exercise.getName() != null) toBeEdited.setName(exercise.getName());
         if(exercise.getType() != null) toBeEdited.setType(exercise.getType());
         if(exercise.getDurationInSec() != null) toBeEdited.setDurationInSec(exercise.getDurationInSec());
+        if(exercise.getCreatedAt() != null) toBeEdited.setCreatedAt(exercise.getCreatedAt());
 
         Exercise updated = updateExercisePort.updateExercise(toBeEdited);
         if(updated == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
 
-        return new JPAWorkoutExerciseAdapterResult.Success<>(updated);
+        return new JPAWorkoutExerciseAdapterResult.Updated<>(updated);
     }
 
     @Transactional

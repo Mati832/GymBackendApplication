@@ -3,10 +3,19 @@ package domain.Results;
 
 import java.util.List;
 
-public sealed interface JPAWorkoutExerciseAdapterResult<T> permits JPAWorkoutExerciseAdapterResult.Failure, JPAWorkoutExerciseAdapterResult.Success,
-JPAWorkoutExerciseAdapterResult.Paginated{
+public sealed interface JPAWorkoutExerciseAdapterResult<T>
+        permits JPAWorkoutExerciseAdapterResult.Success,
+        JPAWorkoutExerciseAdapterResult.Created,
+        JPAWorkoutExerciseAdapterResult.Updated,
+        JPAWorkoutExerciseAdapterResult.Deleted,
+        JPAWorkoutExerciseAdapterResult.Paginated,
+        JPAWorkoutExerciseAdapterResult.Failure {
+
     record Success<T>(T value) implements JPAWorkoutExerciseAdapterResult<T> {}
-    record Paginated<T>(List<T> values, int page, int size, int totalPageCount) implements JPAWorkoutExerciseAdapterResult<T>{}
+    record Created<T>(T value) implements JPAWorkoutExerciseAdapterResult<T> {}
+    record Updated<T>(T value) implements JPAWorkoutExerciseAdapterResult<T> {}
+    record Deleted<T>(boolean success) implements JPAWorkoutExerciseAdapterResult<T> {}
+    record Paginated<T>(List<T> values, int page, int size, int totalPageCount) implements JPAWorkoutExerciseAdapterResult<T> {}
     record Failure<T>(FailureReason reason) implements JPAWorkoutExerciseAdapterResult<T> {}
     enum FailureReason {
         USER_NOT_FOUND(404),
@@ -24,7 +33,14 @@ JPAWorkoutExerciseAdapterResult.Paginated{
         UNAUTHORIZED(401),
         NO_PERMISSIONS(403);
 
-        int status;
-        FailureReason(int status){}
+        private final int status;
+
+        FailureReason(int status){
+            this.status = status;
+        }
+
+        public int getStatus(){
+            return this.status;
+        }
     }
 }

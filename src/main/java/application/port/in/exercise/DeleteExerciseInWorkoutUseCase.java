@@ -5,5 +5,5 @@ import domain.model.Workout;
 
 @FunctionalInterface
 public interface DeleteExerciseInWorkoutUseCase {
-    public JPAWorkoutExerciseAdapterResult<Workout> deleteExerciseInWorkout(Long workoutId, Long exerciseId);
+    public JPAWorkoutExerciseAdapterResult<Void> deleteExerciseInWorkout(Long userId, Long workoutId, Long exerciseId);
 }

@@ -89,15 +89,34 @@ public class ExerciseWorkoutAdapterUtils {
             JPAWorkoutExerciseAdapterResult<T> actual,
             Function<T, Object> comparator
     ) {
-        if(expected instanceof JPAWorkoutExerciseAdapterResult.Success<T>(T expectedSuccess)
-                && actual instanceof JPAWorkoutExerciseAdapterResult.Success<T>(T actualSuccess))
-            assertEquals(comparator.apply(expectedSuccess), comparator.apply(actualSuccess));
+        switch (expected) {
+            case JPAWorkoutExerciseAdapterResult.Success<T>(
+                    T expectedSuccess
+            ) when actual instanceof JPAWorkoutExerciseAdapterResult.Success<T>(T actualSuccess) ->
+                    assertEquals(comparator.apply(expectedSuccess), comparator.apply(actualSuccess));
 
-        else if(expected instanceof JPAWorkoutExerciseAdapterResult.Failure<T>(
-                JPAWorkoutExerciseAdapterResult.FailureReason expectedReason)
-                && actual instanceof JPAWorkoutExerciseAdapterResult.Failure<T>(JPAWorkoutExerciseAdapterResult.FailureReason actualReason))
-            assertEquals(expectedReason, actualReason);
+            case JPAWorkoutExerciseAdapterResult.Created<T>(
+                    T expectedCreated
+            ) when actual instanceof JPAWorkoutExerciseAdapterResult.Created<T>(T actualCreated) ->
+                    assertEquals(comparator.apply(expectedCreated), comparator.apply(actualCreated));
 
-        else throw new AssertionError("Results do not match: one is success, the other a failure");
+            case JPAWorkoutExerciseAdapterResult.Updated<T>(
+                    T expectedUpdated
+            ) when actual instanceof JPAWorkoutExerciseAdapterResult.Updated<T>(T actualUpdated) ->
+                assertEquals(comparator.apply(expectedUpdated), comparator.apply(actualUpdated));
+
+            case JPAWorkoutExerciseAdapterResult.Deleted<T>(
+                    boolean expectedDeleted
+            ) when actual instanceof JPAWorkoutExerciseAdapterResult.Deleted<T>(boolean actualDeleted) ->
+                assertEquals(expectedDeleted, actualDeleted);
+
+            case JPAWorkoutExerciseAdapterResult.Failure<T>(
+                    JPAWorkoutExerciseAdapterResult.FailureReason expectedReason
+            ) when actual instanceof JPAWorkoutExerciseAdapterResult.Failure<T>(
+                    JPAWorkoutExerciseAdapterResult.FailureReason actualReason
+            ) -> assertEquals(expectedReason, actualReason);
+
+            case null, default -> throw new AssertionError("Results do not match because they are of different type");
+        }
     }
 }

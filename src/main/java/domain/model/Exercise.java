@@ -30,13 +30,14 @@ public class Exercise {
 
     }
 
-    public Exercise(Long id, String name, String type, Long durationInSec, Long userId, Long workoutId) {
+    public Exercise(Long id, String name, String type, Long durationInSec, LocalDateTime createdAt, Long userId, Long workoutId) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.durationInSec = durationInSec;
         this.createdByUserId = userId;
         this.workoutId = workoutId;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {

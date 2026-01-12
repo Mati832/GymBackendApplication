@@ -62,4 +62,12 @@ public class JwtAdapter {
             return null;
         }
     }
+
+    public Long resolveJWTtoId(String authHeader){
+        Long requestedBy=null;
+        if(authHeader!=null && authHeader.startsWith("Bearer ")) {
+            requestedBy= validateToken(authHeader.substring(7));
+        }
+        return requestedBy;
+    }
 }
