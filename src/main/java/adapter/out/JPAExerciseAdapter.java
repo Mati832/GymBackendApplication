@@ -8,6 +8,7 @@ import adapter.out.Entities.WorkoutEntity;
 import application.commands.exercise.ExerciseFilter;
 import application.port.out.ExercisePorts.*;
 import domain.exceptions.ExerciseSetNotFoundException;
+import domain.exceptions.UserNotFoundException;
 import domain.model.Exercise;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -46,8 +47,8 @@ public class JPAExerciseAdapter implements LoadExerciseByIdPort, LoadExercisesPo
 
 
     @Override
-    public int countExercises(ExerciseFilter filter) {
-        return buildQuery(filter, int.class, true)
+    public Long countExercises(ExerciseFilter filter) {
+        return buildQuery(filter, Long.class, true)
                 .getSingleResult();
     }
 
@@ -103,7 +104,8 @@ public class JPAExerciseAdapter implements LoadExerciseByIdPort, LoadExercisesPo
             if (eSetEntity == null) throw new ExerciseSetNotFoundException("exerciseSet not found: " + eSetId);
             return  eSetEntity;
         }).toList()));
-        if(exercise.getCreatedByUserId() != null) exerciseEntity.setOwner(em.find(UserEntity.class, exercise.getCreatedByUserId()));
+        if(exercise.getCreatedByUserId() == null)  throw new UserNotFoundException("user not found: " + exercise.getCreatedByUserId());
+        exerciseEntity.setOwner(em.find(UserEntity.class, exercise.getCreatedByUserId()));
         if(exercise.getWorkoutId() != null) exerciseEntity.setWorkout(em.find(WorkoutEntity.class, exercise.getWorkoutId()));
         return  exerciseEntity;
     }
@@ -114,8 +116,9 @@ public class JPAExerciseAdapter implements LoadExerciseByIdPort, LoadExercisesPo
                 exerciseEntity.getName(),
                 exerciseEntity.getType(),
                 exerciseEntity.getDurationInSec(),
+                exerciseEntity.getCreatedAt(),
                 exerciseEntity.getOwner().getId(),
-                exerciseEntity.getWorkout().getId()
+                exerciseEntity.getWorkout() == null ? null : exerciseEntity.getWorkout().getId()
         );
     }
 

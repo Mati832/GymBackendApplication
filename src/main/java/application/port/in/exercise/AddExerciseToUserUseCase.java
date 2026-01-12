@@ -6,5 +6,5 @@ import domain.model.User;
 
 @FunctionalInterface
 public interface AddExerciseToUserUseCase {
-    public JPAWorkoutExerciseAdapterResult<User> addExerciseToUser(Long userId, Exercise exercise);
+    public JPAWorkoutExerciseAdapterResult<Exercise> addExerciseToUser(Long userId, Exercise exercise);
 }

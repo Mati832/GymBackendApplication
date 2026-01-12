@@ -71,8 +71,8 @@ public class JPAExerciseSetAdapterTest {
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
 
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult =
-                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
         //test if exerciseSet is added in exercise
         assertFalse(exerciseEntity1.getExerciseSets().isEmpty());
         assertEquals(1, exerciseEntity1.getExerciseSets().size());
@@ -81,9 +81,9 @@ public class JPAExerciseSetAdapterTest {
         expected.setExercise(exerciseEntity1);
         exerciseSetEqualsWithKey(expected, exerciseEntity1.getExerciseSets().getFirst());
         //test results:
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult =
-                new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1));
-        assertResultEquals(expectedResult, actualResult, Exercise::getId);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult =
+                new JPAWorkoutExerciseAdapterResult.Created<>(toDomain(exerciseEntity1.getExerciseSets().getFirst()));
+        assertResultEquals(expectedResult, actualResult, ExerciseSet::getId);
         //test is there is one set in the DB:
         Long count = em.createQuery("SELECT COUNT(e) FROM ExerciseSetEntity e", Long.class).getSingleResult();
         assertEquals(1, count);
@@ -98,10 +98,10 @@ public class JPAExerciseSetAdapterTest {
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
         exerciseSet2.setBelongsToExercise(exerciseEntity1.getId());
 
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult1 =
-                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet2);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult1 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult2 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet2);
         //test if both sets are in exerciseEntity1
         assertFalse(exerciseEntity1.getExerciseSets().isEmpty());
         assertEquals(2, exerciseEntity1.getExerciseSets().size());
@@ -116,12 +116,12 @@ public class JPAExerciseSetAdapterTest {
         exerciseSetEqualsWithKey(expected1, exerciseEntity1.getExerciseSets().getFirst());
         exerciseSetEqualsWithKey(expected2, exerciseEntity1.getExerciseSets().get(1));
         //test results
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult1 =
-                new  JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1));
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult2 =
-                new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1));
-        assertResultEquals(expectedResult1, actualResult1, Exercise::getId);
-        assertResultEquals(expectedResult2, actualResult2, Exercise::getId);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult1 =
+                new  JPAWorkoutExerciseAdapterResult.Created<>(toDomain(exerciseEntity1.getExerciseSets().getFirst()));
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult2 =
+                new JPAWorkoutExerciseAdapterResult.Created<>(toDomain(exerciseEntity1.getExerciseSets().getLast()));
+        assertResultEquals(expectedResult1, actualResult1, ExerciseSet::getId);
+        assertResultEquals(expectedResult2, actualResult2, ExerciseSet::getId);
         //test if there are two ExerciseSets in the DB
         Long count = em.createQuery("SELECT COUNT(e) FROM ExerciseSetEntity e", Long.class).getSingleResult();
         assertEquals(2, count);
@@ -134,11 +134,11 @@ public class JPAExerciseSetAdapterTest {
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
 
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult1 =
-                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult1 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
 
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult2 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
         //check if the same exerciseSet was added twice in exercise (should be possible)
         assertFalse(exerciseEntity1.getExerciseSets().isEmpty());
         assertEquals(2, exerciseEntity1.getExerciseSets().size());
@@ -155,6 +155,13 @@ public class JPAExerciseSetAdapterTest {
         exerciseSetEquals(expected1, expected2);
         //but now key wise
         assertThrows(AssertionError.class, () -> exerciseSetEqualsWithKey(expected1, expected2));
+        //check results
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult1 =
+                new JPAWorkoutExerciseAdapterResult.Created<>(toDomain(exerciseEntity1.getExerciseSets().getFirst()));
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult2 =
+                new JPAWorkoutExerciseAdapterResult.Created<>(toDomain(exerciseEntity1.getExerciseSets().getLast()));
+        assertResultEquals(expectedResult1, actualResult1, ExerciseSet::getId);
+        assertResultEquals(expectedResult2, actualResult2, ExerciseSet::getId);
         //check if there are two exerciseSets in the DB
         Long count = em.createQuery("SELECT COUNT(e) FROM ExerciseSetEntity e", Long.class).getSingleResult();
         assertEquals(2, count);
@@ -168,39 +175,52 @@ public class JPAExerciseSetAdapterTest {
 
         exerciseSet1.setBelongsToExercise(4534872L);
         //invalid ids
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResul1 =
-                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResul1 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
 
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(98157L, exerciseSet1);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult2 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), 98157L, exerciseSet1);
 
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult3 =
-                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(null, null);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult3 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), null, null);
 
         exerciseSet1.setBelongsToExercise(40872L);
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult4 =
-                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(40872L, exerciseSet1);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult4 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), 40872L, exerciseSet1);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult5 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(null, null, null);
+        exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult6 =
+                addExerciseSetToExerciseUseCase.addExerciseSetToExercise(589072L, exerciseEntity1.getId(), exerciseSet1);
 
         //check if there is an invalid exerciseSet saved in exercise
         assertTrue(exerciseEntity1.getExerciseSets().isEmpty());
         //check results
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult1 =
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult1 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult2 =
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult2 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult3 =
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult3 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult4 =
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult4 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
 
-        assertResultEquals(expectedResult1, actualResul1, Exercise::getId);
-        assertResultEquals(expectedResult2, actualResult2, Exercise::getId);
-        assertResultEquals(expectedResult3, actualResult3, Exercise::getId);
-        assertResultEquals(expectedResult4, actualResult4, Exercise::getId);
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult5 =
+                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
+
+        JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult6 =
+                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
+
+        assertResultEquals(expectedResult1, actualResul1, ExerciseSet::getId);
+        assertResultEquals(expectedResult2, actualResult2, ExerciseSet::getId);
+        assertResultEquals(expectedResult3, actualResult3, ExerciseSet::getId);
+        assertResultEquals(expectedResult4, actualResult4, ExerciseSet::getId);
+        assertResultEquals(expectedResult5, actualResult5, ExerciseSet::getId);
+        assertResultEquals(expectedResult6, actualResult6, ExerciseSet::getId);
         //check if there are no exerciseSets in the DB
         Long count = em.createQuery("SELECT COUNT(e) FROM ExerciseSetEntity e", Long.class).getSingleResult();
         assertEquals(0, count);
@@ -214,19 +234,18 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
         //delete exerciseSet
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult =
-                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
-        System.out.println(actualResult.toString());
+        JPAWorkoutExerciseAdapterResult<Void> actualResult =
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(user.getId(), exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
 
         //check if exerciseSet was deleted
         assertTrue(exerciseEntity1.getExerciseSets().isEmpty());
         //check results
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult =
-                new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1));
+        JPAWorkoutExerciseAdapterResult<Void> expectedResult =
+                new JPAWorkoutExerciseAdapterResult.Deleted<>(true);
 
-        assertResultEquals(expectedResult, actualResult,  Exercise::getId);
+        assertResultEquals(expectedResult, actualResult,  null);
         //check if there is no exerciseSet in the DB
         Long count = em.createQuery("SELECT COUNT(e) FROM ExerciseSetEntity e", Long.class).getSingleResult();
         assertEquals(0, count);
@@ -238,25 +257,25 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
-        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
 
         //delete exerciseSet
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult1 =
-                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
+        JPAWorkoutExerciseAdapterResult<Void> actualResult1 =
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(user.getId(), exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
+        JPAWorkoutExerciseAdapterResult<Void> actualResult2 =
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(user.getId(), exerciseEntity1.getId(), exerciseEntity1.getExerciseSets().getFirst().getId());
 
         //check if both exerciseSets have been deleted from exercise
         assertTrue(exerciseEntity1.getExerciseSets().isEmpty());
         //check results
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult1 =
-                new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1));
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult2 =
-                new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1));
+        JPAWorkoutExerciseAdapterResult<Void> expectedResult1 =
+                new JPAWorkoutExerciseAdapterResult.Deleted<>(true);
+        JPAWorkoutExerciseAdapterResult<Void> expectedResult2 =
+                new JPAWorkoutExerciseAdapterResult.Deleted<>(true);
 
-        assertResultEquals(expectedResult1, actualResult1, Exercise::getId);
-        assertResultEquals(expectedResult2, actualResult2, Exercise::getId);
+        assertResultEquals(expectedResult1, actualResult1, null);
+        assertResultEquals(expectedResult2, actualResult2, null);
         //check if there are no exerciseSets in the DB:
         Long count = em.createQuery("SELECT COUNT(e) FROM ExerciseSetEntity e", Long.class).getSingleResult();
         assertEquals(0, count);
@@ -268,31 +287,31 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
 
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult1 =
-                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(null, null);
+        JPAWorkoutExerciseAdapterResult<Void> actualResult1 =
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(user.getId(), null, null);
 
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult2 =
-                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(71256L, exerciseEntity1.getExerciseSets().getFirst().getId());
+        JPAWorkoutExerciseAdapterResult<Void> actualResult2 =
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(user.getId(), 71256L, exerciseEntity1.getExerciseSets().getFirst().getId());
 
-        JPAWorkoutExerciseAdapterResult<Exercise> actualResult3 =
-                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(exerciseEntity1.getId(), 8629561L);
+        JPAWorkoutExerciseAdapterResult<Void> actualResult3 =
+                deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(user.getId(), exerciseEntity1.getId(), 8629561L);
         //check if the exerciseSets in exercise have NOT been deleted
         assertFalse(exerciseEntity1.getExerciseSets().isEmpty());
         //check results:
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult1 =
+        JPAWorkoutExerciseAdapterResult<Void> expectedResult1 =
                 new  JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult2 =
+        JPAWorkoutExerciseAdapterResult<Void> expectedResult2 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
 
-        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult3 =
+        JPAWorkoutExerciseAdapterResult<Void> expectedResult3 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_SET_IN_EXERCISE_NOT_FOUND);
 
-        assertResultEquals(expectedResult1, actualResult1, Exercise::getId);
-        assertResultEquals(expectedResult2, actualResult2, Exercise::getId);
-        assertResultEquals(expectedResult3, actualResult3, Exercise::getId);
+        assertResultEquals(expectedResult1, actualResult1, null);
+        assertResultEquals(expectedResult2, actualResult2, null);
+        assertResultEquals(expectedResult3, actualResult3, null);
         //check if there is one exerciseSet in the DB:
         Long count = em.createQuery("SELECT COUNT(e) FROM ExerciseSetEntity e", Long.class).getSingleResult();
         assertEquals(1, count);
@@ -304,7 +323,7 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
 
         ExerciseSet toBeEdited = new ExerciseSet(null, 11, 22D, "nothing", 234L,
                 now2, exerciseEntity1.getId());
@@ -312,8 +331,7 @@ public class JPAExerciseSetAdapterTest {
         toBeEdited.setBelongsToExercise(exerciseEntity1.getId());
         //check if the exerciseSet was edited in exercise
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult =
-                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited);
-
+                editExerciseSetUseCase.editExerciseSet(user.getId(), exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited);
         assertEquals(1, exerciseEntity1.getExerciseSets().size());
 
         ExerciseSetEntity expected = new ExerciseSetEntity(exerciseEntity1.getExerciseSets().getFirst().getId(), 11, 22D,
@@ -322,7 +340,7 @@ public class JPAExerciseSetAdapterTest {
         exerciseSetEqualsWithKey(expected, exerciseEntity1.getExerciseSets().getFirst());
         //check results
         JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult =
-                new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1.getExerciseSets().getFirst()));
+                new JPAWorkoutExerciseAdapterResult.Updated<>(toDomain(exerciseEntity1.getExerciseSets().getFirst()));
         assertResultEquals(expectedResult, actualResult,  ExerciseSet::getId);
         //check if there is one exerciseSet in the DB:
         Long count = em.createQuery("SELECT COUNT(e) FROM ExerciseSetEntity e", Long.class).getSingleResult();
@@ -336,8 +354,8 @@ public class JPAExerciseSetAdapterTest {
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
         exerciseSet2.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
-        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet2);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet2);
         assertEquals(2,  exerciseEntity1.getExerciseSets().size());
 
         ExerciseSet toBeEdited1 = new ExerciseSet(null, 11, 22D, "nothing", 234L,
@@ -351,10 +369,10 @@ public class JPAExerciseSetAdapterTest {
         toBeEdited2.setBelongsToExercise(exerciseEntity1.getId());
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult1 =
-                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited1);
+                editExerciseSetUseCase.editExerciseSet(user.getId(), exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited1);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult2 =
-                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().get(1).getId(), toBeEdited2);
+                editExerciseSetUseCase.editExerciseSet(user.getId(), exerciseEntity1.getExerciseSets().get(1).getId(), toBeEdited2);
 
         //check if the exerciseSets were edited in exercise
         ExerciseSetEntity expected1 = new  ExerciseSetEntity(exerciseEntity1.getExerciseSets().getFirst().getId(), 11, 22D,
@@ -365,9 +383,9 @@ public class JPAExerciseSetAdapterTest {
         exerciseSetEqualsWithKey(expected2, exerciseEntity1.getExerciseSets().get(1));
         //check results:
         JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult1 =
-                new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1.getExerciseSets().getFirst()));
+                new JPAWorkoutExerciseAdapterResult.Updated<>(toDomain(exerciseEntity1.getExerciseSets().getFirst()));
         JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult2 =
-                new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1.getExerciseSets().get(1)));
+                new JPAWorkoutExerciseAdapterResult.Updated<>(toDomain(exerciseEntity1.getExerciseSets().get(1)));
         assertResultEquals(expectedResult1, actualResult1, ExerciseSet::getId);
         assertResultEquals(expectedResult2, actualResult2, ExerciseSet::getId);
         //check if there are two exerciseSets in the DB:
@@ -382,7 +400,7 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
 
         ExerciseSet toBeEdited1 = new ExerciseSet(null, 2, 40D, "best", 40L,
                 now1, exerciseEntity1.getId());
@@ -395,10 +413,10 @@ public class JPAExerciseSetAdapterTest {
         toBeEdited2.setBelongsToExercise(exerciseEntity1.getId());
         //check if the exerciseSet was edited in exercise
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult1 =
-                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited1);
+                editExerciseSetUseCase.editExerciseSet(user.getId(), exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited1);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult2 =
-                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited2);
+                editExerciseSetUseCase.editExerciseSet(user.getId(), exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited2);
 
         assertEquals(1, exerciseEntity1.getExerciseSets().size());
 
@@ -408,7 +426,7 @@ public class JPAExerciseSetAdapterTest {
         exerciseSetEqualsWithKey(expected, exerciseEntity1.getExerciseSets().getFirst());
         //check results
         JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult =
-                new JPAWorkoutExerciseAdapterResult.Success<>(toDomain(exerciseEntity1.getExerciseSets().getFirst()));
+                new JPAWorkoutExerciseAdapterResult.Updated<>(toDomain(exerciseEntity1.getExerciseSets().getFirst()));
 
         assertResultEquals(expectedResult, actualResult1, ExerciseSet::getId);
         assertResultEquals(expectedResult, actualResult2, ExerciseSet::getId);
@@ -423,19 +441,19 @@ public class JPAExerciseSetAdapterTest {
         exerciseEntity1.setOwner(user);
         em.persist(exerciseEntity1);
         exerciseSet1.setBelongsToExercise(exerciseEntity1.getId());
-        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(exerciseEntity1.getId(), exerciseSet1);
+        addExerciseSetToExerciseUseCase.addExerciseSetToExercise(user.getId(), exerciseEntity1.getId(), exerciseSet1);
         ExerciseSet toBeEdited = new ExerciseSet(42671L, 2, 40D, "best", 40L,
                 now1, exerciseEntity1.getId());
 
         //check results
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult1 =
-                editExerciseSetUseCase.editExerciseSet(null, null);
+                editExerciseSetUseCase.editExerciseSet(user.getId(), null, null);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult2 =
-                editExerciseSetUseCase.editExerciseSet(exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited);
+                editExerciseSetUseCase.editExerciseSet(user.getId(), exerciseEntity1.getExerciseSets().getFirst().getId(), toBeEdited);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> actualResult3 =
-                editExerciseSetUseCase.editExerciseSet(42671L, toBeEdited);
+                editExerciseSetUseCase.editExerciseSet(user.getId(), 42671L, toBeEdited);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> expectedResult1 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);

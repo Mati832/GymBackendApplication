@@ -4,7 +4,6 @@ import adapter.mapper.JPAWorkoutMapper;
 import adapter.out.Entities.ExerciseEntity;
 import adapter.out.Entities.UserEntity;
 import adapter.out.Entities.WorkoutEntity;
-import application.commands.exercise.ExerciseFilter;
 import application.port.out.WorkoutPorts.*;
 import application.commands.workout.WorkoutFilter;
 import domain.exceptions.ExerciseNotFoundException;
@@ -22,7 +21,7 @@ import java.util.List;
 import static adapter.mapper.JPAWorkoutMapper.toDomain;
 
 @ApplicationScoped
-public class JPAWorkoutAdapter implements FindWorkoutByIdPort, LoadWorkoutByIdPort, LoadWorkouts, CountWorkouts, SaveWorkoutPort,
+public class JPAWorkoutAdapter implements FindWorkoutByIdPort, LoadWorkoutByIdPort, LoadWorkoutsPort, CountWorkoutsPort, SaveWorkoutPort,
         UpdateWorkoutPort, DeleteWorkoutPort {
     @Inject
     EntityManager em;
@@ -56,8 +55,8 @@ public class JPAWorkoutAdapter implements FindWorkoutByIdPort, LoadWorkoutByIdPo
 
     @Override
     //needed to calculate the amount of pages for pagination
-    public int countWorkouts(WorkoutFilter filter) {
-        return buildQuery(filter, int.class, true).getSingleResult();
+    public Long countWorkouts(WorkoutFilter filter) {
+        return buildQuery(filter, Long.class, true).getSingleResult();
     }
 
     @Override
@@ -99,7 +98,7 @@ public class JPAWorkoutAdapter implements FindWorkoutByIdPort, LoadWorkoutByIdPo
             if(eEntity == null) throw new ExerciseNotFoundException("exercise not found: " + eId);
             return  eEntity;
         }).toList()));
-        if(workout.getCreatedByUserId() == null) return  workoutEntity;
+        if(workout.getCreatedByUserId() == null) throw new  UserNotFoundException("user not found: " + workout.getCreatedByUserId());
         UserEntity userEntity = em.find(UserEntity.class, workout.getCreatedByUserId());
         if(userEntity == null) throw new UserNotFoundException("user not found: " + workout.getCreatedByUserId());
         workoutEntity.setOwner(userEntity);

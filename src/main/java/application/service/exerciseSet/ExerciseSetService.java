@@ -3,6 +3,7 @@ package application.service.exerciseSet;
 import application.commands.exerciseSet.ExerciseSetFilter;
 import application.port.in.exerciseSet.*;
 import application.port.out.ExercisePorts.FindExerciseByIdPort;
+import application.port.out.ExercisePorts.LoadExerciseByIdPort;
 import application.port.out.ExercisePorts.UpdateExercisePort;
 import application.port.out.ExerciseSetPorts.*;
 import domain.Results.JPAWorkoutExerciseAdapterResult;
@@ -35,6 +36,8 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
     LoadExerciseSetsPort  loadExerciseSetsPort;
     @Inject
     CountExerciseSetsPort countExerciseSetsPort;
+    @Inject
+    LoadExerciseByIdPort  loadExerciseByIdPort;
 
     @Override
     public JPAWorkoutExerciseAdapterResult<ExerciseSet> loadExerciseSetById(Long exerciseSetId){
@@ -62,9 +65,12 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
 
     @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<Exercise> addExerciseSetToExercise(Long exerciseId, ExerciseSet exerciseSet) {
-        if(exerciseId == null || exerciseSet == null)
+    public JPAWorkoutExerciseAdapterResult<ExerciseSet> addExerciseSetToExercise(Long userId, Long exerciseId, ExerciseSet exerciseSet) {
+        if(userId == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
+        if(exerciseId == null || exerciseSet == null){
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
+        }
 
         if(!exerciseId.equals(exerciseSet.getBelongsToExercise()))
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
@@ -72,8 +78,9 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
         Exercise exercise = findExerciseByIdPort.findExerciseById(exerciseId);
         if(exercise == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
+        if(!exercise.getCreatedByUserId().equals(userId))
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
-        exerciseSet.setBelongsToExercise(exerciseId);
         ExerciseSet persisted;
         if(exerciseSet.getId() == null) persisted = saveExerciseSetPort.saveExerciseSet(exerciseSet);
         else {
@@ -85,15 +92,19 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
         }
 
         exercise.getExerciseSets().add(persisted.getId());
-        Exercise updated = updateExercisePort.updateExercise(exercise);
-        if(updated == null)
+        Exercise updatedExercise = updateExercisePort.updateExercise(exercise);
+
+        if(updatedExercise == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
-        return new JPAWorkoutExerciseAdapterResult.Success<>(exercise);
+
+        return new JPAWorkoutExerciseAdapterResult.Created<>(persisted);
     }
 
     @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<Exercise> deleteExerciseSetInExercise(Long exerciseId, Long exerciseSetId) {
+    public JPAWorkoutExerciseAdapterResult<Void> deleteExerciseSetInExercise(Long userId, Long exerciseId, Long exerciseSetId) {
+        if(userId == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
         if(exerciseId == null || exerciseSetId == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
@@ -104,7 +115,10 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
         if(!exercise.getExerciseSets().contains(exerciseSetId))
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_SET_IN_EXERCISE_NOT_FOUND);
 
-        if(findExerciseByIdPort.findExerciseById(exerciseId) == null)
+        if(!exercise.getCreatedByUserId().equals(userId))
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
+
+        if(findExerciseSetByIdPort.findExerciseSetById(exerciseSetId) == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_SET_NOT_FOUND);
 
         try{
@@ -118,12 +132,15 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
         if (updated == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
 
-        return new JPAWorkoutExerciseAdapterResult.Success<>(updated);
+        return new JPAWorkoutExerciseAdapterResult.Deleted<>(true);
     }
 
     @Override
     @Transactional
-    public JPAWorkoutExerciseAdapterResult<ExerciseSet> editExerciseSet(Long exerciseSetId, ExerciseSet exerciseSet) {
+    public JPAWorkoutExerciseAdapterResult<ExerciseSet> editExerciseSet(Long userId, Long exerciseSetId, ExerciseSet exerciseSet) {
+        if(userId == null)
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
+
         if(exerciseSetId == null || exerciseSet == null ||  exerciseSet.getId() == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
@@ -133,6 +150,8 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
         ExerciseSet toBeEdited = findExerciseSetByIdPort.findExerciseSetById(exerciseSetId);
         if(toBeEdited == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_SET_NOT_FOUND);
+        if(!loadExerciseByIdPort.loadExerciseById(toBeEdited.getBelongsToExercise()).getCreatedByUserId().equals(userId))
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
         if(exerciseSet.getReps() != null) toBeEdited.setReps(exerciseSet.getReps());
         if(exerciseSet.getWeightInKg() != null) toBeEdited.setWeightInKg(exerciseSet.getWeightInKg());
@@ -144,7 +163,7 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
         if (updated == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_SET_NOT_FOUND);
 
-        return new  JPAWorkoutExerciseAdapterResult.Success<>(updated);
+        return new  JPAWorkoutExerciseAdapterResult.Updated<>(updated);
     }
 
     @Transactional
