@@ -14,6 +14,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @ApplicationScoped
@@ -81,6 +82,7 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
         if(!exercise.getCreatedByUserId().equals(userId))
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
+        if(exerciseSet.getCreatedAt() == null) exerciseSet.setCreatedAt(LocalDateTime.now());
         ExerciseSet persisted;
         if(exerciseSet.getId() == null) persisted = saveExerciseSetPort.saveExerciseSet(exerciseSet);
         else {

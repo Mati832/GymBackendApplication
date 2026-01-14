@@ -127,7 +127,7 @@ public class JPAExerciseAdapter implements LoadExerciseByIdPort, LoadExercisesPo
         StringBuilder queryString = new StringBuilder(selectPart);
         queryString.append("FROM ExerciseEntity e WHERE 1=1 ");
 
-        if (filter.userId() != null) queryString.append("AND e.owner.id = :userId ");
+        if (filter.userId() != null) queryString.append("AND e.owner.id = :userId AND e.workout.id IS NULL");
         if (filter.workoutId() != null) queryString.append("AND e.workout.id = :workoutId ");
         if (filter.name() != null) queryString.append("AND lower(e.name) LIKE lower(:exerciseName) ");
         if (filter.createdAfter() != null) queryString.append("AND e.createdAt >= :createdAfter ");

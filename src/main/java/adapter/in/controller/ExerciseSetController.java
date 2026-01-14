@@ -2,7 +2,6 @@ package adapter.in.controller;
 
 import adapter.in.Presenter.HttpWorkoutExerciseOperationPresenter;
 import application.commands.exerciseSet.ExerciseSetFilter;
-import application.port.in.exerciseSet.LoadExerciseSetByIdUseCase;
 import application.port.in.exerciseSet.LoadExerciseSetsUseCase;
 import domain.Results.JPAWorkoutExerciseAdapterResult;
 import domain.model.ExerciseSet;
@@ -23,9 +22,6 @@ public class ExerciseSetController {
     UriInfo uriInfo;
     @Inject
     LoadExerciseSetsUseCase loadExerciseSetsUseCase;
-    @Inject
-    LoadExerciseSetByIdUseCase loadExerciseSetByIdUseCase;
-
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -45,16 +41,6 @@ public class ExerciseSetController {
                 durationLessThan, createdBefore, createdAfter);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result = loadExerciseSetsUseCase.loadExerciseSets(filter, page, size);
-        return presenter.toHttp(result, uriInfo);
-    }
-
-    @Path("/{exerciseSetID}")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getExerciseSetById(
-            @PathParam("exerciseSetID") Long exerciseSetId
-    ) {
-        JPAWorkoutExerciseAdapterResult<ExerciseSet> result = loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId);
         return presenter.toHttp(result, uriInfo);
     }
 }

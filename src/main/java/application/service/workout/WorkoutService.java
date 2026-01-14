@@ -17,6 +17,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,6 +95,7 @@ public class WorkoutService implements LoadWorkoutByIdUseCase, LoadWorkoutsUseCa
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
         workout.setCreatedByUserId(userId);
+        if(workout.getCreatedAt() == null) workout.setCreatedAt(LocalDateTime.now());
         Workout persistedWorkout;
 
         try{

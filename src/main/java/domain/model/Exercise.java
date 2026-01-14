@@ -84,7 +84,9 @@ public class Exercise {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {}
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public List<Long> getExerciseSets() {
         return exerciseSets;

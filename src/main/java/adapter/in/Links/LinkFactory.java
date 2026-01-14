@@ -14,6 +14,18 @@ public class LinkFactory {
         return Link.fromUri(uri).rel("self").build();
     }
 
+    public static Link getSelfLink(UriInfo uriInfo, Long id) {
+        String path = uriInfo.getPath(); // "users/1/workouts/4"
+        String parentPath = path.substring(0, path.lastIndexOf('/')); // "users/1/workouts"
+
+        return self(uriInfo.getBaseUriBuilder().path(parentPath).path(id.toString())
+                .build());
+    }
+
+    public static Link getSelfLink(UriInfo uriInfo) {
+        return Link.fromUri(uriInfo.getAbsolutePath()).rel("self").build();
+    }
+
 
     //dispatcher link
     public static Link dispatcherLink(UriInfo uriInfo) {
@@ -68,9 +80,58 @@ public class LinkFactory {
                 .rel("get-workouts").build();
     }
 
+    public static Link getWorkoutsLinkInUser(UriInfo uriInfo, Long userId) {
+        return Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(UserController.class).path(userId.toString()).path(WorkoutController.class))
+                .rel("get-workouts from user").build();
+    }
+
+    public static Link getExercisesLinkInUser(UriInfo uriInfo, Long userId, Long workoutId) {
+        return Link.fromUriBuilder(uriInfo
+                        .getBaseUriBuilder()
+                        .path(UserController.class)
+                        .path(userId.toString())
+                        .path(WorkoutController.class)
+                        .path(workoutId.toString())
+                        .path(ExerciseController.class))
+                .rel("get-workouts from user").build();
+    }
+
+    public static Link getExercisesLinkInUser(UriInfo uriInfo, Long userId) {
+        return Link.fromUriBuilder(uriInfo
+                .getBaseUriBuilder()
+                .path(UserController.class)
+                .path(userId.toString())
+                .path(ExerciseController.class))
+                .rel("get-exercises from user").build();
+    }
+
     public static Link getExercisesLink(UriInfo uriInfo) {
         return Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(ExerciseController.class))
                 .rel("get-exercises").build();
+    }
+
+    public static Link getExerciseSetsLinkFromExercise(UriInfo uriInfo, Long userId, Long exerciseId) {
+        return Link.fromUriBuilder(uriInfo
+                .getBaseUriBuilder()
+                .path(UserController.class)
+                .path(userId.toString())
+                .path(ExerciseController.class)
+                .path(exerciseId.toString())
+                .path(ExerciseSetController.class))
+                .rel("get-exerciseSets in exercise").build();
+    }
+
+    public static Link getExerciseSetsLinkFromExercise(UriInfo uriInfo, Long userId, Long workoutId, Long exerciseId) {
+        return Link.fromUriBuilder(uriInfo
+                        .getBaseUriBuilder()
+                        .path(UserController.class)
+                        .path(userId.toString())
+                        .path(WorkoutController.class)
+                        .path(workoutId.toString())
+                        .path(ExerciseController.class)
+                        .path(exerciseId.toString())
+                        .path(ExerciseSetController.class))
+                .rel("get-exerciseSets in exercise").build();
     }
 
     // Einzel-Ansichten (Singular)
@@ -88,6 +149,21 @@ public class LinkFactory {
         Class<?> controller = (role == UserRole.COACH) ? CoachWebController.class : MemberWebController.class;
         return Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(controller).path(userId.toString()))
                 .rel("get-profile").build();
+    }
+
+    public static Link getUserLink(UriInfo uriInfo, Long userId) {
+        return Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(UserController.class).path(userId.toString()))
+                .rel("get-profile").build();
+    }
+
+    public static Link getWorkoutLinkInUser(UriInfo uriInfo, Long userId, Long workoutId) {
+        return Link.fromUriBuilder(uriInfo
+                        .getBaseUriBuilder()
+                        .path(UserController.class)
+                        .path(userId.toString())
+                        .path(WorkoutController.class)
+                        .path(workoutId.toString()))
+                .rel("get-workout in user").build();
     }
 
 // --- RELATIONSHIPS & ASSIGNMENTS (READ) ---
@@ -125,4 +201,24 @@ public class LinkFactory {
                 .rel("add-exercise-to-workout").build();
     }
 
+    //pagination links
+    public static Link getPrev(UriInfo uriInfo, int page, int size) {
+        Link prev = null;
+        if(page -1 >= 0) prev = Link.fromUriBuilder(uriInfo
+                        .getRequestUriBuilder()
+                        .replaceQueryParam("page", page-1)
+                        .replaceQueryParam("size", size))
+                .rel("prev").build();
+        return prev;
+    }
+
+    public static Link getNext(UriInfo uriInfo, int page, int size, int totalPages) {
+        Link next = null;
+        if(page + 1 < totalPages) next = Link.fromUriBuilder(uriInfo
+                        .getRequestUriBuilder()
+                        .replaceQueryParam("page", page+1)
+                        .replaceQueryParam("size", size))
+                .rel("next").build();
+        return next;
+    }
 }

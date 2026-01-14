@@ -66,7 +66,7 @@ public class JwtAdapter {
     public Long resolveJWTtoId(String authHeader){
         Long requestedBy=null;
         if(authHeader!=null && authHeader.startsWith("Bearer ")) {
-            requestedBy= validateToken(authHeader.substring(7));
+            requestedBy= validateToken(authHeader.substring(7)).userId();
         }
         return requestedBy;
     }

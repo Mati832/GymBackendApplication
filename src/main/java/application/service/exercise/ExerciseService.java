@@ -22,6 +22,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,6 +101,7 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
         if(!user.getId().equals(userId))
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
+        if(exercise.getCreatedAt() == null) exercise.setCreatedAt(LocalDateTime.now());
         Exercise persistedExercise;
         try{
             if(exercise.getId() == null) persistedExercise = saveExercisePort.saveExercise(exercise);
@@ -137,6 +139,7 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
         exercise.setWorkoutId(workoutId);
+        if(exercise.getCreatedAt() == null) exercise.setCreatedAt(LocalDateTime.now());
         Exercise persistedExercise;
         try{
             if(exercise.getId() == null) persistedExercise = saveExercisePort.saveExercise(exercise);
@@ -262,6 +265,7 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
         copyExercise.setName(exerciseToCopyFrom.getName());
         copyExercise.setType(exerciseToCopyFrom.getType());
         copyExercise.setDurationInSec(exerciseToCopyFrom.getDurationInSec());
+        copyExercise.setCreatedAt(exerciseToCopyFrom.getCreatedAt());
         copyExercise.setCreatedByUserId(userId);
         copyExercise.setWorkoutId(workoutId);
 

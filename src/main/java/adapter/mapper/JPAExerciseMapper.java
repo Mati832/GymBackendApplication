@@ -5,12 +5,13 @@ import adapter.out.Entities.ExerciseSetEntity;
 import domain.model.Exercise;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class JPAExerciseMapper {
 
     public static Exercise toDomain(ExerciseEntity exerciseEntity){
         return new  Exercise(exerciseEntity.getId(), exerciseEntity.getName(), exerciseEntity.getType(), exerciseEntity.getDurationInSec(),
-                exerciseEntity.getOwner().getId(), new ArrayList<>(exerciseEntity.getExerciseSets().stream().
+                exerciseEntity.getOwner().getId(), new ArrayList<>(exerciseEntity.getExerciseSets().stream().filter(Objects::nonNull).
                 map(ExerciseSetEntity::getId).toList()), exerciseEntity.getCreatedAt(),
                 exerciseEntity.getWorkout() == null ? null : exerciseEntity.getWorkout().getId());
     }
