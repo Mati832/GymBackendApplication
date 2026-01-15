@@ -7,6 +7,7 @@ public class CoachMember {
     Long coachId;
     Long memberId;
     LocalDate assignedAt;
+    int etag;
 
 
     public CoachMember(){}
@@ -15,11 +16,12 @@ public class CoachMember {
         this.memberId = memberId;
     }
 
-    public CoachMember(Long id, Long coachId, Long memberId, LocalDate assignedAt) {
+    public CoachMember(Long id, Long coachId, Long memberId, LocalDate assignedAt, int etag) {
         this.id = id;
         this.coachId = coachId;
         this.memberId = memberId;
         this.assignedAt = assignedAt;
+        this.etag = etag;
     }
 
     public Long getId() {
@@ -48,5 +50,9 @@ public class CoachMember {
 
     public void setAssignedAt(LocalDate assignedAt) {
         this.assignedAt = assignedAt;
+    }
+
+    public int getEtag() {
+        return etag;
     }
 }

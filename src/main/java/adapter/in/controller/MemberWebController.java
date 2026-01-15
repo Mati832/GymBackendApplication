@@ -19,10 +19,11 @@ import domain.Results.RegisterUserResult;
 import domain.Results.member.AssignedWorkoutsResult;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.*;
+
+import java.util.Objects;
+
+import static adapter.in.services.CacheExpirationFactory.get10sPrivateNoMustValidateExpiration;
 
 @Path("/users/members")
 public class MemberWebController {
@@ -65,13 +66,13 @@ public class MemberWebController {
         }
         AssignCoachMemberRelationResult result = assignCoach.assign(MemberMapper.toDomain(assignCoachDTO, requestedBy));
         return httpAssignCoachPresenter.toHttp(result, uriInfo);
-
     }
 
     //Cursor implementation for pagination not necessary, because content wont change frequently and its not a big problem if one object isnt shown
     @GET
     @Path("{memberId}/assigned-workouts")
     public Response getAssignedWorkouts(@HeaderParam("Authorization") String authHeader,
+                                        @Context Request request,
                                         @PathParam("memberId") Long memberId,
                                         @DefaultValue("") @QueryParam("search") String search,
                                         @QueryParam("coachId") Long coachId,
@@ -85,6 +86,19 @@ public class MemberWebController {
         GetAssignedWorkoutsFilterCommand filterCommand = new GetAssignedWorkoutsFilterCommand(coachId, search);
         PaginationCommand pagination = new PaginationCommand(offset, size);
         AssignedWorkoutsResult result = getAssignedWorkoutsUsecase.getWorkouts(new GetAssignedWorkoutsCommand(requestedBy, memberId, pagination, filterCommand));
-        return httpGetAssignedWorkoutsPresenter.toHttp(result, uriInfo, requestedBy);
+        //caching
+        EntityTag etag = null;
+        if (result instanceof AssignedWorkoutsResult.Success success) {
+
+            int hashSum = success.assignedWorkouts().data().stream()
+                    .mapToInt(workout -> workout.getEtag()).sum();
+            etag = new EntityTag(Integer.toHexString(Objects.hash(hashSum)));
+            Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(etag);
+            if (responseBuilder != null) {//10s because its not important if a workout is missing for some seconds, No must validate because its good if the server doesnt work and the cache can still function, Private because this list is for only one user
+                return Response.notModified().cacheControl(get10sPrivateNoMustValidateExpiration()).build();
+            }
+        }
+        //if etag does not equal the current etag
+        return httpGetAssignedWorkoutsPresenter.toHttp(result, uriInfo, requestedBy, etag);
     }
 }

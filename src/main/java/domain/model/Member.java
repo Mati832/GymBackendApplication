@@ -13,17 +13,17 @@ public class Member extends User {
 
     //Constructors
     public Member(Long id, String firstName, String lastName, String email,
-                  String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt,
+                  String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt, int etag,
                   List<Long>  exercises, List<Long> workouts, List<Long> coaches) {
-        super(id, firstName, lastName, email, password, gender, bornOn, createdAt,  exercises, workouts);
+        super(id, firstName, lastName, email, password, gender, bornOn, createdAt, etag, exercises, workouts);
         this.coaches = coaches;
     }
 
     public Member(String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn){
         super(firstName, lastName, email, password, gender, bornOn);
     }
-    public Member(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt) {
-        super(id, firstName, lastName, email, password, gender, bornOn, createdAt);
+    public Member(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt, int etag) {
+        super(id, firstName, lastName, email, password, gender, bornOn, createdAt, etag);
     }
 
     public List<Long> getCoaches() {

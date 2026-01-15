@@ -57,8 +57,8 @@ public class JPAUserMapperTest {
     @Test
     public void MemberToEntityTest(){
         LocalDateTime now = LocalDateTime.now();
-        Member user = new Member(null, "Charlie", "Ernst", "charlie101@gmail.com", "Char1234!", Gender.MALE,
-                LocalDate.of(1990, 4, 22), now);
+        Member user = new Member( null,"Charlie", "Ernst", "charlie101@gmail.com", "Char1234!", Gender.MALE,
+                LocalDate.of(1990, 4, 22),now,0);
 
         UserEntity expected = new MemberEntity(null, "Charlie", "Ernst", "charlie101@gmail.com", "Char1234!", Gender.MALE,
                 LocalDate.of(1990, 4, 22),  now, new ArrayList<>());
@@ -72,7 +72,7 @@ public class JPAUserMapperTest {
     public void CoachToEntityTest1(){
         LocalDateTime now = LocalDateTime.now();
         Coach user = new Coach(null, "Charlie", "Ernst", "charlie101@gmail.com", "Char1234!", Gender.MALE,
-                LocalDate.of(1990, 4, 22), now);
+                LocalDate.of(1990, 4, 22), now, 0);
 
         UserEntity expected = new CoachEntity(null, "Charlie", "Ernst", "charlie101@gmail.com", "Char1234!", Gender.MALE,
                 LocalDate.of(1990, 4, 22),  now, new ArrayList<>());
@@ -99,7 +99,7 @@ public class JPAUserMapperTest {
         em.persist(m3);
 
         Coach user = new Coach(9L, "Charlie", "Ernst", "charlie101@gmail.com", "Char1234!", Gender.MALE,
-                LocalDate.of(1990, 4, 22), now);
+                LocalDate.of(1990, 4, 22), now, 0);
 
 
         CoachEntity expected = new CoachEntity(9L, "Charlie", "Ernst", "charlie101@gmail.com", "Char1234!", Gender.MALE,
@@ -121,7 +121,7 @@ public class JPAUserMapperTest {
     public void CoachEntityMemberEntityObjectTypeMismatchTest(){
         LocalDateTime now = LocalDateTime.now();
         Coach user = new Coach(null, "Charlie", "Ernst", "charlie101@gmail.com", "Char1234!", Gender.MALE,
-                LocalDate.of(1990, 4, 22), now);
+                LocalDate.of(1990, 4, 22), now, 0);
 
         UserEntity expected = new MemberEntity(null, "Charlie", "Ernst", "charlie101@gmail.com", "Char1234!", Gender.MALE,
                 LocalDate.of(1990, 4, 22),  now, new ArrayList<>());

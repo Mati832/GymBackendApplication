@@ -55,7 +55,8 @@ public class JPAAssignedWorkoutAdapter implements GetAssignedWorkoutsPort, Creat
                 entity.getWorkout().getId(),
                 entity.getMember().getId(),
                 entity.getCoach().getId(),
-                entity.getAssignedAt())).collect(Collectors.toList());
+                entity.getAssignedAt(),
+                entity.getEtag())).collect(Collectors.toList());
 
         TypedQuery<Long> countQuery = em.createQuery(countSql, Long.class);
         countQuery.setParameter("memberId", memberId);
@@ -78,6 +79,6 @@ public class JPAAssignedWorkoutAdapter implements GetAssignedWorkoutsPort, Creat
         toPersist.setMember(m);
         toPersist.setWorkout(wo);
         em.persist(toPersist);
-        return new AssignedWorkout(toPersist.getId(), toPersist.getWorkout().getId(), toPersist.getMember().getId(), toPersist.getCoach().getId(), toPersist.getAssignedAt());
+        return new AssignedWorkout(toPersist.getId(), toPersist.getWorkout().getId(), toPersist.getMember().getId(), toPersist.getCoach().getId(), toPersist.getAssignedAt(), toPersist.getEtag());
     }
 }

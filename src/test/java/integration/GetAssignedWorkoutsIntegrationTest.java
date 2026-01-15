@@ -67,8 +67,92 @@ public class GetAssignedWorkoutsIntegrationTest {
                 .when()
                 .get("/users/members/" + member.getId() + "/assigned-workouts")
                 .then()
-                .log().all()
                 .statusCode(200);
+    }
+
+    @Test
+    public void shouldReturnEtagHeaderOnInitialRequest() {
+        User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        setupWorkouts(1, coach.getId(), member.getId());
+        String token = jwtService.generateToken(member);
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get("/users/members/" + member.getId() + "/assigned-workouts")
+                .then()
+                .statusCode(200)
+                .header("ETag", notNullValue())
+                .body("data.size()", is(1));
+    }
+
+    @Test
+    public void shouldReturn304WhenIfNoneMatchMatchesEtag() {
+        User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        setupWorkouts(1, coach.getId(), member.getId());
+        String token = jwtService.generateToken(member);
+
+        String etag = given()
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get("/users/members/" + member.getId() + "/assigned-workouts")
+                .then()
+                .extract().header("ETag");
+
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .header("If-None-Match", etag)
+                .when()
+                .get("/users/members/" + member.getId() + "/assigned-workouts")
+                .then()
+                .statusCode(304)
+                .body(is(emptyString()));
+    }
+
+    @Test
+    public void shouldReturn200AndNewEtagAfterDataChange() {
+        User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        setupWorkouts(1, coach.getId(), member.getId());
+        String token = jwtService.generateToken(member);
+
+        String oldEtag = given()
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get("/users/members/" + member.getId() + "/assigned-workouts")
+                .then()
+                .extract().header("ETag");
+
+        setupWorkouts(1, coach.getId(), member.getId());
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .header("If-None-Match", oldEtag)
+                .when()
+                .get("/users/members/" + member.getId() + "/assigned-workouts")
+                .then()
+                .statusCode(200)
+                .header("ETag", not(is(oldEtag)))
+                .body("totalCount", is(2));
+    }
+    @Test
+    public void shouldReturnCorrectCacheControlHeaders() {
+        User coach = saveUserPort.save(new Coach("firstname", "lastname", "coach@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        User member = saveUserPort.save(new Member("firstname", "lastname", "member@example.com", "password", Gender.MALE, LocalDate.of(2000, 12, 1)));
+        setupWorkouts(1, coach.getId(), member.getId());
+        String token = jwtService.generateToken(member);
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get("/users/members/" + member.getId() + "/assigned-workouts")
+                .then()
+                .statusCode(200)
+                .header("Cache-Control", containsString("max-age=10"));
+
     }
 
     @Test
@@ -132,7 +216,6 @@ public class GetAssignedWorkoutsIntegrationTest {
                 .when()
                 .get("/users/members/" + member.getId() + "/assigned-workouts")
                 .then()
-                .log().all()
                 .statusCode(200)
                 .body("data.size()", is(0))
                 .body("totalCount", is(1))
@@ -212,7 +295,6 @@ public class GetAssignedWorkoutsIntegrationTest {
                 .when()
                 .get("/users/members/" + member.getId() + "/assigned-workouts")
                 .then()
-                .log().all()
                 .statusCode(200)
                 .body("data.size()", is(1))
                 .body("data[0].coachLink", containsString("users/coaches/" + coachMueller.getId().toString()));

@@ -15,13 +15,14 @@ public abstract class User {
     Gender gender;
     LocalDate bornOn;
     LocalDateTime createdAt;
+    int etag;
     List<Long> exercises;
     List<Long> workouts;
 
     public User() {
     }
 
-    public User(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt,
+    public User(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt, int etag,
                 List<Long> exercises, List<Long> workouts) {
         this.id = id;
         this.firstName = firstName;
@@ -33,6 +34,7 @@ public abstract class User {
         this.createdAt = createdAt;
         this.exercises = exercises;
         this.workouts = workouts;
+        this.etag = etag;
     }
 
     public User(String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn) {
@@ -44,7 +46,7 @@ public abstract class User {
         this.bornOn = bornOn;
     }
 
-    public User(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt) {
+    public User(Long id, String firstName, String lastName, String email, String password, Gender gender, LocalDate bornOn, LocalDateTime createdAt, int etag) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -53,6 +55,7 @@ public abstract class User {
         this.gender = gender;
         this.bornOn = bornOn;
         this.createdAt = createdAt;
+        this.etag = etag;
     }
 
     public Long getId() {
@@ -133,5 +136,9 @@ public abstract class User {
 
     public void setWorkouts(List<Long> workouts) {
         this.workouts = workouts;
+    }
+
+    public int getEtag() {
+        return etag;
     }
 }

@@ -11,18 +11,22 @@ import domain.Results.member.AssignedWorkoutsResult;
 import domain.dbResults.PagedResult;
 import domain.model.AssignedWorkout;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.util.List;
 
+import static adapter.in.services.CacheExpirationFactory.get10sPrivateNoMustValidateExpiration;
+
 
 @ApplicationScoped
 public class HttpGetAssignedWorkoutsPresenter {
 
-    public Response toHttp(AssignedWorkoutsResult result, UriInfo uriInfo, AuthenticatedUser authUser) {
-        if (result instanceof AssignedWorkoutsResult.Failure failure) return getFailureResponse(failure, uriInfo, authUser);
+    public Response toHttp(AssignedWorkoutsResult result, UriInfo uriInfo, AuthenticatedUser authUser, EntityTag etag) {
+        if (result instanceof AssignedWorkoutsResult.Failure failure)
+            return getFailureResponse(failure, uriInfo, authUser);
 
         if (result instanceof AssignedWorkoutsResult.Success success) {
             PagedResult<AssignedWorkout> pagedResult = success.assignedWorkouts();
@@ -33,9 +37,14 @@ public class HttpGetAssignedWorkoutsPresenter {
             PagedAssignedWorkoutResponse body = new PagedAssignedWorkoutResponse(data, pagedResult.totalCount(), pagedResult.offset(), pagedResult.size());
 
             Link[] links = MemberGetsAssignedWorkoutsLinks.getLinks(pagedResult, uriInfo);
-            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).entity(body).links(links);
+            Response.ResponseBuilder responseBuilder = Response
+                    .status(Response.Status.OK)
+                    .entity(body)
+                    .links(links)
+                    .tag(etag)
+                    .cacheControl(get10sPrivateNoMustValidateExpiration());
 
-            LinkHelper.addTemplateLink(responseBuilder,uriInfo,"filter","search","coachId");
+            LinkHelper.addTemplateLink(responseBuilder, uriInfo, "filter", "search", "coachId");
             return responseBuilder.build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

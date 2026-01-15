@@ -3,6 +3,7 @@ package adapter.out.Entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(
@@ -23,12 +24,22 @@ public class CoachMemberEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     MemberEntity member;
-
+    int etag;
     LocalDate assignedAt;
 
     @PrePersist
     protected void onCreate() {
         this.assignedAt = LocalDate.now();
+        this.etag = calcHash();
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        this.etag = calcHash();
+    }
+
+
+    private int calcHash() {
+        return Objects.hash(id, coach, member, assignedAt);
     }
 
     public CoachMemberEntity() {
@@ -72,5 +83,9 @@ public class CoachMemberEntity {
 
     public Long getId() {
         return id;
+    }
+
+    public int getEtag() {
+        return etag;
     }
 }

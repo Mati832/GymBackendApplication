@@ -3,6 +3,7 @@ package adapter.out.Entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 public class AssignedWorkoutEntity {
@@ -24,9 +25,21 @@ public class AssignedWorkoutEntity {
 
     private LocalDateTime assignedAt;
 
+    private int etag;
+
     @PrePersist
     protected void onCreate() {
         this.assignedAt = LocalDateTime.now();
+        this.etag= calcHash();
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        this.etag= calcHash();
+    }
+
+
+    private int calcHash() {
+        return Objects.hash(id, member, coach, workout, assignedAt);
     }
 
     public Long getId() {
@@ -67,5 +80,9 @@ public class AssignedWorkoutEntity {
 
     public void setAssignedAt(LocalDateTime assignedAt) {
         this.assignedAt = assignedAt;
+    }
+
+    public int getEtag() {
+        return etag;
     }
 }

@@ -29,7 +29,7 @@ public class GetAssignedWorkoutsService implements MemberGetsAssignedWorkoutsUse
     @Override
     public AssignedWorkoutsResult getWorkouts(GetAssignedWorkoutsCommand command) {
 
-        AuthenticatedUser authenticatedUser=command.authenticatedUser();
+        AuthenticatedUser authenticatedUser = command.authenticatedUser();
 
         if (authenticatedUser == null) {
             return new AssignedWorkoutsResult.Failure(AssignedWorkoutsResult.Reason.UNAUTHORIZED);

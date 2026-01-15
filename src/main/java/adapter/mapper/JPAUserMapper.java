@@ -14,7 +14,7 @@ public class JPAUserMapper {
 
     private static Member toDomain(MemberEntity memberEntity) {
         return new Member(memberEntity.getId(), memberEntity.getFirstName(), memberEntity.getLastName(), memberEntity.getEmail(),
-                memberEntity.getPassword(), memberEntity.getGender(), memberEntity.getBornOn(), memberEntity.getCreatedAt(),
+                memberEntity.getPassword(), memberEntity.getGender(), memberEntity.getBornOn(), memberEntity.getCreatedAt(), memberEntity.getEtag(),
                 new ArrayList<>(memberEntity.getExercises().stream().filter(Objects::nonNull).map(ExerciseEntity::getId).toList()),
                 new ArrayList<>(memberEntity.getWorkouts().stream().filter(Objects::nonNull).map(WorkoutEntity::getId).toList()),
                 new ArrayList<>(memberEntity.getAssignments().stream().filter(Objects::nonNull).map((as)->as.getCoach().getId()).toList()));
@@ -22,7 +22,7 @@ public class JPAUserMapper {
 
     private static Coach toDomain(CoachEntity coachEntity) {
         return new Coach(coachEntity.getId(), coachEntity.getFirstName(), coachEntity.getLastName(), coachEntity.getEmail(),
-                coachEntity.getPassword(), coachEntity.getGender(), coachEntity.getBornOn(), coachEntity.getCreatedAt(),
+                coachEntity.getPassword(), coachEntity.getGender(), coachEntity.getBornOn(), coachEntity.getCreatedAt(), coachEntity.getEtag(),
                 new ArrayList<>(coachEntity.getExercises().stream().filter(Objects::nonNull).map(ExerciseEntity::getId).toList()),
                 new ArrayList<>(coachEntity.getWorkouts().stream().filter(Objects::nonNull).map(WorkoutEntity::getId).toList()),
                 new ArrayList<>(coachEntity.getAssignments().stream().filter(Objects::nonNull).map((as)->as.getMember().getId()).toList()));

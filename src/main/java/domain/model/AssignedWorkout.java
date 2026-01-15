@@ -9,13 +9,15 @@ public class AssignedWorkout {
     private Long memberId;
     private Long coachId;
     private LocalDateTime assignedAt;
+    private int etag;
 
-    public AssignedWorkout(Long id, Long workoutId, Long memberId, Long coachId, LocalDateTime assignedAt) {
+    public AssignedWorkout(Long id, Long workoutId, Long memberId, Long coachId, LocalDateTime assignedAt, int etag) {
         this.id = id;
         this.workoutId = workoutId;
         this.memberId = memberId;
         this.coachId = coachId;
         this.assignedAt = assignedAt;
+        this.etag = etag;
     }
 
     public AssignedWorkout(Long workoutId, Long memberId, Long coachId) {
@@ -62,5 +64,9 @@ public class AssignedWorkout {
 
     public void setAssignedAt(LocalDateTime assignedAt) {
         this.assignedAt = assignedAt;
+    }
+
+    public int getEtag() {
+        return etag;
     }
 }

@@ -127,7 +127,8 @@ public class JPAUserAdapter implements SaveUserPort, FindUserByEmailPort, LoadUs
                     entity.getPassword(),
                     entity.getGender(),
                     entity.getBornOn(),
-                    entity.getCreatedAt()
+                    entity.getCreatedAt(),
+                    entity.getEtag()
             );
         else
             return new Coach(
@@ -138,7 +139,8 @@ public class JPAUserAdapter implements SaveUserPort, FindUserByEmailPort, LoadUs
                     entity.getPassword(),
                     entity.getGender(),
                     entity.getBornOn(),
-                    entity.getCreatedAt()
+                    entity.getCreatedAt(),
+                    entity.getEtag()
             );
     }
 

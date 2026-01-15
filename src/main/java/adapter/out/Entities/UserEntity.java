@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -29,15 +30,30 @@ public abstract class UserEntity {
     LocalDate bornOn;
     @Column(nullable = false)
     LocalDateTime createdAt;
+    @Column(nullable = false)
+    int etag;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL,  orphanRemoval = true)
     List<ExerciseEntity> exercises = new ArrayList<>();
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     List<WorkoutEntity> workouts = new ArrayList<>();
 
 
-    @PrePersist//ist so jpa konform(keine abhängigkeit zu hibernate)
+    @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.etag = hashCode();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.etag = hashCode();
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstName, lastName, email, password, gender, bornOn, createdAt);
     }
 
     public UserEntity() {
@@ -146,5 +162,9 @@ public abstract class UserEntity {
 
     public void setWorkouts(List<WorkoutEntity> workouts) {
         this.workouts = workouts;
+    }
+
+    public int getEtag() {
+        return etag;
     }
 }

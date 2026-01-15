@@ -7,13 +7,15 @@ import application.port.out.UserPorts.FindCoachMemberRelationPort;
 import application.port.out.UserPorts.SaveCoachMemberRelationPort;
 import domain.model.CoachMember;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class JPACoachMemberAdapter implements FindCoachMemberRelationPort, SaveCoachMemberRelationPort {
-    @PersistenceContext
+
+    @Inject
     EntityManager em;
 
 
@@ -26,7 +28,7 @@ public class JPACoachMemberAdapter implements FindCoachMemberRelationPort, SaveC
         if (coachMemberEntity == null) {
             return null;
         }
-        return new CoachMember(coachMemberEntity.getId(), coachMemberEntity.getCoach().getId(), coachMemberEntity.getMember().getId(), coachMemberEntity.getAssignedAt());
+        return new CoachMember(coachMemberEntity.getId(), coachMemberEntity.getCoach().getId(), coachMemberEntity.getMember().getId(), coachMemberEntity.getAssignedAt(), coachMemberEntity.getEtag());
     }
 
     @Transactional
@@ -40,6 +42,6 @@ public class JPACoachMemberAdapter implements FindCoachMemberRelationPort, SaveC
         memberEntity.getAssignments().add(coachMemberEntity);
         em.merge(memberEntity);
         em.merge(coachEntity);
-        return new CoachMember(coachMemberEntity.getId(), coachMemberEntity.getCoach().getId(), coachMemberEntity.getMember().getId(), coachMemberEntity.getAssignedAt());
+        return new CoachMember(coachMemberEntity.getId(), coachMemberEntity.getCoach().getId(), coachMemberEntity.getMember().getId(), coachMemberEntity.getAssignedAt(), coachMemberEntity.getEtag());
     }
 }
