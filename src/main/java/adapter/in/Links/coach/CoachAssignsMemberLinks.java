@@ -24,7 +24,7 @@ public class CoachAssignsMemberLinks {
                 dispatcherLink(uriInfo),
                 getAssignedCoachesLink(uriInfo, coachId),
                 getUserLink(uriInfo,coachId, UserRole.COACH),
-                getUserLink(uriInfo,memberId, UserRole.MEMBER),
+                getUserLink(uriInfo,memberId, UserRole.MEMBER)
         };
     }
 

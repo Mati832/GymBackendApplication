@@ -12,6 +12,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Link;
 import jakarta.ws.rs.core.UriInfo;
 
+import static adapter.in.Links.LinkFactory.coachRegisterLink;
+import static adapter.in.Links.LinkFactory.dispatcherLink;
+import static adapter.in.Links.LinkFactory.loginLink;
+import static adapter.in.Links.LinkFactory.memberRegisterLink;
+import static adapter.in.Links.LinkFactory.self;
+
 import java.net.URI;
 
 @ApplicationScoped
@@ -59,10 +65,19 @@ public class LoginUserLinks {
     }
 
     public static Link[] getUserNotFoundLinks(UriInfo uriInfo) {
-        return new Link[0];
+        
+        return new Link[]{
+            dispatcherLink(uriInfo),
+            loginLink(uriInfo),
+            coachRegisterLink(uriInfo),
+            memberRegisterLink(uriInfo)
+        };
     }
 
     public static Link[] getWrongPasswordLinks(UriInfo uriInfo) {
-        return new Link[0];
+        return new Link[]{
+            dispatcherLink(uriInfo),
+            loginLink(uriInfo)
+        };
     }
 }
