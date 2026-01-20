@@ -33,23 +33,26 @@ public class MemberRegistrationLinks {
         };
     }
 
-    public static Link[] getInvalidBirthdayLinks() {
+    public static Link[] getInvalidBirthdayLinks(UriInfo uriInfo) {
         return new Link[]{};
     }
 
-    public static Link[] getUserAlreadyExistsLinks() {
+    public static Link[] getUserAlreadyExistsLinks(UriInfo uriInfo) {
+        return new Link[]{
+            dispatcherLink(uriInfo),
+            loginLink(uriInfo)
+        };
+    }
+
+    public static Link[] getFieldEmptyLinks(UriInfo uriInfo) {
         return new Link[]{};
     }
 
-    public static Link[] getFieldEmptyLinks() {
+    public static Link[] getPasswordTooWeakLinks(UriInfo uriInfo) {
         return new Link[]{};
     }
 
-    public static Link[] getPasswordTooWeakLinks() {
-        return new Link[]{};
-    }
-
-    public static Link[] getUnexpectedLinks() {
+    public static Link[] getUnexpectedLinks(UriInfo uriInfo) {
         return new Link[]{};
     }
 }
