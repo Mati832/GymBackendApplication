@@ -29,23 +29,23 @@ public class HttpRegisterMemberPresenter {
         Link[] links;
         ErrorResponse response = switch (failure.reason()) {
             case RegisterUserResult.UserRegisterFailureReason.INVALID_BIRTHDAY -> {
-                links = MemberRegistrationLinks.getInvalidBirthdayLinks();
+                links = MemberRegistrationLinks.getInvalidBirthdayLinks(uriInfo);
                 yield new ErrorResponse(Response.Status.BAD_REQUEST, failure.reason().toString(), "");
             }
             case RegisterUserResult.UserRegisterFailureReason.USER_ALREADY_EXISTS -> {
-                links = MemberRegistrationLinks.getUserAlreadyExistsLinks();
+                links = MemberRegistrationLinks.getUserAlreadyExistsLinks(uriInfo);
                 yield new ErrorResponse(Response.Status.BAD_REQUEST, failure.reason().toString(), "");
             }
             case RegisterUserResult.UserRegisterFailureReason.FIELD_EMPTY -> {
-                links = MemberRegistrationLinks.getFieldEmptyLinks();
+                links = MemberRegistrationLinks.getFieldEmptyLinks(uriInfo);
                 yield new ErrorResponse(Response.Status.BAD_REQUEST, failure.reason().toString(), "");
             }
             case RegisterUserResult.UserRegisterFailureReason.PASSWORD_TOO_WEAK -> {
-                links = MemberRegistrationLinks.getPasswordTooWeakLinks();
+                links = MemberRegistrationLinks.getPasswordTooWeakLinks(uriInfo);
                 yield new ErrorResponse(Response.Status.BAD_REQUEST, failure.reason().toString(), "");
             }
             default -> {
-                links = MemberRegistrationLinks.getUnexpectedLinks();
+                links = MemberRegistrationLinks.getUnexpectedLinks(uriInfo);
                 yield new ErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, failure.reason().toString(), "Unexpected error");
             }
         };
