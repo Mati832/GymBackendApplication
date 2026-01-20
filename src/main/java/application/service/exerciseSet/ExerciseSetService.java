@@ -58,6 +58,7 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
         if(filter.exerciseId() != null && findExerciseByIdPort.findExerciseById(filter.exerciseId()) == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_NOT_FOUND);
 
+        if(size > 30) size = 30;
         List<ExerciseSet> loaded = loadExerciseSetsPort.loadExerciseSets(filter, page, size);
         int totalPageCount =(int) Math.ceil((double) countExerciseSetsPort.countExerciseSets(filter)/size);
 

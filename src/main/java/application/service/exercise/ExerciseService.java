@@ -81,6 +81,7 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
         if(filter.workoutId() != null && loadWorkoutByIdPort.laodWorkout(filter.workoutId())  == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
 
+        if(size > 30) size = 30;
         List<Exercise> loaded = loadExercisesPort.loadExercises(filter, page, size);
         int totalPageCount =(int) Math.ceil((double) countExercisesPort.countExercises(filter)/size);
         return new JPAWorkoutExerciseAdapterResult.Paginated<>(loaded, page, size, totalPageCount);

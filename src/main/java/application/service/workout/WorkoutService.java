@@ -66,6 +66,7 @@ public class WorkoutService implements LoadWorkoutByIdUseCase, LoadWorkoutsUseCa
         if(filter.userId() != null && loadUserByIdPort.loadUser(filter.userId())  == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
 
+        if(size > 30) size = 30;
         List<Workout> toBeLoaded =  loadWorkouts.loadWorkouts(filter, page, size);
         int totalPageCount =(int) Math.ceil((double) countWorkoutsByUserIdPort.countWorkouts(filter)/size);
 

@@ -8,6 +8,8 @@ import domain.model.Exercise;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
@@ -21,6 +23,8 @@ public class ExerciseController {
     UriInfo uriInfo;
     @Inject
     LoadExercisesUseCase loadExercisesUseCase;
+    @Context
+    Request request;
 
     @GET
     public Response getExercises(
@@ -32,6 +36,10 @@ public class ExerciseController {
     ){
         ExerciseFilter filter = new ExerciseFilter(null, null, name,  createdBefore, createdAfter);
         JPAWorkoutExerciseAdapterResult<Exercise> result = loadExercisesUseCase.loadExercises(filter, page, size);
+
+        Response cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse;
+
         return presenter.toHttp(result, uriInfo);
     }
 }

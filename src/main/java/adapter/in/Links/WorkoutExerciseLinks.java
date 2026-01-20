@@ -82,7 +82,9 @@ public class WorkoutExerciseLinks {
                 //get user link
                 getUserLink(uriInfo, userIdLong),
                 //get all exerciseSets in user
-                getExerciseSetsLinkFromExercise(uriInfo, userIdLong, exerciseSet.getBelongsToExercise()),
+                workoutId == null ?
+                        getExerciseSetsLinkFromExercise(uriInfo, userIdLong, exerciseSet.getBelongsToExercise()) :
+                        getExerciseSetsLinkFromExercise(uriInfo, userIdLong, Long.parseLong(workoutId), exerciseSet.getBelongsToExercise()),
                 //get exercise link
                 workoutId == null ? getExercisesLinkInUser(uriInfo, userIdLong) : getExercisesLinkInUser(uriInfo, userIdLong, Long.parseLong(workoutId)),
 
@@ -113,9 +115,9 @@ public class WorkoutExerciseLinks {
     }
 
 
-    //self URI's
+    //item URI's
 
-    //workout self
+    //workout item
     private static Link getItemUriLink(Workout workout, UriInfo uriInfo) {
         return Link.fromUriBuilder(uriInfo.getBaseUriBuilder()
                 .path(UserController.class)
@@ -126,7 +128,7 @@ public class WorkoutExerciseLinks {
                 .build();
     }
 
-    //exercise self
+    //exercise item
     private static Link getItemUriLink(Exercise exercise, UriInfo uriInfo) {
         return exercise.getWorkoutId() == null ? getItemUriExerciseWithoutWorkout(exercise, uriInfo) : getItemUriExerciseWithWorkout(exercise, uriInfo);
     }
@@ -152,6 +154,7 @@ public class WorkoutExerciseLinks {
                 .build();
     }
 
+    //exerciseSet item
     private static Link getItemUriLink(ExerciseSet exerciseSet, UriInfo uriInfo) {
         return Link.fromUriBuilder(uriInfo.getAbsolutePathBuilder()
                 .path(exerciseSet.getId().toString())).rel("item").build();

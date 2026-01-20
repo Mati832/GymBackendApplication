@@ -8,9 +8,7 @@ import domain.model.ExerciseSet;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.*;
 
 import java.time.LocalDateTime;
 
@@ -22,6 +20,8 @@ public class ExerciseSetController {
     UriInfo uriInfo;
     @Inject
     LoadExerciseSetsUseCase loadExerciseSetsUseCase;
+    @Context
+    Request request;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -41,6 +41,10 @@ public class ExerciseSetController {
                 durationLessThan, createdBefore, createdAfter);
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result = loadExerciseSetsUseCase.loadExerciseSets(filter, page, size);
+
+        Response cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse;
+
         return presenter.toHttp(result, uriInfo);
     }
 }

@@ -221,4 +221,13 @@ public class LinkFactory {
                 .rel("next").build();
         return next;
     }
+
+    public static Link getParentLink(UriInfo uriInfo) {
+        String path = uriInfo.getPath();
+        String parentPath = path.substring(0, path.lastIndexOf('/'));
+
+        return Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(parentPath))
+                .rel("up")
+                .build();
+    }
 }
