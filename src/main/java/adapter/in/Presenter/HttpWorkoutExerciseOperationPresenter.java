@@ -97,7 +97,7 @@ public class HttpWorkoutExerciseOperationPresenter {
     }
 
     //for caching
-    public <T> Response evaluateCache(JPAWorkoutExerciseAdapterResult<T> result, Request req){
+    public <T> Response.ResponseBuilder evaluateCache(JPAWorkoutExerciseAdapterResult<T> result, Request req){
         Object response;
 
         switch (result) {
@@ -117,19 +117,15 @@ public class HttpWorkoutExerciseOperationPresenter {
             ) -> {
                 return Response
                         .status(reason.getStatus())
-                        .entity(reason.name())
-                        .build();
+                        .entity(reason.name());
             }
 
             case null, default -> {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR);
             }
         }
         EntityTag etag = new EntityTag(Integer.toString(response.hashCode()));
-        Response.ResponseBuilder builder = req.evaluatePreconditions(etag);
-        if(builder != null) return builder.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
-
-        return null;
+        return req.evaluatePreconditions(etag);
     }
 
     private Object getLinksAndRespond(Object value, UriInfo uriInfo, List<Link> outLinks) {

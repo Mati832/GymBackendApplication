@@ -12,6 +12,8 @@ import jakarta.ws.rs.core.*;
 
 import java.time.LocalDateTime;
 
+import static adapter.in.services.CacheExpirationFactory.get10sPrivateNoMustValidateExpiration;
+
 @Path("/workouts")
 public class WorkoutController {
     @Inject
@@ -35,8 +37,8 @@ public class WorkoutController {
         WorkoutFilter filter = new WorkoutFilter(null, name, createdBefore, createdAfter);
         JPAWorkoutExerciseAdapterResult<Workout> result = loadWorkoutsUseCase.loadWorkouts(filter, page, size);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }

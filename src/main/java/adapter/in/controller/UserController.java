@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import static adapter.in.mapper.ExerciseSetMapper.toDomain;
 import static adapter.in.mapper.ExerciseMapper.toDomain;
 import static adapter.in.mapper.WorkoutMapper.toDomain;
+import static adapter.in.services.CacheExpirationFactory.get10sPrivateNoMustValidateExpiration;
 
 @Path("/users")
 public class UserController {
@@ -98,8 +99,8 @@ public class UserController {
         WorkoutFilter filter = new WorkoutFilter(userId, name, createdBefore, createdAfter);
         JPAWorkoutExerciseAdapterResult<Workout> result = loadWorkoutsUseCase.loadWorkouts(filter, page, size);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }
@@ -112,8 +113,8 @@ public class UserController {
     ){
         JPAWorkoutExerciseAdapterResult<Workout> result = loadWorkoutByIdUseCase.loadWorkoutById(workoutId);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return  presenter.toHttp(result, uriInfo);
     }
@@ -144,8 +145,8 @@ public class UserController {
             @HeaderParam("Authorization")String authHeader,
             WorkoutRequest workoutRequest
     ){
-        Response cachedResponse = presenter.evaluateCache(loadWorkoutByIdUseCase.loadWorkoutById(workoutId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(loadWorkoutByIdUseCase.loadWorkoutById(workoutId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         Workout wRequest = toDomain(workoutRequest);
         Long requestedBy = jwtAdapter.resolveJWTtoId(authHeader);
@@ -163,8 +164,8 @@ public class UserController {
             @PathParam("workoutID") Long workoutId,
             @HeaderParam("Authorization")String authHeader
     ){
-        Response cachedResponse = presenter.evaluateCache(loadWorkoutByIdUseCase.loadWorkoutById(workoutId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(loadWorkoutByIdUseCase.loadWorkoutById(workoutId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         JPAWorkoutExerciseAdapterResult<Void> result = deleteWorkoutInUserUseCase.deleteWorkoutInUser(jwtAdapter.resolveJWTtoId(authHeader), workoutId);
         return presenter.toHttp(result, uriInfo);
@@ -193,8 +194,8 @@ public class UserController {
         ExerciseFilter filter = new ExerciseFilter(null, workoutId, name, createdBefore, createdAfter);
         JPAWorkoutExerciseAdapterResult<Exercise> result = loadExercisesUseCase.loadExercises(filter, page, size);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }
@@ -206,8 +207,8 @@ public class UserController {
     ){
         JPAWorkoutExerciseAdapterResult<Exercise> result = loadExerciseByIdUseCase.loadExerciseById(exerciseId);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }
@@ -241,8 +242,8 @@ public class UserController {
             @HeaderParam("Authorization") String authHeader,
             ExerciseRequest exerciseRequest
     ){
-        Response cachedResponse = presenter.evaluateCache(loadExerciseByIdUseCase.loadExerciseById(exerciseId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(loadExerciseByIdUseCase.loadExerciseById(exerciseId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         Exercise eRequest = toDomain(exerciseRequest);
         Long requestedBy = jwtAdapter.resolveJWTtoId(authHeader);
@@ -262,8 +263,8 @@ public class UserController {
             @PathParam("exerciseID")  Long exerciseId,
             @HeaderParam("Authorization") String authHeader
     ){
-        Response cachedResponse = presenter.evaluateCache(loadExerciseByIdUseCase.loadExerciseById(exerciseId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(loadExerciseByIdUseCase.loadExerciseById(exerciseId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         JPAWorkoutExerciseAdapterResult<Void> result = deleteExerciseInWorkoutUseCase.deleteExerciseInWorkout(jwtAdapter.resolveJWTtoId(authHeader), workoutId, exerciseId);
         return presenter.toHttp(result, uriInfo);
@@ -290,8 +291,8 @@ public class UserController {
         ExerciseFilter filter = new ExerciseFilter(userId, null, name,  createdBefore, createdAfter);
         JPAWorkoutExerciseAdapterResult<Exercise> result = loadExercisesUseCase.loadExercises(filter, page, size);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }
@@ -303,8 +304,8 @@ public class UserController {
     ){
         JPAWorkoutExerciseAdapterResult<Exercise> result = loadExerciseByIdUseCase.loadExerciseById(exerciseId);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }
@@ -337,8 +338,8 @@ public class UserController {
             @HeaderParam("Authorization") String authHeader,
             ExerciseRequest exerciseRequest
     ){
-        Response cachedResponse = presenter.evaluateCache(loadExerciseByIdUseCase.loadExerciseById(exerciseId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(loadExerciseByIdUseCase.loadExerciseById(exerciseId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         Exercise eRequest = toDomain(exerciseRequest);
         Long requestedBy = jwtAdapter.resolveJWTtoId(authHeader);
@@ -357,8 +358,8 @@ public class UserController {
             @PathParam("exerciseID")  Long exerciseId,
             @HeaderParam("Authorization")   String authHeader
     ){
-        Response cachedResponse = presenter.evaluateCache(loadExerciseByIdUseCase.loadExerciseById(exerciseId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(loadExerciseByIdUseCase.loadExerciseById(exerciseId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         JPAWorkoutExerciseAdapterResult<Void> result =
                 deleteExerciseInUserUseCase.deleteExerciseInUser(jwtAdapter.resolveJWTtoId(authHeader), exerciseId);
@@ -393,8 +394,8 @@ public class UserController {
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result = loadExerciseSetsUseCase.loadExerciseSets(filter, page, size);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }
@@ -407,8 +408,8 @@ public class UserController {
     ) {
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result = loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }
@@ -442,8 +443,8 @@ public class UserController {
             @HeaderParam("Authorization")  String authHeader,
             ExerciseSetRequest exerciseSetRequest
     ){
-        Response  cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder  cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result =
                 editExerciseSetUseCase.editExerciseSet(jwtAdapter.resolveJWTtoId(authHeader), exerciseSetId, toDomain(exerciseSetRequest) );
@@ -459,8 +460,8 @@ public class UserController {
             @PathParam("exerciseSetID") Long exerciseSetId,
             @HeaderParam("Authorization") String  authHeader
     ){
-        Response  cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder  cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         JPAWorkoutExerciseAdapterResult<Void> result =
                 deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(jwtAdapter.resolveJWTtoId(authHeader), exerciseId, exerciseSetId);
@@ -494,8 +495,8 @@ public class UserController {
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result = loadExerciseSetsUseCase.loadExerciseSets(filter, page, size);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }
@@ -508,8 +509,8 @@ public class UserController {
     ) {
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result = loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId);
 
-        Response cachedResponse = presenter.evaluateCache(result, request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(result, request);
+        if(cachedResponse != null) return cachedResponse.cacheControl(get10sPrivateNoMustValidateExpiration()).build();
 
         return presenter.toHttp(result, uriInfo);
     }
@@ -543,8 +544,8 @@ public class UserController {
             @HeaderParam("Authorization")  String authHeader,
             ExerciseSetRequest exerciseSetRequest
     ){
-        Response cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result =
                 editExerciseSetUseCase.editExerciseSet(jwtAdapter.resolveJWTtoId(authHeader), exerciseSetId, toDomain(exerciseSetRequest) );
@@ -560,8 +561,8 @@ public class UserController {
             @PathParam("exerciseSetID") Long exerciseSetId,
             @HeaderParam("Authorization") String  authHeader
     ){
-        Response cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
-        if(cachedResponse != null) return cachedResponse;
+        Response.ResponseBuilder cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
+        if(cachedResponse != null) return cachedResponse.build();
 
         JPAWorkoutExerciseAdapterResult<Void> result =
                 deleteExerciseSetInExerciseUseCase.deleteExerciseSetInExercise(jwtAdapter.resolveJWTtoId(authHeader), exerciseId, exerciseSetId);
