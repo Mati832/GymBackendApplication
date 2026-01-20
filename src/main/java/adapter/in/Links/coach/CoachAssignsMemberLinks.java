@@ -29,12 +29,17 @@ public class CoachAssignsMemberLinks {
     }
 
     public static Link[] getCoachNotFoundLinks(UriInfo uriInfo) {
-        //todo
-        return new Link[0];
+        return new Link[]{
+            dispatcherLink(uriInfo),
+            coachRegisterLink(uriInfo)
+        };
     }
 
     public static Link[] getMemberNotFoundLinks(UriInfo uriInfo) {
-        return new Link[0];
+        return new Link[]{
+            dispatcherLink(uriInfo),
+            memberRegisterLink(uriInfo)
+        };
     }
 
     public static Link[] getRelationAlreadyExistsLinks(UriInfo uriInfo) {
@@ -42,10 +47,17 @@ public class CoachAssignsMemberLinks {
     }
 
     public static Link[] getUnauthorizedLinks(UriInfo uriInfo) {
-        return new Link[0];
+        return new Link[]{
+            dispatcherLink(uriInfo),
+            loginLink(uriInfo),
+            coachRegisterLink(uriInfo),
+            memberRegisterLink(uriInfo)
+        };
     }
 
     public static Link[] getForbiddenLinks(UriInfo uriInfo) {
-        return new Link[0];
+        return new Link[]{
+            dispatcherLink(uriInfo)
+        };
     }
 }
