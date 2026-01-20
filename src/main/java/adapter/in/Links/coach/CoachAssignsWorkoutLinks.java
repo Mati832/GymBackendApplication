@@ -33,15 +33,23 @@ public class CoachAssignsWorkoutLinks {
 
 
     public static Link[] getForbiddenLinks(UriInfo uriInfo) {
-        return null;
+        return new Link[]{
+            dispatcherLink(uriInfo)
+        };
     }
 
     public static Link[] getCoachNotFoundLinks(UriInfo uriInfo) {
-        return null;
+        return new Link[]{
+            dispatcherLink(uriInfo),
+            coachRegisterLink(uriInfo)
+        };
     }
 
     public static Link[] getMemberNotFoundLinks(UriInfo uriInfo) {
-        return null;
+        return new Link[]{
+            dispatcherLink(uriInfo),
+            memberRegisterLink(uriInfo)
+        };
     }
 
     public static Link[] getEmptyFieldLinks(UriInfo uriInfo) {
@@ -49,7 +57,10 @@ public class CoachAssignsWorkoutLinks {
     }
 
     public static Link[] getUnauthorziedLinks(UriInfo uriInfo) {
-        return null;
+        return new Link[]{
+            dispatcherLink(uriInfo),
+            loginLink(uriInfo)
+        };
     }
 
     public static Link[] getWorkoutNotFoundLinks(UriInfo uriInfo) {
