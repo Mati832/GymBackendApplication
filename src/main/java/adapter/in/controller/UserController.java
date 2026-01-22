@@ -127,10 +127,13 @@ public class UserController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createWorkout(
             WorkoutRequest workoutRequest,
-            @HeaderParam("Authorization")String authHeader
+            @HeaderParam("Authorization")String authHeader,
+            @PathParam("userID") Long userId
     ) {
+        Workout workout = toDomain(workoutRequest);
+        workout.setCreatedByUserId(userId);
         JPAWorkoutExerciseAdapterResult<Workout> result =
-                addWorkoutToUserUseCase.addWorkoutToUser(jwtAdapter.resolveJWTtoId(authHeader), toDomain(workoutRequest));
+                addWorkoutToUserUseCase.addWorkoutToUser(jwtAdapter.resolveJWTtoId(authHeader), workout);
         return presenter.toHttp(result, uriInfo);
     }
 
@@ -151,6 +154,7 @@ public class UserController {
         Workout wRequest = toDomain(workoutRequest);
         Long requestedBy = jwtAdapter.resolveJWTtoId(authHeader);
         wRequest.setCreatedByUserId(requestedBy);
+        wRequest.setId(workoutId);
         JPAWorkoutExerciseAdapterResult<Workout> result = editWorkoutInUserUseCase.editWorkoutInUser(workoutId, wRequest);
         return presenter.toHttp(result, uriInfo);
     }
@@ -248,6 +252,7 @@ public class UserController {
         Exercise eRequest = toDomain(exerciseRequest);
         Long requestedBy = jwtAdapter.resolveJWTtoId(authHeader);
         eRequest.setCreatedByUserId(requestedBy);
+        eRequest.setId(exerciseId);
 
         JPAWorkoutExerciseAdapterResult<Exercise> result = editExerciseUseCase.editExercise(exerciseId, eRequest);
         return presenter.toHttp(result, uriInfo);
@@ -317,12 +322,13 @@ public class UserController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createExerciseInUser(
+            @PathParam("userID") Long userId,
             @HeaderParam("Authorization") String authHeader,
             ExerciseRequest request
     ){
         Exercise exercise = toDomain(request);
         Long requestedBy = jwtAdapter.resolveJWTtoId(authHeader);
-        exercise.setCreatedByUserId(requestedBy);
+        exercise.setCreatedByUserId(userId);
         JPAWorkoutExerciseAdapterResult<Exercise> result = addExerciseToUserUseCase.addExerciseToUser(requestedBy, exercise);
         return presenter.toHttp(result, uriInfo);
     }
@@ -344,6 +350,7 @@ public class UserController {
         Exercise eRequest = toDomain(exerciseRequest);
         Long requestedBy = jwtAdapter.resolveJWTtoId(authHeader);
         eRequest.setCreatedByUserId(requestedBy);
+        eRequest.setId(exerciseId);
 
         JPAWorkoutExerciseAdapterResult<Exercise> result = editExerciseUseCase.editExercise(exerciseId, eRequest);
         return presenter.toHttp(result, uriInfo);
@@ -446,8 +453,11 @@ public class UserController {
         Response.ResponseBuilder  cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
         if(cachedResponse != null) return cachedResponse.build();
 
+        ExerciseSet eRequest = toDomain(exerciseSetRequest);
+        eRequest.setBelongsToExercise(exerciseSetId);
+        eRequest.setId(exerciseSetId);
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result =
-                editExerciseSetUseCase.editExerciseSet(jwtAdapter.resolveJWTtoId(authHeader), exerciseSetId, toDomain(exerciseSetRequest) );
+                editExerciseSetUseCase.editExerciseSet(jwtAdapter.resolveJWTtoId(authHeader), exerciseSetId, eRequest);
         return presenter.toHttp(result, uriInfo);
     }
 
@@ -540,6 +550,7 @@ public class UserController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateExerciseSetInExerciseWithWorkout(
+            @PathParam("exerciseID") Long exerciseId,
             @PathParam("exerciseSetID") Long exerciseSetId,
             @HeaderParam("Authorization")  String authHeader,
             ExerciseSetRequest exerciseSetRequest
@@ -547,8 +558,11 @@ public class UserController {
         Response.ResponseBuilder cachedResponse = presenter.evaluateCache(loadExerciseSetByIdUseCase.loadExerciseSetById(exerciseSetId), request);
         if(cachedResponse != null) return cachedResponse.build();
 
+        ExerciseSet eRequest = toDomain(exerciseSetRequest);
+        eRequest.setBelongsToExercise(exerciseId);
+        eRequest.setId(exerciseSetId);
         JPAWorkoutExerciseAdapterResult<ExerciseSet> result =
-                editExerciseSetUseCase.editExerciseSet(jwtAdapter.resolveJWTtoId(authHeader), exerciseSetId, toDomain(exerciseSetRequest) );
+                editExerciseSetUseCase.editExerciseSet(jwtAdapter.resolveJWTtoId(authHeader), exerciseSetId, eRequest);
         return presenter.toHttp(result, uriInfo);
     }
 

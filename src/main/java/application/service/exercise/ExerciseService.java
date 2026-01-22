@@ -99,7 +99,7 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
         User user = findUserByIdPort.findUserById(userId);
         if(user == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
-        if(!user.getId().equals(userId))
+        if(!userId.equals(exercise.getCreatedByUserId()))
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
         if(exercise.getCreatedAt() == null) exercise.setCreatedAt(LocalDateTime.now());
@@ -177,7 +177,7 @@ public class ExerciseService implements LoadExerciseByIdUseCase, LoadExercisesUs
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
 
         if(!user.getExercises().contains(exerciseId))
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_IN_USER_NOT_FOUND);
+            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
         Exercise exercise = findExerciseByIdPort.findExerciseById(exerciseId);
         if(exercise == null)

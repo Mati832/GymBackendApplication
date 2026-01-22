@@ -89,13 +89,12 @@ public class WorkoutService implements LoadWorkoutByIdUseCase, LoadWorkoutsUseCa
         User user = findUserByIdPort.findUserById(userId);
         if(user == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
-        if(!user.getId().equals(userId))
+        if(!userId.equals(workout.getCreatedByUserId()))
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
 
         if(workout.getId() == null && !workout.getExercises().isEmpty())
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
-        workout.setCreatedByUserId(userId);
         if(workout.getCreatedAt() == null) workout.setCreatedAt(LocalDateTime.now());
         Workout persistedWorkout;
 
@@ -133,8 +132,8 @@ public class WorkoutService implements LoadWorkoutByIdUseCase, LoadWorkoutsUseCa
         if(user == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
 
-        if(!user.getWorkouts().contains(workoutId))
-            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_IN_USER_NOT_FOUND);
+//        if(!user.getWorkouts().contains(workoutId))
+//            return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_IN_USER_NOT_FOUND);
 
         Workout workout = loadWorkoutByIdPort.laodWorkout(workoutId);
         if(workout == null)

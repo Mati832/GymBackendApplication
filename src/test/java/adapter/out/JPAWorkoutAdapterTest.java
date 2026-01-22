@@ -5,7 +5,6 @@ import application.port.in.workout.AddWorkoutToUserUseCase;
 import application.port.in.workout.DeleteWorkoutInUserUseCase;
 import application.port.in.workout.EditWorkoutInUserUseCase;
 import domain.Results.JPAWorkoutExerciseAdapterResult;
-import domain.model.User;
 import domain.model.Workout;
 import domain.valueobject.Gender;
 import io.quarkus.test.TestTransaction;
@@ -19,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static adapter.mapper.JPAWorkoutMapper.toDomain;
-import static adapter.mapper.JPAUserMapper.toDomain;
 import static adapter.out.ExerciseWorkoutAdapterUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,6 +55,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testAddWorkout1(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
         JPAWorkoutExerciseAdapterResult<Workout> actualResult = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         WorkoutEntity expected = new WorkoutEntity(user.getWorkouts().getFirst().getId(), "Cardio", "doing cardio", now);
         expected.setOwner(user);
@@ -73,6 +72,9 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testAddWorkout2(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
+        workout2.setCreatedByUserId(user.getId());
+        workout3.setCreatedByUserId(user.getId());
         JPAWorkoutExerciseAdapterResult<Workout> actualResult1 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         JPAWorkoutExerciseAdapterResult<Workout> actualResult2 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout2);
         JPAWorkoutExerciseAdapterResult<Workout> actualResult3 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout3);
@@ -109,6 +111,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testAddSameWorkout(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
         //should be possible. It is in the users responsibility
         JPAWorkoutExerciseAdapterResult<Workout> actualResult1 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         JPAWorkoutExerciseAdapterResult<Workout> actualResult2 = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
@@ -138,6 +141,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testAddUnknownWorkout(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
         //workout1 is unknown to the DB, because a random key is set and it was never persisted before
         workout1.setId(2031L);
         JPAWorkoutExerciseAdapterResult<Workout> actualResult = addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
@@ -262,6 +266,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testDeleteWorkoutInUser(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
         JPAWorkoutExerciseAdapterResult<Void> actualResult = deleteWorkoutInUserUseCase.deleteWorkoutInUser(user.getId(), user.getWorkouts().getFirst().getId());
@@ -278,6 +283,8 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testDeleteWorkoutInUser2(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
+        workout2.setCreatedByUserId(user.getId());
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout2);
         assertFalse(user.getWorkouts().isEmpty());
@@ -341,7 +348,7 @@ public class JPAWorkoutAdapterTest {
         //test results
         JPAWorkoutExerciseAdapterResult<Void> actualResult1 = deleteWorkoutInUserUseCase.deleteWorkoutInUser(user.getId(), user.getId());
         JPAWorkoutExerciseAdapterResult<Void>  expectedResult1 =
-                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_IN_USER_NOT_FOUND);
+                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
         assertResultEquals(expectedResult1, actualResult1, null);
 
         JPAWorkoutExerciseAdapterResult<Void> actualResult2 = deleteWorkoutInUserUseCase.deleteWorkoutInUser(10L, 10L);
@@ -349,11 +356,12 @@ public class JPAWorkoutAdapterTest {
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
         assertResultEquals(expectedResult2, actualResult2, null);
 
+        workout1.setCreatedByUserId(user.getId());
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
         JPAWorkoutExerciseAdapterResult<Void> actualResult3 = deleteWorkoutInUserUseCase.deleteWorkoutInUser(user.getId(), 100L);
         JPAWorkoutExerciseAdapterResult<Void> expectedResult3 =
-                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_IN_USER_NOT_FOUND);
+                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.WORKOUT_NOT_FOUND);
         assertResultEquals(expectedResult3, actualResult3, null);
         assertFalse(user.getWorkouts().isEmpty());
     }
@@ -363,6 +371,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testEditWorkoutInUser(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
 
@@ -383,6 +392,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testEditWorkoutInUser2(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
 
@@ -403,6 +413,8 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testEditWorkoutInUser3(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
+        workout2.setCreatedByUserId(user.getId());
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout2);
         assertFalse(user.getWorkouts().isEmpty());
@@ -435,6 +447,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testInvalidEditWorkoutInUser(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
         assertFalse(user.getWorkouts().isEmpty());
 
@@ -455,6 +468,7 @@ public class JPAWorkoutAdapterTest {
     @Test
     public void testInvalidEditWorkoutInUser2(){
         em.persist(user);
+        workout1.setCreatedByUserId(user.getId());
         addWorkoutToUserUseCase.addWorkoutToUser(user.getId(), workout1);
 
 

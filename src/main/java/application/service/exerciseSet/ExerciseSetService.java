@@ -144,7 +144,7 @@ public class ExerciseSetService implements LoadExerciseSetByIdUseCase, LoadExerc
         if(userId == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.UNAUTHORIZED);
 
-        if(exerciseSetId == null || exerciseSet == null ||  exerciseSet.getId() == null)
+        if(exerciseSetId == null || exerciseSet == null)
             return new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.INVALID_REQUEST);
 
         if(!exerciseSetId.equals(exerciseSet.getId()))

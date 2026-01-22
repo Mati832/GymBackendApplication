@@ -4,8 +4,6 @@ import adapter.out.Entities.*;
 import application.port.in.exercise.*;
 import domain.Results.JPAWorkoutExerciseAdapterResult;
 import domain.model.Exercise;
-import domain.model.User;
-import domain.model.Workout;
 import domain.valueobject.Gender;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
@@ -19,8 +17,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static adapter.mapper.JPAExerciseMapper.toDomain;
-import static adapter.mapper.JPAUserMapper.toDomain;
-import static adapter.mapper.JPAWorkoutMapper.toDomain;
 import static adapter.out.ExerciseWorkoutAdapterUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -171,6 +167,9 @@ public class JPAExerciseAdapterTest {
         exerciseEquals(knownExercise, workoutEntity1.getExercises().getFirst());
         //but is not the same entity
         assertThrows(AssertionError.class, () -> exerciseEqualsWithKey(knownExercise, workoutEntity1.getExercises().getFirst()));
+        //check results
+        JPAWorkoutExerciseAdapterResult<Exercise> expectedResult = new JPAWorkoutExerciseAdapterResult.Created<>(toDomain(workoutEntity1.getExercises().getFirst()));
+        assertResultEquals(expectedResult, actualResult, Exercise::getId);
         //check if there are two exercises in the DB: (the known one and the recently added one)
         Long count = em.createQuery("SELECT COUNT(e) FROM ExerciseEntity e", Long.class).getSingleResult();
         assertEquals(2, count);
@@ -450,7 +449,7 @@ public class JPAExerciseAdapterTest {
         JPAWorkoutExerciseAdapterResult<Void> expectedResult1 =
                 new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.USER_NOT_FOUND);
         JPAWorkoutExerciseAdapterResult<Void> expectedResult2 =
-                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.EXERCISE_IN_USER_NOT_FOUND);
+                new JPAWorkoutExerciseAdapterResult.Failure<>(JPAWorkoutExerciseAdapterResult.FailureReason.NO_PERMISSIONS);
         assertResultEquals(expectedResult1, actualResult1, null);
         assertResultEquals(expectedResult2, actualResult2, null);
         //test if there is 1 exercise in the DB:
