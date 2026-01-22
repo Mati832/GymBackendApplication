@@ -93,7 +93,7 @@ public class LinkFactory {
                         .path(WorkoutController.class)
                         .path(workoutId.toString())
                         .path(ExerciseController.class))
-                .rel("get-workouts from user").build();
+                .rel("get-exercises from workout").build();
     }
 
     public static Link getExercisesLinkInUser(UriInfo uriInfo, Long userId) {
