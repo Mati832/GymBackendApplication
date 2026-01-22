@@ -1,0 +1,16 @@
+services:
+  gymbackend:
+    image: gymbackendapplication
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      QUARKUS_DATASOURCE_DB_KIND: h2
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:h2:mem:gymdb
+      QUARKUS_DATASOURCE_USERNAME: sa
+      QUARKUS_DATASOURCE_PASSWORD: ""
+      QUARKUS_HTTP_HOST: 0.0.0.0
+      QUARKUS_HIBERNATE_ORM_DATABASE_UPDATE_STRATEGY: drop-and-create
+    restart: unless-stopped
